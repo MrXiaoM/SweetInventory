@@ -1,0 +1,26 @@
+title: '界面标题'
+invertory:
+  - '框框框框框框框框框'
+  - '框　　　按　　　框'
+  - '框框框框框框框框框'
+items:
+  方框:
+    slot: 框
+    material: WHITE_STAINED_GLASS_PANE
+    display: '&f方框'
+  按钮:
+    slot: 按
+    material: GRASS_BLOCK
+    display: '&f按钮'
+    lore:
+      - ''
+      - '&a左键 &7| &f回城'
+      - '&b右键 &7| &f回满血(雾'
+    left-click:
+      commands:
+        - '[player]spawn'
+    right-click:
+      commands:
+        - '[console]kill %player_name%'
+
+# TODO: 更完善的示例配置
