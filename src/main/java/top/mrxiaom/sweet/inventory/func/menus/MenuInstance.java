@@ -1,5 +1,7 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -31,6 +33,7 @@ public class MenuInstance implements IGui {
     private final Player player;
     private int updateCounter = 0;
     private Map<Integer, MenuIcon> currentIcons = new HashMap<>();
+    private Component title;
     protected MenuInstance(MenuConfig config, Player player) {
         this.config = config;
         this.player = player;
@@ -64,6 +67,10 @@ public class MenuInstance implements IGui {
 
     public MenuConfig getConfig() {
         return config;
+    }
+
+    public Component getTitle() {
+        return title;
     }
 
     @Override
@@ -107,8 +114,10 @@ public class MenuInstance implements IGui {
 
     @Override
     public Inventory newInventory() {
+        String rawTitle = PAPI.setPlaceholders(player, config.title);
+        title = AdventureUtil.miniMessage(rawTitle);
         MenuHolder holder = new MenuHolder(this);
-        Inventory inv = holder.setInventory(Bukkit.createInventory(holder, config.inventory.length, config.title));
+        Inventory inv = holder.setInventory(plugin.getInventoryFactory().create(holder, config.inventory.length, rawTitle));
         updateInventory(inv);
         return inv;
     }

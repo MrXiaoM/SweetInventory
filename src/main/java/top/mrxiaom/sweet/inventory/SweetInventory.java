@@ -2,10 +2,16 @@ package top.mrxiaom.sweet.inventory;
         
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.EconomyHolder;
+import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.sweet.inventory.utils.BukkitInventoryFactory;
+import top.mrxiaom.sweet.inventory.utils.InventoryFactory;
+import top.mrxiaom.sweet.inventory.utils.MiniMessageConvert;
+import top.mrxiaom.sweet.inventory.utils.PaperInventoryFactory;
 
 public class SweetInventory extends BukkitPlugin {
     public static SweetInventory getInstance() {
@@ -22,9 +28,14 @@ public class SweetInventory extends BukkitPlugin {
                 .scanIgnore("top.mrxiaom.sweet.inventory.libs")
         );
     }
+    private InventoryFactory inventoryFactory;
     @NotNull
     public EconomyHolder getEconomy() {
         return options.economy();
+    }
+
+    public InventoryFactory getInventoryFactory() {
+        return inventoryFactory;
     }
 
     @SuppressWarnings({"all"})
@@ -34,6 +45,19 @@ public class SweetInventory extends BukkitPlugin {
         out.writeUTF(server);
 
         player.sendPluginMessage(this, "BungeeCord", out.toByteArray());
+    }
+
+    @Override
+    protected void beforeEnable() {
+        MiniMessageConvert.init();
+        if (Util.isPresent("com.destroystokyo.paper.utils.PaperPluginLogger")) {
+            inventoryFactory = new PaperInventoryFactory();
+        } else {
+            inventoryFactory = new BukkitInventoryFactory();
+            if (Bukkit.getPluginManager().isPluginEnabled("ProtocolLib")) {
+
+            }
+        }
     }
 
     @Override

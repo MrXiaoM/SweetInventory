@@ -1,7 +1,7 @@
 plugins {
     java
     `maven-publish`
-    id ("com.github.johnrengelman.shadow") version "7.0.0"
+    id("top.mrxiaom.shadow")
 }
 
 group = "top.mrxiaom.sweet.inventory"
@@ -31,6 +31,7 @@ dependencies {
     compileOnly("io.lumine:Mythic:5.6.2")
     compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
     compileOnly("org.black_ixx:playerpoints:3.2.7")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
 
     implementation("net.kyori:adventure-api:4.17.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
@@ -39,6 +40,7 @@ dependencies {
     implementation("com.ezylang:EvalEx:3.4.0")
     implementation("org.jetbrains:annotations:24.0.0")
     implementation("com.github.MrXiaoM:PluginBase:1+")
+    implementation(project(":paper"))
 }
 java {
     val javaVersion = JavaVersion.toVersion(targetJavaVersion)
@@ -59,6 +61,7 @@ tasks {
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
         }
+        ignoreRelocations("top/mrxiaom/sweet/inventory/utils/PaperInventoryFactory.class")
     }
     build {
         dependsOn(shadowJar)
