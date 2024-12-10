@@ -32,6 +32,7 @@ public class RequirementsRegistry extends AbstractModule {
         simpleDeserializers.clear();
         NumberRequirement.init(this);
         PermissionRequirement.init(this);
+        EvalRequirement.init(this);
     }
 
     public static RequirementsRegistry inst() {

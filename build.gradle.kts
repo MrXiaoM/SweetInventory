@@ -32,12 +32,12 @@ dependencies {
     compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
     compileOnly("org.black_ixx:playerpoints:3.2.7")
 
-
     implementation("net.kyori:adventure-api:4.17.0")
     implementation("net.kyori:adventure-platform-bukkit:4.3.4")
     implementation("net.kyori:adventure-text-minimessage:4.17.0")
-    implementation("de.tr7zw:item-nbt-api:2.13.2")
-    implementation("org.jetbrains:annotations:21.0.0")
+    implementation("de.tr7zw:item-nbt-api:2.14.0")
+    implementation("com.ezylang:EvalEx:3.4.0")
+    implementation("org.jetbrains:annotations:24.0.0")
     implementation("com.github.MrXiaoM:PluginBase:1+")
 }
 java {
@@ -54,6 +54,7 @@ tasks {
             "org.jetbrains.annotations" to "annotations.jetbrains",
             "top.mrxiaom.pluginbase" to "base",
             "de.tr7zw.changeme.nbtapi" to "nbtapi",
+            "com.ezylang.evalex" to "evalex",
             "net.kyori" to "kyori",
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
