@@ -48,6 +48,17 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             menu.create(player).open();
             return true;
         }
+        if (args.length == 1 && "list".equalsIgnoreCase(args[0])) {
+            if (!sender.hasPermission("sweet.inventory.list")) {
+                return t(sender, "&c你没有进行该操作的权限");
+            }
+            Set<String> menusId = Menus.inst().getMenusId();
+            StringBuilder sb = new StringBuilder("&e&l菜单列表:");
+            for (String s : menusId) {
+                sb.append("\n  &8· &f").append(s);
+            }
+            return t(sender, sb.toString());
+        }
         if (args.length == 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
             plugin.reloadConfig();
             return t(sender, "&a配置文件已重载");
@@ -56,15 +67,15 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     }
 
     private static final List<String> emptyList = Lists.newArrayList();
-    private static final List<String> listArg0 = Lists.newArrayList(
-            "open");
-    private static final List<String> listOpArg0 = Lists.newArrayList(
-            "open", "reload");
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return startsWith(sender.isOp() ? listOpArg0 : listArg0, args[0]);
+            List<String> sub = new ArrayList<>();
+            sub.add("open");
+            if (sender.hasPermission("sweet.inventory.list")) sub.add("list");
+            if (sender.hasPermission("sweet.inventory.reload")) sub.add("reload");
+            return startsWith(sub, args[0]);
         }
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("open")) {
