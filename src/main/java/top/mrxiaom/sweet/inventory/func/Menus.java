@@ -25,6 +25,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuHolder;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 @AutoRegister
@@ -76,6 +77,15 @@ public class Menus extends AbstractModule {
         }
     }
 
+    public Set<String> getMenusId() {
+        return menus.keySet();
+    }
+
+    @Nullable
+    public MenuConfig getMenu(String id) {
+        return menus.get(id);
+    }
+
     private String removePrefix(File file) {
         String filePath = file.getAbsolutePath();
         String folder = menusFolder.getAbsolutePath();
@@ -101,5 +111,9 @@ public class Menus extends AbstractModule {
         } else {
             menus.put(id, loaded);
         }
+    }
+
+    public static Menus inst() {
+        return instanceOf(Menus.class);
     }
 }

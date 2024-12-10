@@ -3,6 +3,7 @@ package top.mrxiaom.sweet.inventory.func.menus;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.sweet.inventory.SweetInventory;
@@ -58,6 +59,10 @@ public class MenuConfig {
 
     public int getUpdateInterval() {
         return updateInterval;
+    }
+
+    public MenuInstance create(Player player) {
+        return MenuInstance.create(this, player);
     }
 
     private static List<MenuIcon> getIconsList(Map<Character, List<MenuIcon>> map, Character c) {
