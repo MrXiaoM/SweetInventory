@@ -34,12 +34,14 @@ public class NumberRequirement implements IRequirement {
             return null;
         }
     }
+    final boolean reverse;
     final Operator type;
     final String input;
     final String output;
     final List<String> denyCommands;
 
-    private NumberRequirement(Operator type, String input, String output, List<String> denyCommands) {
+    NumberRequirement(boolean reverse, Operator type, String input, String output, List<String> denyCommands) {
+        this.reverse = reverse;
         this.type = type;
         this.input = input;
         this.output = output;
@@ -54,14 +56,14 @@ public class NumberRequirement implements IRequirement {
         }
     }
 
-    protected static IRequirement deserializer(boolean alt, ConfigurationSection section, String key) {
+    protected static IRequirement deserializer(boolean alt, boolean reverse, ConfigurationSection section, String key) {
         String type = section.getString(key + (alt ? ".类型" : ".type"));
         String input = section.getString(key + (alt ? ".输入" : ".input"));
         String output = section.getString(key + (alt ? ".输出" : ".output"));
         Operator operator = Operator.fromString(type);
         if (input == null || output == null || operator == null) return null;
         List<String> denyCommands = section.getStringList(key + (alt ? ".不满足需求执行" : ".deny-commands"));
-        return new NumberRequirement(operator, input, output, denyCommands);
+        return new NumberRequirement(reverse, operator, input, output, denyCommands);
     }
 
     @Override

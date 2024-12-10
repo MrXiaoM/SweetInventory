@@ -13,13 +13,15 @@ import java.util.Collections;
 import java.util.List;
 
 public class EvalRequirement implements IRequirement {
+    final boolean reverse;
     final String expression;
     final List<String> denyCommands;
 
-    EvalRequirement(String expression) {
-        this(expression, new ArrayList<>());
+    EvalRequirement(boolean reverse, String expression) {
+        this(reverse, expression, new ArrayList<>());
     }
-    EvalRequirement(String expression, List<String> denyCommands) {
+    EvalRequirement(boolean reverse, String expression, List<String> denyCommands) {
+        this.reverse = reverse;
         this.expression = expression;
         this.denyCommands = denyCommands;
     }
@@ -29,15 +31,17 @@ public class EvalRequirement implements IRequirement {
         registry.simpleDeserializers.add(EvalRequirement::simpleDeserializer);
     }
 
-    protected static IRequirement deserializer(boolean alt, ConfigurationSection section, String key) {
+    protected static IRequirement deserializer(boolean alt, boolean reverse, ConfigurationSection section, String key) {
         String expression = section.getString(key + (alt ? ".表达式" : ".expression"));
         if (expression == null) return null;
         List<String> denyCommands = section.getStringList(key + (alt ? ".不满足需求执行" : ".deny-commands"));
-        return new EvalRequirement(expression, denyCommands);
+        return new EvalRequirement(reverse, expression, denyCommands);
     }
     protected static IRequirement simpleDeserializer(String str) {
-        if (str.startsWith("eval ")) return new EvalRequirement(str.substring(5));
-        if (str.startsWith("运算 ")) return new EvalRequirement(str.substring(3));
+        if (str.startsWith("eval ")) return new EvalRequirement(false, str.substring(5));
+        if (str.startsWith("运算 ")) return new EvalRequirement(false, str.substring(3));
+        if (str.startsWith("!eval ")) return new EvalRequirement(true, str.substring(6));
+        if (str.startsWith("!运算 ")) return new EvalRequirement(true, str.substring(4));
         return null;
     }
 
@@ -49,12 +53,13 @@ public class EvalRequirement implements IRequirement {
             EvaluationValue result = expression.evaluate();
             Boolean booleanValue = result.getBooleanValue();
             if (booleanValue == null) throw new NullPointerException("evaluate result is null");
+            return !booleanValue.equals(reverse);
         } catch (Throwable e) {
             SweetInventory.getInstance().warn(
                     String.format("计算表达式 `%s` 时出现一个异常: %s", str, e.toString())
             );
         }
-        return false;
+        return reverse;
     }
 
     @Override
