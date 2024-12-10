@@ -8,10 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MenuConfig {
     final String title;
@@ -95,6 +92,9 @@ public class MenuConfig {
                 List<MenuIcon> list = getIconsList(iconsByChar, c);
                 list.add(icon);
             }
+        }
+        for (List<MenuIcon> list : iconsByChar.values()) {
+            list.sort(Comparator.comparingInt(MenuIcon::getPriorityLess));
         }
         return new MenuConfig(title, inventory, iconsByChar, iconsByName, bindCommand, openCommands, updateInterval);
     }

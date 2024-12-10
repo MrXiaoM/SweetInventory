@@ -41,6 +41,14 @@ public class MenuIcon {
         return slots;
     }
 
+    public boolean isNeedsUpdate() {
+        return needsUpdate;
+    }
+
+    public int getPriorityLess() {
+        return priorityLess;
+    }
+
     @Nullable
     public Click getLeftClick() {
         return leftClick;
