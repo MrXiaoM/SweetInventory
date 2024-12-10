@@ -6,7 +6,7 @@ plugins {
 
 group = "top.mrxiaom.sweet.inventory"
 version = "1.0.0"
-val targetJavaVersion = 8
+val targetJavaVersion = 11
 val shadowGroup = "top.mrxiaom.sweet.inventory.libs"
 
 repositories {
