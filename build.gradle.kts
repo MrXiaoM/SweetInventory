@@ -21,6 +21,15 @@ repositories {
     maven("https://oss.sonatype.org/content/groups/public/")
 }
 
+allprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
+            options.release.set(targetJavaVersion)
+        }
+    }
+}
+
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
     // compileOnly("org.spigotmc:spigot:1.20") // NMS
@@ -65,12 +74,6 @@ tasks {
     }
     build {
         dependsOn(shadowJar)
-    }
-    withType<JavaCompile>().configureEach {
-        options.encoding = "UTF-8"
-        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
-            options.release.set(targetJavaVersion)
-        }
     }
     processResources {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
