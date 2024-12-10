@@ -117,10 +117,34 @@ public class MenuInstance implements IGui {
     public void onClick(InventoryAction action, ClickType click, InventoryType.SlotType slotType,
                         int slot, ItemStack currentItem, ItemStack cursor,
                         InventoryView view, InventoryClickEvent event) {
-        Character id = getClickedId(slot);
-        List<MenuIcon> list = id == null ? null : config.iconsByChar.get(id);
-        if (list != null && !list.isEmpty()) {
-            // TODO: 点击操作
+        event.setCancelled(true);
+        MenuIcon icon = currentIcons.get(slot);
+        // 点击操作
+        if (icon != null) switch (click) {
+            case LEFT:
+                handleIconClick(icon.getLeftClick());
+                break;
+            case RIGHT:
+                handleIconClick(icon.getRightClick());
+                break;
+            case SHIFT_LEFT:
+                handleIconClick(icon.getShiftLeftClick());
+                break;
+            case SHIFT_RIGHT:
+                handleIconClick(icon.getShiftRightClick());
+                break;
+            case DROP:
+                handleIconClick(icon.getDropClick());
+                break;
+            case CONTROL_DROP:
+                handleIconClick(icon.getCtrlDropClick());
+                break;
+        }
+    }
+
+    private void handleIconClick(Click click) {
+        if (checkRequirements(click.requirements, click.denyCommands)) {
+            executeCommands(click.commands);
         }
     }
 
