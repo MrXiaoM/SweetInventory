@@ -4,15 +4,20 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.sweet.inventory.SweetInventory;
+import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
 
 public class MenuIcon {
     final LoadedIcon icon;
     final List<Character> slots;
     final boolean needsUpdate;
     final int priorityLess;
+    final List<IRequirement> viewRequirements;
+    final List<String> viewDenyCommands;
     final @Nullable Click leftClick;
     final @Nullable Click rightClick;
     final @Nullable Click shiftLeftClick;
@@ -20,11 +25,13 @@ public class MenuIcon {
     final @Nullable Click dropClick;
     final @Nullable Click ctrlDropClick;
 
-    public MenuIcon(LoadedIcon icon, List<Character> slots, boolean needsUpdate, int priorityLess, Click leftClick, Click rightClick, Click shiftLeftClick, Click shiftRightClick, Click dropClick, Click ctrlDropClick) {
+    public MenuIcon(LoadedIcon icon, List<Character> slots, boolean needsUpdate, int priorityLess, List<IRequirement> viewRequirements, List<String> viewDenyCommands, Click leftClick, Click rightClick, Click shiftLeftClick, Click shiftRightClick, Click dropClick, Click ctrlDropClick) {
         this.icon = icon;
         this.slots = slots;
         this.needsUpdate = needsUpdate;
         this.priorityLess = priorityLess;
+        this.viewRequirements = viewRequirements;
+        this.viewDenyCommands = viewDenyCommands;
         this.leftClick = leftClick;
         this.rightClick = rightClick;
         this.shiftLeftClick = shiftLeftClick;
@@ -47,6 +54,14 @@ public class MenuIcon {
 
     public int getPriorityLess() {
         return priorityLess;
+    }
+
+    public List<IRequirement> getViewRequirements() {
+        return viewRequirements;
+    }
+
+    public List<String> getViewDenyCommands() {
+        return viewDenyCommands;
     }
 
     @Nullable
@@ -93,13 +108,15 @@ public class MenuIcon {
         LoadedIcon icon = LoadedIcon.load(section, id);
         boolean needsUpdate = section1.getBoolean( alt ? "需要更新" : "needs-update");
         int priorityLess = section1.getInt(alt ? "优先级_越小越优先" : "priority-less");
+        List<IRequirement> viewRequirements = loadRequirements(alt, section1, alt ? "查看图标" : "view");
+        List<String> viewDenyCommands = section1.getStringList(alt ? "查看图标.不满足需求执行" : "view.deny-commands");
         Click leftClick = Click.load(alt, section1, alt ? "左键点击" : "left-click");
         Click rightClick = Click.load(alt, section1,alt ? "右键点击" :  "right-click");
         Click shiftLeftClick = Click.load(alt, section1, alt ? "Shift左键点击" : "shift-left-click");
         Click shiftRightClick = Click.load(alt, section1, alt ? "Shift右键点击" : "shift-right-click");
         Click dropClick = Click.load(alt, section1, alt ? "Q键点击" : "drop-click");
         Click ctrlDropClick = Click.load(alt, section1, alt ? "Ctrl+Q键点击" : "ctrl-drop-click");
-        return new MenuIcon(icon, slots, needsUpdate, priorityLess, leftClick, rightClick, shiftLeftClick, shiftRightClick, dropClick, ctrlDropClick);
+        return new MenuIcon(icon, slots, needsUpdate, priorityLess, viewRequirements, viewDenyCommands, leftClick, rightClick, shiftLeftClick, shiftRightClick, dropClick, ctrlDropClick);
     }
 
     private static List<Character> loadSlots(boolean alt, ConfigurationSection section) {
