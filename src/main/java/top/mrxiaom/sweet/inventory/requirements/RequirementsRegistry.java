@@ -6,19 +6,32 @@ import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @AutoRegister
 public class RequirementsRegistry extends AbstractModule {
-    Map<String, BiFunction<ConfigurationSection, String, IRequirement>> deserializers = new HashMap<>();
+    @FunctionalInterface
+    public interface RequirementDeserializer {
+        IRequirement apply(boolean alt, ConfigurationSection section, String key);
+    }
+    Map<String, RequirementDeserializer> deserializers = new HashMap<>();
     List<Function<String, IRequirement>> simpleDeserializers = new ArrayList<>();
     public RequirementsRegistry(SweetInventory plugin) {
         super(plugin);
+        try {
+            init();
+        } catch (Throwable t) {
+            warn(t);
+        }
+    }
+
+    private void init() {
+        deserializers.clear();
+        simpleDeserializers.clear();
+        NumberRequirement.init(this);
+        PermissionRequirement.init(this);
     }
 
     public static RequirementsRegistry inst() {
@@ -33,13 +46,13 @@ public class RequirementsRegistry extends AbstractModule {
         if (section != null) for (String ignore : section.getKeys(false)) {
             if (section.isConfigurationSection(ignore)) {
                 String type = section.getString(ignore + (alt ? ".类型" : ".type"));
-                BiFunction<ConfigurationSection, String, IRequirement> deserializer = self.deserializers.get(type);
+                RequirementDeserializer deserializer = self.deserializers.get(type);
                 if (deserializer == null) {
                     self.warn("[需求:" + ignore + "] 找不到需求类型 " + type);
                     error = true;
                     continue;
                 }
-                IRequirement requirement = deserializer.apply(section, ignore);
+                IRequirement requirement = deserializer.apply(alt, section, ignore);
                 if (requirement == null) {
                     self.warn("[需求:" + ignore + "] 加载需求 " + type + " 时出错");
                     error = true;
