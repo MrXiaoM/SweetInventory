@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
+
 @AutoRegister
 public class Menus extends AbstractModule {
     Map<String, MenuConfig> menus = new HashMap<>();
@@ -147,13 +149,9 @@ public class Menus extends AbstractModule {
         String path = removePrefix(root, file);
         String id = removeSuffix(path).replace("\\", "/");
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        boolean alt = config.getBoolean("中文配置", false);
+        boolean alt = getBoolean(true, config, "中文配置", false);
         MenuConfig loaded = MenuConfig.load(alt, id, config);
-        if (loaded == null) {
-            warn("[" + path + "] 菜单加载失败");
-        } else {
-            menus.put(id, loaded);
-        }
+        menus.put(id, loaded);
     }
 
     public static Menus inst() {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static top.mrxiaom.pluginbase.func.AbstractGuiModule.loadActions;
+import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
 
 public class MenuIcon {
@@ -108,7 +109,7 @@ public class MenuIcon {
             return null;
         }
         LoadedIcon icon = LoadedIcon.load(section, id);
-        boolean needsUpdate = section1.getBoolean( alt ? "需要更新" : "needs-update");
+        boolean needsUpdate = getBoolean(alt, section1, alt ? "需要更新" : "needs-update");
         int priorityLess = section1.getInt(alt ? "优先级_越小越优先" : "priority-less");
         List<IRequirement> viewRequirements = loadRequirements(alt, section1, alt ? "查看图标" : "view");
         List<IAction> viewDenyCommands = loadActions(section1, alt ? "查看图标.不满足需求执行" : "view.deny-commands");

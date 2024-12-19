@@ -78,6 +78,7 @@ public class MenuConfig {
         String bindCommand = config.getString(alt ? "绑定界面命令" : "bind-command", null);
         List<String> openCommands = config.getStringList(alt ? "打开界面执行命令" : "open-commands");
         int updateInterval = Math.max(0, config.getInt(alt ? "更新周期" : "update-interval", 0));
+        MenuPageGuide pageGuide = MenuPageGuide.load(alt, config.getConfigurationSection(alt ? "分页向导" : "page-guide"));
 
         Map<Character, List<MenuIcon>> iconsByChar = new HashMap<>();
         Map<String, MenuIcon> iconsByName = new HashMap<>();
@@ -96,7 +97,19 @@ public class MenuConfig {
         for (List<MenuIcon> list : iconsByChar.values()) {
             list.sort(Comparator.comparingInt(MenuIcon::getPriorityLess));
         }
-        return new MenuConfig(title, inventory, iconsByChar, iconsByName, bindCommand, openCommands, updateInterval);
+        return new MenuConfig(title, inventory, iconsByChar, iconsByName, bindCommand, openCommands, updateInterval, pageGuide);
+    }
+
+    public static boolean getBoolean(boolean alt, ConfigurationSection section, String key) {
+        return getBoolean(alt, section, key, false);
+    }
+
+    public static boolean getBoolean(boolean alt, ConfigurationSection section, String key, boolean def) {
+        if (!alt) return section.getBoolean(key, def);
+        String s = section.getString(key, String.valueOf(def));
+        if (s.equals("true") || s.equals("yes") || s.equals("是") || s.equals("真") || s.equals("开")) return true;
+        if (s.equals("false") || s.equals("no") || s.equals("否") || s.equals("假") || s.equals("关")) return false;
+        return def;
     }
 
     public static char[] getInventory(MemorySection config, String key) {
