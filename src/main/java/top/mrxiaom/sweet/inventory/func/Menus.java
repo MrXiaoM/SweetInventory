@@ -17,8 +17,14 @@ import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.func.AbstractGuiModule;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
+import top.mrxiaom.pluginbase.func.gui.actions.ActionActionBar;
+import top.mrxiaom.pluginbase.func.gui.actions.ActionConsole;
+import top.mrxiaom.pluginbase.func.gui.actions.ActionMessageAdventure;
+import top.mrxiaom.pluginbase.func.gui.actions.ActionPlayer;
 import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.sweet.inventory.SweetInventory;
+import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
+import top.mrxiaom.sweet.inventory.func.actions.ActionOpenMenu;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 import top.mrxiaom.sweet.inventory.func.menus.MenuHolder;
 
@@ -35,8 +41,31 @@ public class Menus extends AbstractModule {
     File menusFolder;
     public Menus(SweetInventory plugin) {
         super(plugin);
+        this.registerAlternativeProvider();
         this.menusFolder = new File(plugin.getDataFolder(), "menus");
         Bukkit.getScheduler().runTaskTimer(plugin, this::onTick, 1L, 1L);
+    }
+
+    private void registerAlternativeProvider() {
+        AbstractGuiModule.registerActionProvider(s -> {
+            if (s.startsWith("[控制台执行]")) return new ActionConsole(s.substring(7));
+            if (s.startsWith("控制台执行:")) return new ActionConsole(s.substring(6));
+            if (s.startsWith("[玩家执行]")) return new ActionPlayer(s.substring(6));
+            if (s.startsWith("玩家执行:")) return new ActionPlayer(s.substring(5));
+            if (s.startsWith("[聊天消息]")) return new ActionMessageAdventure(s.substring(6));
+            if (s.startsWith("聊天消息:")) return new ActionMessageAdventure(s.substring(5));
+            if (s.startsWith("[动作消息]")) return new ActionActionBar(s.substring(6));
+            if (s.startsWith("动作消息:")) return new ActionActionBar(s.substring(5));
+            if (s.startsWith("[打开菜单]")) return new ActionOpenMenu(s.substring(6));
+            if (s.startsWith("打开菜单:")) return new ActionOpenMenu(s.substring(5));
+            if (s.startsWith("[open]")) return new ActionOpenMenu(s.substring(6));
+            if (s.startsWith("open:")) return new ActionOpenMenu(s.substring(5));
+            if (s.startsWith("[连接子服]")) return new ActionConnectServer(s.substring(6));
+            if (s.startsWith("连接子服:")) return new ActionConnectServer(s.substring(5));
+            if (s.startsWith("[connect]")) return new ActionConnectServer(s.substring(9));
+            if (s.startsWith("connect:")) return new ActionConnectServer(s.substring(8));
+            return null;
+        });
     }
 
     private void onTick() {

@@ -48,7 +48,7 @@ dependencies {
     implementation("de.tr7zw:item-nbt-api:2.14.0")
     implementation("com.ezylang:EvalEx:3.4.0")
     implementation("org.jetbrains:annotations:24.0.0")
-    implementation("top.mrxiaom:PluginBase:1+")
+    implementation("top.mrxiaom:PluginBase:1.1.0")
     implementation(project(":paper"))
 }
 java {
