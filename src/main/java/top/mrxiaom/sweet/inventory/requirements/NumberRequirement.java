@@ -2,12 +2,15 @@ package top.mrxiaom.sweet.inventory.requirements;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.func.gui.actions.IAction;
 import top.mrxiaom.pluginbase.utils.PAPI;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.Collections;
 import java.util.List;
+
+import static top.mrxiaom.pluginbase.func.AbstractGuiModule.loadActions;
 
 public class NumberRequirement implements IRequirement {
     public enum Operator {
@@ -38,9 +41,9 @@ public class NumberRequirement implements IRequirement {
     final Operator type;
     final String input;
     final String output;
-    final List<String> denyCommands;
+    final List<IAction> denyCommands;
 
-    NumberRequirement(boolean reverse, Operator type, String input, String output, List<String> denyCommands) {
+    NumberRequirement(boolean reverse, Operator type, String input, String output, List<IAction> denyCommands) {
         this.reverse = reverse;
         this.type = type;
         this.input = input;
@@ -62,7 +65,7 @@ public class NumberRequirement implements IRequirement {
         String output = section.getString(key + (alt ? ".输出" : ".output"));
         Operator operator = Operator.fromString(type);
         if (input == null || output == null || operator == null) return null;
-        List<String> denyCommands = section.getStringList(key + (alt ? ".不满足需求执行" : ".deny-commands"));
+        List<IAction> denyCommands = loadActions(section, key + (alt ? ".不满足需求执行" : ".deny-commands"));
         return new NumberRequirement(reverse, operator, input, output, denyCommands);
     }
 
@@ -94,7 +97,7 @@ public class NumberRequirement implements IRequirement {
     }
 
     @Override
-    public List<String> getDenyCommands() {
-        return Collections.emptyList();
+    public List<IAction> getDenyCommands() {
+        return denyCommands;
     }
 }

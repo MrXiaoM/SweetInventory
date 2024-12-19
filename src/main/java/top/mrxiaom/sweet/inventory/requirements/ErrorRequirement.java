@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.inventory.requirements;
 
+import top.mrxiaom.pluginbase.func.gui.actions.IAction;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.Collections;
@@ -13,7 +14,7 @@ public class ErrorRequirement implements IRequirement {
     }
 
     @Override
-    public List<String> getDenyCommands() {
+    public List<IAction> getDenyCommands() {
         return Collections.emptyList();
     }
 }

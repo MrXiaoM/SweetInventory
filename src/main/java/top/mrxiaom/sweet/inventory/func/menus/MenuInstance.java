@@ -14,9 +14,11 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AbstractGuiModule;
+import top.mrxiaom.pluginbase.func.gui.actions.IAction;
 import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.PAPI;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.Menus;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
@@ -169,9 +171,9 @@ public class MenuInstance implements IGui {
         return checkRequirements(icon.viewRequirements, icon.viewDenyCommands);
     }
 
-    public boolean checkRequirements(List<IRequirement> requirements, @Nullable List<String> denyCommands) {
+    public boolean checkRequirements(List<IRequirement> requirements, @Nullable List<IAction> denyCommands) {
         boolean success = true;
-        List<String> commands = new ArrayList<>();
+        List<IAction> commands = new ArrayList<>();
         for (IRequirement requirement : requirements) {
             if (!requirement.check(this)) {
                 success = false;
@@ -188,33 +190,10 @@ public class MenuInstance implements IGui {
         return success;
     }
 
-    public void executeCommands(List<String> commands) {
-        List<String> list = PAPI.setPlaceholders(player, commands);
-        for (String str : list) {
-            if (str.startsWith("[console]")) executeConsole(str.substring(9).trim());
-            else if (str.startsWith("console:")) executeConsole(str.substring(8).trim());
-            else if (str.startsWith("[控制台执行]")) executeConsole(str.substring(7).trim());
-            else if (str.startsWith("控制台执行:")) executeConsole(str.substring(6).trim());
-            else if (str.startsWith("[player]")) executePlayer(str.substring(8).trim());
-            else if (str.startsWith("player:")) executePlayer(str.substring(7).trim());
-            else if (str.startsWith("[玩家执行]")) executePlayer(str.substring(6).trim());
-            else if (str.startsWith("玩家执行:")) executePlayer(str.substring(5).trim());
-            else if (str.startsWith("[message]")) executeMessage(str.substring(9).trim());
-            else if (str.startsWith("message:")) executeMessage(str.substring(8).trim());
-            else if (str.startsWith("[聊天消息]")) executeMessage(str.substring(6).trim());
-            else if (str.startsWith("聊天消息:")) executeMessage(str.substring(5).trim());
-            else if (str.startsWith("[actionbar]")) executeActionBar(str.substring(11).trim());
-            else if (str.startsWith("actionbar:")) executeActionBar(str.substring(10).trim());
-            else if (str.startsWith("[动作消息]")) executeActionBar(str.substring(6).trim());
-            else if (str.startsWith("动作消息:")) executeActionBar(str.substring(5).trim());
-            else if (str.startsWith("[connect]")) executeConnect(str.substring(9).trim());
-            else if (str.startsWith("connect:")) executeConnect(str.substring(8).trim());
-            else if (str.startsWith("[连接子服]")) executeConnect(str.substring(6).trim());
-            else if (str.startsWith("连接子服:")) executeConnect(str.substring(5).trim());
-            else if (str.startsWith("[open]")) executeOpen(str.substring(6).trim());
-            else if (str.startsWith("open:")) executeOpen(str.substring(5).trim());
-            else if (str.startsWith("[打开菜单]")) executeOpen(str.substring(6).trim());
-            else if (str.startsWith("打开菜单:")) executeOpen(str.substring(5).trim());
+    public void executeCommands(List<IAction> commands) {
+        Pair<String, Object>[] args = Pair.array(0);
+        for (IAction action : commands) {
+            action.run(player, args);
         }
     }
 

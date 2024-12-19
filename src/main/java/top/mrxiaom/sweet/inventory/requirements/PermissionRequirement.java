@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.inventory.requirements;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import top.mrxiaom.pluginbase.func.gui.actions.IAction;
 import top.mrxiaom.pluginbase.utils.PAPI;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
@@ -9,15 +10,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static top.mrxiaom.pluginbase.func.AbstractGuiModule.loadActions;
+
 public class PermissionRequirement implements IRequirement {
     final boolean reverse;
     final String permission;
-    final List<String> denyCommands;
+    final List<IAction> denyCommands;
 
     PermissionRequirement(boolean reverse, String permission) {
         this(reverse, permission, new ArrayList<>());
     }
-    PermissionRequirement(boolean reverse, String permission, List<String> denyCommands) {
+    PermissionRequirement(boolean reverse, String permission, List<IAction> denyCommands) {
         this.reverse = reverse;
         this.permission = permission;
         this.denyCommands = denyCommands;
@@ -32,7 +35,7 @@ public class PermissionRequirement implements IRequirement {
     protected static IRequirement deserializer(boolean alt, boolean reverse, ConfigurationSection section, String key) {
         String permission = section.getString(key + (alt ? ".权限" : ".permission"));
         if (permission == null) return null;
-        List<String> denyCommands = section.getStringList(key + (alt ? ".不满足需求执行" : ".deny-commands"));
+        List<IAction> denyCommands = loadActions(section, key + (alt ? ".不满足需求执行" : ".deny-commands"));
         return new PermissionRequirement(reverse, permission, denyCommands);
     }
     protected static IRequirement simpleDeserializer(String str) {
@@ -51,7 +54,7 @@ public class PermissionRequirement implements IRequirement {
     }
 
     @Override
-    public List<String> getDenyCommands() {
+    public List<IAction> getDenyCommands() {
         return denyCommands;
     }
 }
