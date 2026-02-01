@@ -16,6 +16,7 @@ import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
+import top.mrxiaom.sweet.inventory.fixer.ItemDupeFixer;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
 import java.util.ArrayList;
@@ -234,7 +235,7 @@ public class MenuIcon {
         if (glow) ItemStackUtil.setGlow(item);
         if (customModelData != null) ItemStackUtil.setCustomModelData(item, customModelData);
         NBT.modify(item, nbt -> {
-            nbt.setString("SweetInventoryIcon", id);
+            nbt.setString(ItemDupeFixer.TAG, id);
             if (!nbtStrings.isEmpty() || !nbtInts.isEmpty()) {
                 for (Map.Entry<String, String> entry : nbtStrings.entrySet()) {
                     String value = PAPI.setPlaceholders(player, entry.getValue());
