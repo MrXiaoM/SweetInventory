@@ -2,22 +2,15 @@ package top.mrxiaom.sweet.inventory.func;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.actions.*;
-import top.mrxiaom.pluginbase.func.AbstractGuiModule;
 import top.mrxiaom.pluginbase.func.AutoRegister;
-import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
@@ -26,11 +19,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.BiConsumer;
+import java.util.*;
 
 import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.NEXT;
 import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.PREV;
@@ -38,7 +27,8 @@ import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 
 @AutoRegister
 public class Menus extends AbstractModule {
-    Map<String, MenuConfig> menus = new HashMap<>();
+    private final Map<String, MenuConfig> menus = new HashMap<>();
+    private final Map<String, MenuConfig> menusById = new HashMap<>();
     File menusFolder;
     public Menus(SweetInventory plugin) {
         super(plugin);
@@ -91,6 +81,7 @@ public class Menus extends AbstractModule {
             plugin.saveResource("menus/example.yml", new File(menusFolder, "example.yml"));
         }
         menus.clear();
+        menusById.clear();
         List<String> pathList = cfg.getStringList("extra-menus-folders");
         for (String path : pathList) {
             File folder = new File(path);
@@ -109,22 +100,53 @@ public class Menus extends AbstractModule {
         Util.reloadFolder(menusFolder, false, (id, file) -> {
             loadConfig(id.replace("\\", "/"), file);
         });
+        menus.putAll(menusById);
+        for (MenuConfig config : menusById.values()) {
+            for (String aliasId : config.aliasIds()) {
+                MenuConfig exists = menus.get(aliasId);
+                if (exists != null) {
+                    warn("菜单 " + config.id() + " 的别名 " + aliasId + " 已被其它菜单占用 (" + exists.id() + ")");
+                } else {
+                    menus.put(aliasId, config);
+                }
+            }
+        }
     }
 
     private void loadConfig(String id, File file) {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         boolean alt = getBoolean(true, config, "中文配置", false);
         MenuConfig loaded = MenuConfig.load(alt, id, config);
-        menus.put(id, loaded);
+        menusById.put(id, loaded);
     }
 
-    public Set<String> getMenusId() {
+    public Set<String> getMenuIds() {
+        return menusById.keySet();
+    }
+
+    public Set<String> getMenuKeys() {
         return menus.keySet();
     }
 
+    public Set<String> getMenuKeys(Permissible p) {
+        Set<String> sets = new HashSet<>();
+        for (MenuConfig config : menusById.values()) {
+            if (config.hasPermission(p)) {
+                sets.add(config.id());
+                sets.addAll(config.aliasIds());
+            }
+        }
+        return sets;
+    }
+
     @Nullable
-    public MenuConfig getMenu(String id) {
-        return menus.get(id);
+    public MenuConfig getMenuById(String id) {
+        return menusById.get(id);
+    }
+
+    @Nullable
+    public MenuConfig getMenu(String key) {
+        return menus.get(key);
     }
 
     public static Menus inst() {

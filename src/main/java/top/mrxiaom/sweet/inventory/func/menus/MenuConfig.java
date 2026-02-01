@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -13,6 +14,7 @@ import java.util.*;
 
 public class MenuConfig {
     final String id;
+    final List<String> aliasIds;
     final String title;
     final char[] inventory;
     final Map<Character, List<MenuIcon>> iconsByChar;
@@ -24,6 +26,7 @@ public class MenuConfig {
     MenuConfig(boolean alt, String id, YamlConfiguration config) {
         SweetInventory plugin = SweetInventory.getInstance();
         this.id = id;
+        this.aliasIds = config.getStringList(alt ? "菜单别名" : "alias-ids");
         this.title = config.getString(alt ? "标题" : "title", "");
         this.inventory = getInventory(config,  alt ? "布局" : "inventory");
         this.bindCommand = config.getString(alt ? "绑定界面命令" : "bind-command", null);
@@ -56,6 +59,14 @@ public class MenuConfig {
 
     public String id() {
         return id;
+    }
+
+    public List<String> aliasIds() {
+        return aliasIds;
+    }
+
+    public boolean hasPermission(Permissible p) {
+        return p.hasPermission("sweet.inventory.open.menu." + id);
     }
 
     public String title() {

@@ -15,7 +15,6 @@ import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
 import top.mrxiaom.sweet.inventory.func.Menus;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
-import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.*;
 
@@ -36,15 +35,22 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             Player player;
             if (args.length == 3) {
                 if (!sender.hasPermission("sweet.inventory.open.other")) {
-                    return t(sender, "&c你没有进行该操作的权限");
+                    return t(sender, "&c你没有执行该操作的权限");
                 }
                 player = Util.getOnlinePlayer(args[2]).orElse(null);
                 if (player == null) {
                     return t(sender, "&c玩家不在线");
                 }
-            } else if (sender instanceof Player) {
-                player = (Player) sender;
-            } else return t(sender, "&c只有可以执行该命令");
+            } else {
+                if (sender instanceof Player) {
+                    player = (Player) sender;
+                    if (!menu.hasPermission(player)) {
+                        return t(sender, "&c你没有执行该操作的权限");
+                    }
+                } else {
+                    return t(sender, "&c只有玩家可以执行该命令");
+                }
+            }
             menu.create(player).open();
             return true;
         }
@@ -52,7 +58,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if (!sender.hasPermission("sweet.inventory.list")) {
                 return t(sender, "&c你没有进行该操作的权限");
             }
-            Set<String> menusId = Menus.inst().getMenusId();
+            Set<String> menusId = Menus.inst().getMenuIds();
             StringBuilder sb = new StringBuilder("&e&l菜单列表:");
             for (String s : menusId) {
                 sb.append("\n  &8· &f").append(s);
@@ -79,14 +85,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("open")) {
-                Set<String> menusId = Menus.inst().getMenusId();
-                List<String> list = new ArrayList<>();
-                for (String id : menusId) {
-                    if (sender.hasPermission("sweet.inventory.open.menu." + id)) {
-                        list.add(id);
-                    }
-                }
-                return list;
+                return startsWith(Menus.inst().getMenuKeys(sender), args[1]);
             }
         }
         if (args.length == 3) {
