@@ -1,24 +1,48 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
+import de.tr7zw.changeme.nbtapi.NBT;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
-import top.mrxiaom.sweet.inventory.SweetInventory;
+import top.mrxiaom.pluginbase.utils.AdventureItemStack;
+import top.mrxiaom.pluginbase.utils.ItemStackUtil;
+import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
+import static top.mrxiaom.pluginbase.func.gui.IModifier.fit;
 import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
 
 public class MenuIcon {
-    final LoadedIcon icon;
+    private final boolean adventure = BukkitPlugin.getInstance().options.adventure();
+    final ConfigurationSection section;
+    final String id;
     final List<Character> slots;
+    final String material;
+    final int amount;
+    final String display;
+    final List<String> lore;
+    final boolean glow;
+    final Integer customModelData;
+    final Map<String, String> nbtStrings;
+    final Map<String, String> nbtInts;
     final boolean needsUpdate;
-    final int priorityLess;
+    final int priority;
     final List<IRequirement> viewRequirements;
     final List<IAction> viewDenyCommands;
     final @Nullable Click leftClick;
@@ -28,98 +52,236 @@ public class MenuIcon {
     final @Nullable Click dropClick;
     final @Nullable Click ctrlDropClick;
 
-    public MenuIcon(LoadedIcon icon, List<Character> slots, boolean needsUpdate, int priorityLess, List<IRequirement> viewRequirements, List<IAction> viewDenyCommands, Click leftClick, Click rightClick, Click shiftLeftClick, Click shiftRightClick, Click dropClick, Click ctrlDropClick) {
-        this.icon = icon;
-        this.slots = slots;
-        this.needsUpdate = needsUpdate;
-        this.priorityLess = priorityLess;
-        this.viewRequirements = viewRequirements;
-        this.viewDenyCommands = viewDenyCommands;
-        this.leftClick = leftClick;
-        this.rightClick = rightClick;
-        this.shiftLeftClick = shiftLeftClick;
-        this.shiftRightClick = shiftRightClick;
-        this.dropClick = dropClick;
-        this.ctrlDropClick = ctrlDropClick;
+    public MenuIcon(boolean alt, ConfigurationSection config, String id) {
+        this.id = id;
+        this.section = config;
+        this.slots = loadSlots(alt, config);
+        if (slots.isEmpty()) {
+            throw new IllegalArgumentException("没有将图标 " + id + " 添加到布局的任意格子中");
+        }
+        ConfigurationSection section;
+
+        String material, materialStr = config.getString("material");
+        if (materialStr != null) {
+            if (!materialStr.contains(":") && config.contains("data")) { // 兼容旧的选项
+                material = materialStr + ":" + config.getInt("data");
+            } else material = materialStr;
+        } else material = "PAPER";
+        this.material = material.toUpperCase();
+
+        this.amount = config.getInt("amount", 1);
+        this.display = config.getString("display", "");
+        this.lore = config.getStringList("lore");
+        this.glow = config.getBoolean("glow");
+        this.customModelData = config.contains("custom-model-data") ? config.getInt("custom-model-data") : null;
+        this.nbtStrings = new HashMap<>();
+        section = config.getConfigurationSection("nbt-strings");
+        if (section != null) for (String key : section.getKeys(false)) {
+            nbtStrings.put(key, section.getString(key, ""));
+        }
+        this.nbtInts = new HashMap<>();
+        section = config.getConfigurationSection("nbt-ints");
+        if (section != null) for (String key : section.getKeys(false)) {
+            nbtInts.put(key, section.getString(key, ""));
+        }
+
+        this.needsUpdate = getBoolean(alt, config, alt ? "需要更新" : "needs-update");
+        this.priority = config.getInt(alt ? "优先级_越小越优先" : "priority-less");
+        this.viewRequirements = loadRequirements(alt, config, alt ? "查看图标" : "view");
+        this.viewDenyCommands = loadActions(config, alt ? "查看图标.不满足需求执行" : "view.deny-commands");
+        this.leftClick = Click.load(alt, config, alt ? "左键点击" : "left-click");
+        this.rightClick = Click.load(alt, config, alt ? "右键点击" : "right-click");
+        this.shiftLeftClick = Click.load(alt, config, alt ? "Shift左键点击" : "shift-left-click");
+        this.shiftRightClick = Click.load(alt, config, alt ? "Shift右键点击" : "shift-right-click");
+        this.dropClick = Click.load(alt, config, alt ? "Q键点击" : "drop-click");
+        this.ctrlDropClick = Click.load(alt, config, alt ? "Ctrl+Q键点击" : "ctrl-drop-click");
     }
 
-    public LoadedIcon getIcon() {
-        return icon;
-    }
-
-    public List<Character> getSlots() {
+    public List<Character> slots() {
         return slots;
     }
 
-    public boolean isNeedsUpdate() {
+    /**
+     * 生成一个新的物品
+     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
+     */
+    public ItemStack generateIcon(Player player) {
+        return generateIcon(player, null, null);
+    }
+
+    /**
+     * 生成一个新的物品
+     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param displayNameModifier 物品名称修饰器
+     * @param loreModifier 物品Lore修饰器
+     * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
+     */
+    public ItemStack generateIcon(Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
+        if (material.equals("AIR") || amount == 0) return new ItemStack(Material.AIR);
+        Pair<Material, Integer> pair = ItemStackUtil.parseMaterial(this.material);
+        ItemStack item = pair == null ? new ItemStack(Material.PAPER) : ItemStackUtil.legacy(pair);
+        return generateIcon(item, player, displayNameModifier, loreModifier);
+    }
+
+    /**
+     * 基于已有物品，覆盖图标配置到该物品上。这个方法会忽略 <code>material</code> 选项。
+     * @param item 原物品
+     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @return <code>item</code> 的引用
+     * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
+     */
+    public ItemStack generateIcon(@Nullable ItemStack item, @Nullable Player player) {
+        return generateIcon(item, player, null, null);
+    }
+
+    /**
+     * 基于已有物品，覆盖图标配置到该物品上。这个方法会忽略 <code>material</code> 选项。
+     * @param item 原物品
+     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param displayNameModifier 物品名称修饰器
+     * @param loreModifier 物品Lore修饰器
+     * @return 如果 <code>item</code> 不是 <code>null</code>，返回原物品的引用
+     */
+    public @NotNull ItemStack generateIcon(@Nullable ItemStack item, @Nullable Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
+        if (item == null || amount == 0) return new ItemStack(Material.AIR);
+        item.setAmount(amount);
+        applyItemMeta(item, player, displayNameModifier, loreModifier);
+        return item;
+    }
+
+    /**
+     * 应用该图标配置中的 物品名、物品Lore、发光、自定义标记… 等元数据到指定物品
+     * @param item 原物品
+     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @see LoadedIcon#applyItemMeta(ItemStack, Player, IModifier, IModifier)
+     */
+    public void applyItemMeta(@NotNull ItemStack item, @Nullable Player player) {
+        applyItemMeta(item, player, null, null);
+    }
+
+    /**
+     * 应用该图标配置中的 物品名、物品Lore、发光、自定义标记… 等元数据到指定物品
+     * @param item 原物品
+     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param displayNameModifier 物品名称修饰器
+     * @param loreModifier 物品Lore修饰器
+     */
+    public void applyItemMeta(@NotNull ItemStack item, @Nullable Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
+        if (!display.isEmpty()) {
+            String displayName = PAPI.setPlaceholders(player, fit(displayNameModifier, display));
+            if (adventure) AdventureItemStack.setItemDisplayName(item, displayName);
+            else ItemStackUtil.setItemDisplayName(item, displayName);
+        }
+        if (!lore.isEmpty()) {
+            List<String> loreList = PAPI.setPlaceholders(player, fit(loreModifier, lore));
+            if (adventure) AdventureItemStack.setItemLoreMiniMessage(item, loreList);
+            else ItemStackUtil.setItemLore(item, loreList);
+        }
+        if (glow) ItemStackUtil.setGlow(item);
+        if (customModelData != null) ItemStackUtil.setCustomModelData(item, customModelData);
+        NBT.modify(item, nbt -> {
+            nbt.setString("SweetInventoryIcon", id);
+            if (!nbtStrings.isEmpty() || !nbtInts.isEmpty()) {
+                for (Map.Entry<String, String> entry : nbtStrings.entrySet()) {
+                    String value = PAPI.setPlaceholders(player, entry.getValue());
+                    nbt.setString(entry.getKey(), value);
+                }
+                for (Map.Entry<String, String> entry : nbtInts.entrySet()) {
+                    String value = PAPI.setPlaceholders(player, entry.getValue());
+                    Integer i = Util.parseInt(value).orElse(null);
+                    if (i == null) continue;
+                    nbt.setInteger(entry.getKey(), i);
+                }
+            }
+        });
+    }
+
+    /**
+     * 是否需要在 tick 循环中更新物品信息
+     */
+    public boolean needsUpdate() {
         return needsUpdate;
     }
 
-    public int getPriorityLess() {
-        return priorityLess;
+    /**
+     * 图标显示优先级，数值越小越先显示
+     */
+    public int priority() {
+        return priority;
     }
 
-    public List<IRequirement> getViewRequirements() {
+    /**
+     * 图标查看需求，不满足需求时不添加图标
+     */
+    public List<IRequirement> viewRequirements() {
         return viewRequirements;
     }
 
-    public List<IAction> getViewDenyCommands() {
+    /**
+     * 图标查看需求不满足时执行的操作
+     */
+    public List<IAction> viewDenyCommands() {
         return viewDenyCommands;
     }
 
+    /**
+     * 获取左键点击需求与执行操作
+     */
     @Nullable
-    public Click getLeftClick() {
+    public Click leftClick() {
         return leftClick;
     }
 
+    /**
+     * 获取右键点击需求与执行操作
+     */
     @Nullable
-    public Click getRightClick() {
+    public Click rightClick() {
         return rightClick;
     }
 
+    /**
+     * 获取Shift+左键点击需求与执行操作
+     */
     @Nullable
-    public Click getShiftLeftClick() {
+    public Click shiftLeftClick() {
         return shiftLeftClick;
     }
 
+    /**
+     * 获取Shift+右键点击需求与执行操作
+     */
     @Nullable
-    public Click getShiftRightClick() {
+    public Click shiftRightClick() {
         return shiftRightClick;
     }
 
+    /**
+     * 获取Q键点击需求与执行操作
+     */
     @Nullable
-    public Click getDropClick() {
+    public Click dropClick() {
         return dropClick;
     }
 
+    /**
+     * 获取Ctrl+Q键点击需求与执行操作
+     */
     @Nullable
-    public Click getCtrlDropClick() {
+    public Click ctrlDropClick() {
         return ctrlDropClick;
     }
 
+    /**
+     * 从配置中加载菜单图标配置
+     * @param alt 是否使用中文配置
+     * @param section 图标配置
+     * @param id 图标ID
+     * @throws IllegalArgumentException 当图标配置错误时抛出
+     */
     public static MenuIcon load(boolean alt, ConfigurationSection section, String id) {
-        ConfigurationSection section1 = section.getConfigurationSection(id);
-        if (section1 == null) {
-            SweetInventory.getInstance().warn("预料中的错误: 找不到键 " + id);
-            return null;
-        }
-        List<Character> slots = loadSlots(alt, section1);
-        if (slots.isEmpty()) {
-            SweetInventory.getInstance().warn("没有将图标 " + id + " 添加到布局的任意格子中");
-            return null;
-        }
-        LoadedIcon icon = LoadedIcon.load(section, id);
-        boolean needsUpdate = getBoolean(alt, section1, alt ? "需要更新" : "needs-update");
-        int priorityLess = section1.getInt(alt ? "优先级_越小越优先" : "priority-less");
-        List<IRequirement> viewRequirements = loadRequirements(alt, section1, alt ? "查看图标" : "view");
-        List<IAction> viewDenyCommands = loadActions(section1, alt ? "查看图标.不满足需求执行" : "view.deny-commands");
-        Click leftClick = Click.load(alt, section1, alt ? "左键点击" : "left-click");
-        Click rightClick = Click.load(alt, section1,alt ? "右键点击" :  "right-click");
-        Click shiftLeftClick = Click.load(alt, section1, alt ? "Shift左键点击" : "shift-left-click");
-        Click shiftRightClick = Click.load(alt, section1, alt ? "Shift右键点击" : "shift-right-click");
-        Click dropClick = Click.load(alt, section1, alt ? "Q键点击" : "drop-click");
-        Click ctrlDropClick = Click.load(alt, section1, alt ? "Ctrl+Q键点击" : "ctrl-drop-click");
-        return new MenuIcon(icon, slots, needsUpdate, priorityLess, viewRequirements, viewDenyCommands, leftClick, rightClick, shiftLeftClick, shiftRightClick, dropClick, ctrlDropClick);
+        return new MenuIcon(alt, section, id);
     }
 
     private static List<Character> loadSlots(boolean alt, ConfigurationSection section) {

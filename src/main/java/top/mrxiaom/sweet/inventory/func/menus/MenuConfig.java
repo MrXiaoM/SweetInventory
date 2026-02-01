@@ -84,18 +84,23 @@ public class MenuConfig {
         Map<String, MenuIcon> iconsByName = new HashMap<>();
         ConfigurationSection section = config.getConfigurationSection(alt ? "图标列表" : "items");
         if (section != null) for (String key : section.getKeys(false)) {
-            MenuIcon icon = MenuIcon.load(alt, section, key);
-            if (icon == null) {
-                plugin.warn(String.format("[%s.yml] 加载图标 %s 失败", id, key));
+            ConfigurationSection s = section.getConfigurationSection(key);
+            MenuIcon icon;
+            try {
+                if (s == null) throw new IllegalArgumentException("找不到配置");
+                icon = MenuIcon.load(alt, s, key);
+            } catch (Throwable t) {
+                plugin.error(String.format("[%s.yml] 加载图标 %s 失败", id, key) + t.getMessage());
+                continue;
             }
             iconsByName.put(key, icon);
-            for (Character c : icon.getSlots()) {
+            for (Character c : icon.slots()) {
                 List<MenuIcon> list = getIconsList(iconsByChar, c);
                 list.add(icon);
             }
         }
         for (List<MenuIcon> list : iconsByChar.values()) {
-            list.sort(Comparator.comparingInt(MenuIcon::getPriorityLess));
+            list.sort(Comparator.comparingInt(MenuIcon::priority));
         }
         return new MenuConfig(title, inventory, iconsByChar, iconsByName, bindCommand, openCommands, updateInterval, pageGuide);
     }

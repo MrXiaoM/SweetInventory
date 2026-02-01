@@ -54,8 +54,8 @@ public class MenuInstance implements IGuiHolder {
             Map<Integer, ItemStack> commits = new HashMap<>();
             for (Map.Entry<Integer, MenuIcon> entry : currentIcons.entrySet()) {
                 MenuIcon icon = entry.getValue();
-                if (!icon.isNeedsUpdate()) continue;
-                ItemStack item = icon.getIcon().generateIcon(player);
+                if (!icon.needsUpdate()) continue;
+                ItemStack item = icon.generateIcon(player);
                 commits.put(entry.getKey(), item);
             }
             if (!commits.isEmpty()) {
@@ -97,7 +97,7 @@ public class MenuInstance implements IGuiHolder {
             if (list != null && !list.isEmpty()) for (MenuIcon icon : list) {
                 // 满足条件时，释放图标到界面
                 if (checkRequirements(icon)) {
-                    ItemStack item = icon.getIcon().generateIcon(player);
+                    ItemStack item = icon.generateIcon(player);
                     setItem.accept(i, item);
                     currentIcons.put(i, icon);
                     break;
@@ -139,22 +139,22 @@ public class MenuInstance implements IGuiHolder {
         // 点击操作
         if (icon != null) switch (click) {
             case LEFT:
-                handleIconClick(icon.getLeftClick());
+                handleIconClick(icon.leftClick());
                 break;
             case RIGHT:
-                handleIconClick(icon.getRightClick());
+                handleIconClick(icon.rightClick());
                 break;
             case SHIFT_LEFT:
-                handleIconClick(icon.getShiftLeftClick());
+                handleIconClick(icon.shiftLeftClick());
                 break;
             case SHIFT_RIGHT:
-                handleIconClick(icon.getShiftRightClick());
+                handleIconClick(icon.shiftRightClick());
                 break;
             case DROP:
-                handleIconClick(icon.getDropClick());
+                handleIconClick(icon.dropClick());
                 break;
             case CONTROL_DROP:
-                handleIconClick(icon.getCtrlDropClick());
+                handleIconClick(icon.ctrlDropClick());
                 break;
         }
     }
