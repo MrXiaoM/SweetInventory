@@ -1,7 +1,6 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -17,10 +16,8 @@ import org.jspecify.annotations.NonNull;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.AbstractGuiModule;
-import top.mrxiaom.pluginbase.func.gui.PageGuide;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
-import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
@@ -47,7 +44,7 @@ public class MenuInstance implements IGuiHolder {
     }
 
     public void onTick() {
-        if (config.updateInterval == 0) return;
+        if (actionLock || config.updateInterval == 0) return;
         if (++updateCounter == config.updateInterval) {
             updateCounter = 0;
             // 更新需要更新的图标物品内容
@@ -66,7 +63,7 @@ public class MenuInstance implements IGuiHolder {
                     for (Map.Entry<Integer, ItemStack> entry : commits.entrySet()) {
                         inv.setItem(entry.getKey(), entry.getValue());
                     }
-                    player.updateInventory();
+                    Util.submitInvUpdate(player);
                 }
             }
         }
@@ -105,6 +102,7 @@ public class MenuInstance implements IGuiHolder {
             }
             setItem.accept(i, null);
         }
+        actionLock = false;
     }
 
     public void updateInventory(Inventory inv) {
@@ -134,35 +132,40 @@ public class MenuInstance implements IGuiHolder {
     public void onClick(InventoryAction action, ClickType click, InventoryType.SlotType slotType,
                         int slot, ItemStack currentItem, ItemStack cursor,
                         InventoryView view, InventoryClickEvent event) {
+        actionLock = true;
         event.setCancelled(true);
         MenuIcon icon = currentIcons.get(slot);
         // 点击操作
         if (icon != null) switch (click) {
             case LEFT:
                 handleIconClick(icon.leftClick());
-                break;
+                return;
             case RIGHT:
                 handleIconClick(icon.rightClick());
-                break;
+                return;
             case SHIFT_LEFT:
                 handleIconClick(icon.shiftLeftClick());
-                break;
+                return;
             case SHIFT_RIGHT:
                 handleIconClick(icon.shiftRightClick());
-                break;
+                return;
             case DROP:
                 handleIconClick(icon.dropClick());
-                break;
+                return;
             case CONTROL_DROP:
                 handleIconClick(icon.ctrlDropClick());
-                break;
+                return;
         }
+        actionLock = false;
     }
 
     private void handleIconClick(Click click) {
-        if (checkRequirements(click.requirements, click.denyCommands)) {
-            executeCommands(click.commands);
-        }
+        plugin.getScheduler().runTask(() -> {
+            if (checkRequirements(click.requirements, click.denyCommands)) {
+                executeCommands(click.commands);
+            }
+            actionLock = false;
+        });
     }
 
     public Character getClickedId(int slot) {
