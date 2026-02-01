@@ -18,6 +18,7 @@ import top.mrxiaom.pluginbase.actions.*;
 import top.mrxiaom.pluginbase.func.AbstractGuiModule;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
 import top.mrxiaom.sweet.inventory.func.actions.ActionOpenMenu;
@@ -101,23 +102,20 @@ public class Menus extends AbstractModule {
                 warn("路径 " + path + " 指向的不是一个目录");
                 continue;
             }
-            reloadConfig(folder, folder);
+            Util.reloadFolder(folder, false, (id, file) -> {
+                loadConfig(id.replace("\\", "/"), file);
+            });
         }
-        reloadConfig(menusFolder, menusFolder);
+        Util.reloadFolder(menusFolder, false, (id, file) -> {
+            loadConfig(id.replace("\\", "/"), file);
+        });
     }
 
-    public void reloadConfig(File root, File folder) {
-        File[] files = folder.listFiles();
-        if (files == null) return;
-        for (File file : files) {
-            if (file.isDirectory()) {
-                reloadConfig(root, folder);
-                continue;
-            }
-            if (file.getName().endsWith(".yml")) {
-                loadConfig(root, file);
-            }
-        }
+    private void loadConfig(String id, File file) {
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        boolean alt = getBoolean(true, config, "中文配置", false);
+        MenuConfig loaded = MenuConfig.load(alt, id, config);
+        menus.put(id, loaded);
     }
 
     public Set<String> getMenusId() {
@@ -127,29 +125,6 @@ public class Menus extends AbstractModule {
     @Nullable
     public MenuConfig getMenu(String id) {
         return menus.get(id);
-    }
-
-    private String removePrefix(File root, File file) {
-        String filePath = file.getAbsolutePath();
-        String folder = root.getAbsolutePath();
-        if (filePath.startsWith(folder)) {
-            return filePath.substring(folder.length());
-        } else {
-            return filePath;
-        }
-    }
-    private String removeSuffix(String fileName) {
-        int index = fileName.lastIndexOf(".");
-        return fileName.substring(0, index);
-    }
-
-    private void loadConfig(File root, File file) {
-        String path = removePrefix(root, file);
-        String id = removeSuffix(path).replace("\\", "/");
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        boolean alt = getBoolean(true, config, "中文配置", false);
-        MenuConfig loaded = MenuConfig.load(alt, id, config);
-        menus.put(id, loaded);
     }
 
     public static Menus inst() {
