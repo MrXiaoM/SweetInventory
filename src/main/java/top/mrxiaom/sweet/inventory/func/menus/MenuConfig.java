@@ -77,6 +77,10 @@ public class MenuConfig {
         return inventory;
     }
 
+    public char[] inventory(int page) {
+        return inventory; // TODO: 分页支持
+    }
+
     public Map<Character, List<MenuIcon>> iconsByChar() {
         return iconsByChar;
     }

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.Util;
@@ -37,6 +38,8 @@ public class MenuInstance implements IGuiHolder {
     private Map<Integer, MenuIcon> currentIcons = new HashMap<>();
     private Component title;
     private Inventory inventory;
+    private int page = 1;
+    private char[] inventoryTemplate;
     private boolean actionLock = false;
     protected MenuInstance(MenuConfig config, Player player) {
         this.config = config;
@@ -82,10 +85,17 @@ public class MenuInstance implements IGuiHolder {
         return player;
     }
 
+    @Override
+    public void open() {
+        GuiManager.inst().openGui(this);
+        ActionProviders.run(plugin, player, config.openCommands());
+    }
+
     public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
         currentIcons.clear();
-        for (int i = 0; i < config.inventory.length; i++) {
-            char id = config.inventory[i];
+        inventoryTemplate = config.inventory(page);
+        for (int i = 0; i < inventoryTemplate.length; i++) {
+            char id = inventoryTemplate[i];
             if (id == ' ' || id == '　' || Character.isSpaceChar(id)) { // 忽略空格
                 setItem.accept(i, null);
                 continue;
@@ -118,7 +128,7 @@ public class MenuInstance implements IGuiHolder {
     public Inventory newInventory() {
         String rawTitle = PAPI.setPlaceholders(player, config.title);
         title = AdventureUtil.miniMessage(rawTitle);
-        inventory = plugin.createInventory(this, config.inventory.length, rawTitle);
+        inventory = plugin.createInventory(this, inventoryTemplate.length, rawTitle);
         updateInventory(inventory);
         return inventory;
     }
@@ -169,8 +179,8 @@ public class MenuInstance implements IGuiHolder {
     }
 
     public Character getClickedId(int slot) {
-        if (slot >= 0 && slot < config.inventory.length) {
-            return config.inventory[slot];
+        if (slot >= 0 && slot < inventoryTemplate.length) {
+            return inventoryTemplate[slot];
         } else {
             return null;
         }
@@ -178,8 +188,8 @@ public class MenuInstance implements IGuiHolder {
 
     public int getAppearTimes(Character id, int slot) {
         int appearTimes = 0;
-        for (int i = 0; i < config.inventory.length; i++) {
-            if (id.equals(config.inventory[i])) {
+        for (int i = 0; i < inventoryTemplate.length; i++) {
+            if (id.equals(inventoryTemplate[i])) {
                 appearTimes++;
             }
             if (i == slot) break;
@@ -212,28 +222,6 @@ public class MenuInstance implements IGuiHolder {
 
     public void executeCommands(List<IAction> commands) {
         ActionProviders.run(plugin, player, commands);
-    }
-
-    private void executeConsole(String cmd) {
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-    }
-    private void executePlayer(String cmd) {
-        Bukkit.dispatchCommand(getPlayer(), cmd);
-    }
-    private void executeMessage(String msg) {
-        AdventureUtil.sendMessage(getPlayer(), msg);
-    }
-    private void executeActionBar(String msg) {
-        AdventureUtil.sendActionBar(getPlayer(), msg);
-    }
-    private void executeConnect(String server) {
-        plugin.connect(getPlayer(), server);
-    }
-    private void executeOpen(String menuId) {
-        MenuConfig menu = Menus.inst().getMenu(menuId);
-        if (menu != null) {
-            menu.create(getPlayer()).open();
-        }
     }
 
     public static MenuInstance create(MenuConfig config, Player player) {
