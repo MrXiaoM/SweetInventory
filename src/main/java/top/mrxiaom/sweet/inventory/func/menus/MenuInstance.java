@@ -15,7 +15,6 @@ import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
-import top.mrxiaom.pluginbase.func.AbstractGuiModule;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.Util;
@@ -38,6 +37,7 @@ public class MenuInstance implements IGuiHolder {
     private Map<Integer, MenuIcon> currentIcons = new HashMap<>();
     private Component title;
     private Inventory inventory;
+    private boolean actionLock = false;
     protected MenuInstance(MenuConfig config, Player player) {
         this.config = config;
         this.player = player;
@@ -169,11 +169,22 @@ public class MenuInstance implements IGuiHolder {
     }
 
     public Character getClickedId(int slot) {
-        return AbstractGuiModule.getClickedId(config.inventory, slot);
+        if (slot >= 0 && slot < config.inventory.length) {
+            return config.inventory[slot];
+        } else {
+            return null;
+        }
     }
 
     public int getAppearTimes(Character id, int slot) {
-        return AbstractGuiModule.getAppearTimes(config.inventory, id, slot);
+        int appearTimes = 0;
+        for (int i = 0; i < config.inventory.length; i++) {
+            if (id.equals(config.inventory[i])) {
+                appearTimes++;
+            }
+            if (i == slot) break;
+        }
+        return appearTimes;
     }
 
     public boolean checkRequirements(MenuIcon icon) {
