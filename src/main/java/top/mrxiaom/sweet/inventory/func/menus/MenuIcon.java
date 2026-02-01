@@ -61,26 +61,26 @@ public class MenuIcon {
         }
         ConfigurationSection section;
 
-        String material, materialStr = config.getString("material");
+        String material, materialStr = config.getString(alt ? "物品" : "material");
         if (materialStr != null) {
-            if (!materialStr.contains(":") && config.contains("data")) { // 兼容旧的选项
-                material = materialStr + ":" + config.getInt("data");
+            if (!materialStr.contains(":") && config.contains(alt ? "子ID" : "data")) { // 兼容旧的选项
+                material = materialStr + ":" + config.getInt(alt ? "子ID" : "data");
             } else material = materialStr;
         } else material = "PAPER";
         this.material = material.toUpperCase();
 
-        this.amount = config.getInt("amount", 1);
-        this.display = config.getString("display", "");
-        this.lore = config.getStringList("lore");
-        this.glow = config.getBoolean("glow");
-        this.customModelData = config.contains("custom-model-data") ? config.getInt("custom-model-data") : null;
+        this.amount = config.getInt(alt ? "数量" : "amount", 1);
+        this.display = config.getString(alt ? "名字" : "display", "");
+        this.lore = config.getStringList(alt ? "描述" : "lore");
+        this.glow = config.getBoolean(alt ? "发光" : "glow");
+        this.customModelData = config.contains(alt ? "模型数据" : "custom-model-data") ? config.getInt(alt ? "模型数据" : "custom-model-data") : null;
         this.nbtStrings = new HashMap<>();
-        section = config.getConfigurationSection("nbt-strings");
+        section = config.getConfigurationSection(alt ? "nbt字符串" : "nbt-strings");
         if (section != null) for (String key : section.getKeys(false)) {
             nbtStrings.put(key, section.getString(key, ""));
         }
         this.nbtInts = new HashMap<>();
-        section = config.getConfigurationSection("nbt-ints");
+        section = config.getConfigurationSection(alt ? "nbt整数" : "nbt-ints");
         if (section != null) for (String key : section.getKeys(false)) {
             nbtInts.put(key, section.getString(key, ""));
         }
@@ -288,19 +288,18 @@ public class MenuIcon {
         List<Character> list = new ArrayList<>();
         String slotKey = alt ? "格子" : "slot";
         String slotsKey = alt ? "格子" : "slots";
-        String slotStr = section.isString(slotKey) ? section.getString(slotKey) : null;
-        if (slotStr == null) {
-            if (section.contains(slotsKey) && !section.isString(slotsKey)) {
-                slotStr = section.getString(slotsKey);
-            }
-        }
-        if (slotStr != null && !slotStr.isEmpty()) {
-            char[] charArray = slotStr.toCharArray();
-            for (char c : charArray) {
-                list.add(c);
-            }
-        } else if (section.contains(slotsKey) && section.isList(slotsKey)) {
+
+        if (section.isList(slotsKey)) {
             list.addAll(section.getCharacterList(slotsKey));
+        }
+        if (section.isString(slotKey) || section.isInt(slotKey)) {
+            String slotStr = section.getString(slotKey, "");
+            if (!slotStr.isEmpty()) {
+                char[] charArray = slotStr.toCharArray();
+                for (char c : charArray) {
+                    list.add(c);
+                }
+            }
         }
         return list;
     }
