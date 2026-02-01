@@ -2,15 +2,15 @@ package top.mrxiaom.sweet.inventory.requirements;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.func.gui.actions.IAction;
-import top.mrxiaom.pluginbase.utils.PAPI;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.Collections;
 import java.util.List;
 
-import static top.mrxiaom.pluginbase.func.AbstractGuiModule.loadActions;
+import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
 
 public class NumberRequirement implements IRequirement {
     public enum Operator {

@@ -13,12 +13,16 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.AbstractGuiModule;
-import top.mrxiaom.pluginbase.func.gui.actions.IAction;
-import top.mrxiaom.pluginbase.gui.IGui;
+import top.mrxiaom.pluginbase.func.gui.PageGuide;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
-import top.mrxiaom.pluginbase.utils.PAPI;
 import top.mrxiaom.pluginbase.utils.Pair;
+import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.Menus;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
@@ -29,13 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class MenuInstance implements IGui {
+public class MenuInstance implements IGuiHolder {
     private final SweetInventory plugin = SweetInventory.getInstance();
     private final MenuConfig config;
     private final Player player;
     private int updateCounter = 0;
     private Map<Integer, MenuIcon> currentIcons = new HashMap<>();
     private Component title;
+    private Inventory inventory;
     protected MenuInstance(MenuConfig config, Player player) {
         this.config = config;
         this.player = player;
@@ -55,9 +60,9 @@ public class MenuInstance implements IGui {
             }
             if (!commits.isEmpty()) {
                 InventoryView inv = player.getOpenInventory();
-                InventoryHolder holder = inv.getTopInventory().getHolder();
+                InventoryHolder holder = Util.getHolder(inv.getTopInventory());
                 // 确保玩家打开的还是这个界面再更新
-                if (holder instanceof MenuHolder && ((MenuHolder) holder).getInstance() == this) {
+                if (holder == this) {
                     for (Map.Entry<Integer, ItemStack> entry : commits.entrySet()) {
                         inv.setItem(entry.getKey(), entry.getValue());
                     }
@@ -82,15 +87,12 @@ public class MenuInstance implements IGui {
 
     public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
         currentIcons.clear();
-        Map<Character, Integer> appearMap = new HashMap<>();
         for (int i = 0; i < config.inventory.length; i++) {
             char id = config.inventory[i];
             if (id == ' ' || id == '　' || Character.isSpaceChar(id)) { // 忽略空格
                 setItem.accept(i, null);
                 continue;
             }
-            int appearTimes = appearMap.getOrDefault(id, 0) + 1;
-            appearMap.put(id, appearTimes);
             List<MenuIcon> list = config.iconsByChar.get(id); // list 已经过优先级排序
             if (list != null && !list.isEmpty()) for (MenuIcon icon : list) {
                 // 满足条件时，释放图标到界面
@@ -118,10 +120,14 @@ public class MenuInstance implements IGui {
     public Inventory newInventory() {
         String rawTitle = PAPI.setPlaceholders(player, config.title);
         title = AdventureUtil.miniMessage(rawTitle);
-        MenuHolder holder = new MenuHolder(this);
-        Inventory inv = holder.setInventory(plugin.getInventoryFactory().create(holder, config.inventory.length, rawTitle));
-        updateInventory(inv);
-        return inv;
+        inventory = plugin.createInventory(this, config.inventory.length, rawTitle);
+        updateInventory(inventory);
+        return inventory;
+    }
+
+    @Override
+    public @NonNull Inventory getInventory() {
+        return inventory;
     }
 
     @Override
@@ -191,10 +197,7 @@ public class MenuInstance implements IGui {
     }
 
     public void executeCommands(List<IAction> commands) {
-        Pair<String, Object>[] args = Pair.array(0);
-        for (IAction action : commands) {
-            action.run(player, args);
-        }
+        ActionProviders.run(plugin, player, commands);
     }
 
     private void executeConsole(String cmd) {

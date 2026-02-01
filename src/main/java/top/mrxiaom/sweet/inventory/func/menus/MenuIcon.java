@@ -2,15 +2,15 @@ package top.mrxiaom.sweet.inventory.func.menus;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
-import top.mrxiaom.pluginbase.func.gui.actions.IAction;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static top.mrxiaom.pluginbase.func.AbstractGuiModule.loadActions;
+import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
 import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
 

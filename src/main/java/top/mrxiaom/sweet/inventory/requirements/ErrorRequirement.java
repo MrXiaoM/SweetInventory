@@ -1,6 +1,6 @@
 package top.mrxiaom.sweet.inventory.requirements;
 
-import top.mrxiaom.pluginbase.func.gui.actions.IAction;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.Collections;

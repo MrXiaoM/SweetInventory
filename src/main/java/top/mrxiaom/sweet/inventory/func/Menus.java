@@ -14,19 +14,15 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
+import top.mrxiaom.pluginbase.actions.*;
 import top.mrxiaom.pluginbase.func.AbstractGuiModule;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
-import top.mrxiaom.pluginbase.func.gui.actions.ActionActionBar;
-import top.mrxiaom.pluginbase.func.gui.actions.ActionConsole;
-import top.mrxiaom.pluginbase.func.gui.actions.ActionMessageAdventure;
-import top.mrxiaom.pluginbase.func.gui.actions.ActionPlayer;
-import top.mrxiaom.pluginbase.gui.IGui;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
 import top.mrxiaom.sweet.inventory.func.actions.ActionOpenMenu;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
-import top.mrxiaom.sweet.inventory.func.menus.MenuHolder;
+import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.io.File;
 import java.util.HashMap;
@@ -35,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.NEXT;
+import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.PREV;
 import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 
 @AutoRegister
@@ -49,7 +47,7 @@ public class Menus extends AbstractModule {
     }
 
     private void registerAlternativeProvider() {
-        AbstractGuiModule.registerActionProvider(s -> {
+        ActionProviders.registerActionProvider(s -> {
             if (s.startsWith("[控制台执行]")) return new ActionConsole(s.substring(7));
             if (s.startsWith("控制台执行:")) return new ActionConsole(s.substring(6));
             if (s.startsWith("[玩家执行]")) return new ActionPlayer(s.substring(6));
@@ -74,8 +72,8 @@ public class Menus extends AbstractModule {
         for (Player player : Bukkit.getOnlinePlayers()) {
             InventoryView view = player.getOpenInventory();
             InventoryHolder holder = view.getTopInventory().getHolder();
-            if (holder instanceof MenuHolder) {
-                ((MenuHolder) holder).getInstance().onTick();
+            if (holder instanceof MenuInstance) {
+                ((MenuInstance) holder).onTick();
             }
         }
     }

@@ -22,9 +22,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.inventory.BukkitInventoryFactory;
 import top.mrxiaom.sweet.inventory.SweetInventory;
-import top.mrxiaom.sweet.inventory.func.menus.MenuHolder;
-import top.mrxiaom.sweet.inventory.utils.BukkitInventoryFactory;
+import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -80,9 +80,9 @@ public class AlternativeRichTitle extends AbstractModule implements Listener {
     public void onPacketSending(PacketEvent event) {
         InventoryView view = openedWindow.remove(event.getPlayer().getName());
         InventoryHolder holder = view == null ? null : view.getTopInventory().getHolder();
-        if (holder instanceof MenuHolder) {
+        if (holder instanceof MenuInstance) {
             PacketContainer packet = event.getPacket();
-            Component title = ((MenuHolder) holder).getInstance().getTitle();
+            Component title = ((MenuInstance) holder).getTitle();
             WrappedChatComponent component = packet.getChatComponents().readSafely(0);
             component.setJson(GsonComponentSerializer.gson().serialize(title));
             packet.getChatComponents().writeSafely(0, component);

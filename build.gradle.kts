@@ -1,24 +1,32 @@
 plugins {
     java
     `maven-publish`
-    id("top.mrxiaom.shadow")
+    id ("com.gradleup.shadow") version "8.3.0"
+    id ("com.github.gmazzo.buildconfig") version "5.6.7"
 }
+
+buildscript {
+    repositories.mavenCentral()
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.4")
+}
+val base = top.mrxiaom.gradle.LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.inventory"
 version = "1.0.0"
-val targetJavaVersion = 11
+
+val targetJavaVersion = 8
+val pluginBaseModules = base.modules.run { listOf(library, paper, gui, actions, l10n) }
 val shadowGroup = "top.mrxiaom.sweet.inventory.libs"
+val shadowLink = configurations.create("shadowLink")
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://mvn.lumine.io/repository/maven/")
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
+    maven("https://repo.helpch.at/releases/")
     maven("https://jitpack.io")
     maven("https://repo.rosewooddev.io/repository/public/")
-    maven("https://oss.sonatype.org/content/groups/public/")
 }
 
 allprojects {
@@ -40,46 +48,76 @@ dependencies {
     compileOnly("io.lumine:Mythic:5.6.2")
     compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
     compileOnly("org.black_ixx:playerpoints:3.2.7")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
+    compileOnly("com.github.dmulloy2:ProtocolLib:5.3.0")
+    compileOnly("org.jetbrains:annotations:24.0.0")
 
-    implementation("net.kyori:adventure-api:4.17.0")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
-    implementation("net.kyori:adventure-text-minimessage:4.17.0")
-    implementation("de.tr7zw:item-nbt-api:2.14.0")
-    implementation("com.ezylang:EvalEx:3.4.0")
-    implementation("org.jetbrains:annotations:24.0.0")
-    implementation("top.mrxiaom:PluginBase:1.1.0")
-    implementation(project(":paper"))
+    base.library("net.kyori:adventure-api:4.22.0")
+    base.library("net.kyori:adventure-platform-bukkit:4.4.0")
+    base.library("net.kyori:adventure-text-minimessage:4.22.0")
+    base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
+
+    implementation("de.tr7zw:item-nbt-api:2.15.5")
+    implementation("top.mrxiaom:EvalEx-j8:3.4.0")
+    implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
+    for (artifact in pluginBaseModules) {
+        implementation(artifact)
+    }
+    implementation(base.resolver.lite)
+}
+buildConfig {
+    className("BuildConstants")
+    packageName("top.mrxiaom.sweet.inventory")
+
+    base.doResolveLibraries()
+
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
+    buildConfigField("java.time.Instant", "BUILD_TIME", "java.time.Instant.ofEpochSecond(${System.currentTimeMillis() / 1000L}L)")
+    buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
 java {
     val javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
     }
+    withJavadocJar()
+    withSourcesJar()
 }
 tasks {
     shadowJar {
-        archiveClassifier.set("")
+        configurations.add(shadowLink)
         mapOf(
-            "org.intellij.lang.annotations" to "annotations.intellij",
-            "org.jetbrains.annotations" to "annotations.jetbrains",
             "top.mrxiaom.pluginbase" to "base",
             "de.tr7zw.changeme.nbtapi" to "nbtapi",
             "com.ezylang.evalex" to "evalex",
-            "net.kyori" to "kyori",
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
         }
-        ignoreRelocations("top/mrxiaom/sweet/inventory/utils/PaperInventoryFactory.class")
+    }
+    val copyTask = create<Copy>("copyBuildArtifact") {
+        dependsOn(shadowJar)
+        from(shadowJar.get().outputs)
+        rename { "${project.name}-$version.jar" }
+        into(rootProject.file("out"))
     }
     build {
-        dependsOn(shadowJar)
+        dependsOn(copyTask)
     }
     processResources {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from(sourceSets.main.get().resources.srcDirs) {
             expand(mapOf("version" to version))
             include("plugin.yml")
+        }
+    }
+    javadoc {
+        (options as StandardJavadocDocletOptions).apply {
+            links("https://hub.spigotmc.org/javadocs/spigot/")
+
+            locale("zh_CN")
+            encoding("UTF-8")
+            docEncoding("UTF-8")
+            addBooleanOption("keywords", true)
+            addBooleanOption("Xdoclint:none", true)
         }
     }
 }

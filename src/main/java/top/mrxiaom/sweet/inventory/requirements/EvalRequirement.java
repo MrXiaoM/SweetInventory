@@ -4,8 +4,8 @@ import com.ezylang.evalex.BaseException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import org.bukkit.configuration.ConfigurationSection;
-import top.mrxiaom.pluginbase.func.gui.actions.IAction;
-import top.mrxiaom.pluginbase.utils.PAPI;
+import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
