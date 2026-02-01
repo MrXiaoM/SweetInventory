@@ -30,27 +30,27 @@ import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.load
 
 public class MenuIcon {
     private final boolean adventure = BukkitPlugin.getInstance().options.adventure();
-    final ConfigurationSection section;
-    final String id;
-    final List<Character> slots;
-    final String material;
-    final int amount;
-    final String display;
-    final List<String> lore;
-    final boolean glow;
-    final Integer customModelData;
-    final Map<String, String> nbtStrings;
-    final Map<String, String> nbtInts;
-    final boolean needsUpdate;
-    final int priority;
-    final List<IRequirement> viewRequirements;
-    final List<IAction> viewDenyCommands;
-    final @Nullable Click leftClick;
-    final @Nullable Click rightClick;
-    final @Nullable Click shiftLeftClick;
-    final @Nullable Click shiftRightClick;
-    final @Nullable Click dropClick;
-    final @Nullable Click ctrlDropClick;
+    private final @NotNull ConfigurationSection section;
+    private final @NotNull String id;
+    private final @NotNull List<Character> slots;
+    private final @NotNull String material;
+    private final int amount;
+    private final @NotNull String display;
+    private final @NotNull List<String> lore;
+    private final boolean glow;
+    private final @Nullable Integer customModelData;
+    private final @NotNull Map<String, String> nbtStrings;
+    private final @NotNull Map<String, String> nbtInts;
+    private final boolean needsUpdate;
+    private final int priority;
+    private final @NotNull List<IRequirement> viewRequirements;
+    private final @NotNull List<IAction> viewDenyCommands;
+    private final @Nullable Click leftClick;
+    private final @Nullable Click rightClick;
+    private final @Nullable Click shiftLeftClick;
+    private final @Nullable Click shiftRightClick;
+    private final @Nullable Click dropClick;
+    private final @Nullable Click ctrlDropClick;
 
     public MenuIcon(boolean alt, ConfigurationSection config, String id) {
         this.id = id;
@@ -97,6 +97,55 @@ public class MenuIcon {
         this.ctrlDropClick = Click.load(alt, config, alt ? "Ctrl+Q键点击" : "ctrl-drop-click");
     }
 
+    @NotNull
+    public ConfigurationSection section() {
+        return section;
+    }
+
+    @NotNull
+    public String id() {
+        return id;
+    }
+
+    @NotNull
+    public String material() {
+        return material;
+    }
+
+    public int amount() {
+        return amount;
+    }
+
+    @NotNull
+    public String display() {
+        return display;
+    }
+
+    @NotNull
+    public List<String> lore() {
+        return lore;
+    }
+
+    public boolean glow() {
+        return glow;
+    }
+
+    @Nullable
+    public Integer customModelData() {
+        return customModelData;
+    }
+
+    @NotNull
+    public Map<String, String> nbtStrings() {
+        return nbtStrings;
+    }
+
+    @NotNull
+    public Map<String, String> nbtInts() {
+        return nbtInts;
+    }
+
+    @NotNull
     public List<Character> slots() {
         return slots;
     }
@@ -106,6 +155,7 @@ public class MenuIcon {
      * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
      * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
      */
+    @NotNull
     public ItemStack generateIcon(Player player) {
         return generateIcon(player, null, null);
     }
@@ -117,6 +167,7 @@ public class MenuIcon {
      * @param loreModifier 物品Lore修饰器
      * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
      */
+    @NotNull
     public ItemStack generateIcon(Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (material.equals("AIR") || amount == 0) return new ItemStack(Material.AIR);
         Pair<Material, Integer> pair = ItemStackUtil.parseMaterial(this.material);
@@ -131,6 +182,7 @@ public class MenuIcon {
      * @return <code>item</code> 的引用
      * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
      */
+    @NotNull
     public ItemStack generateIcon(@Nullable ItemStack item, @Nullable Player player) {
         return generateIcon(item, player, null, null);
     }
@@ -143,7 +195,8 @@ public class MenuIcon {
      * @param loreModifier 物品Lore修饰器
      * @return 如果 <code>item</code> 不是 <code>null</code>，返回原物品的引用
      */
-    public @NotNull ItemStack generateIcon(@Nullable ItemStack item, @Nullable Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
+    @NotNull
+    public ItemStack generateIcon(@Nullable ItemStack item, @Nullable Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (item == null || amount == 0) return new ItemStack(Material.AIR);
         item.setAmount(amount);
         applyItemMeta(item, player, displayNameModifier, loreModifier);
@@ -214,6 +267,7 @@ public class MenuIcon {
     /**
      * 图标查看需求，不满足需求时不添加图标
      */
+    @NotNull
     public List<IRequirement> viewRequirements() {
         return viewRequirements;
     }
@@ -221,6 +275,7 @@ public class MenuIcon {
     /**
      * 图标查看需求不满足时执行的操作
      */
+    @NotNull
     public List<IAction> viewDenyCommands() {
         return viewDenyCommands;
     }
@@ -280,11 +335,13 @@ public class MenuIcon {
      * @param id 图标ID
      * @throws IllegalArgumentException 当图标配置错误时抛出
      */
-    public static MenuIcon load(boolean alt, ConfigurationSection section, String id) {
+    @NotNull
+    public static MenuIcon load(boolean alt, @NotNull ConfigurationSection section, @NotNull String id) {
         return new MenuIcon(alt, section, id);
     }
 
-    private static List<Character> loadSlots(boolean alt, ConfigurationSection section) {
+    @NotNull
+    private static List<Character> loadSlots(boolean alt, @NotNull ConfigurationSection section) {
         List<Character> list = new ArrayList<>();
         String slotKey = alt ? "格子" : "slot";
         String slotsKey = alt ? "格子" : "slots";

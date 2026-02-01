@@ -7,13 +7,8 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -82,7 +77,7 @@ public class AlternativeRichTitle extends AbstractModule implements Listener {
         InventoryHolder holder = view == null ? null : view.getTopInventory().getHolder();
         if (holder instanceof MenuInstance) {
             PacketContainer packet = event.getPacket();
-            Component title = ((MenuInstance) holder).getTitle();
+            Component title = ((MenuInstance) holder).title();
             WrappedChatComponent component = packet.getChatComponents().readSafely(0);
             component.setJson(GsonComponentSerializer.gson().serialize(title));
             packet.getChatComponents().writeSafely(0, component);

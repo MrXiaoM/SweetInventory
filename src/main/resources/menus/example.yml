@@ -1,15 +1,42 @@
 title: '界面标题'
 invertory:
   - '框框框框框框框框框'
-  - '框　　　按　　　框'
+  - '上页页页页页页页下'
   - '框框框框框框框框框'
+pages-guide:
+  # 分页内容应该放在上述布局的哪些字符上
+  slot: 页
+  # 每一页的布局，翻页时会按顺序将以下字符替换掉上述布局的字符，再应用图标
+  # 列表中每一个元素 (以 - 开头) 代表一页
+  pages:
+    - '一二一二一二一'
+    - '二一二一二一二'
+
 items:
   方框:
+    # 这个图标应该在布局的哪里
     slot: 框
     material: WHITE_STAINED_GLASS_PANE
     display: '&f方框'
-  按钮:
-    slot: 按
+  上一页:
+    slot: 上
+    # 特殊标记，page-prev 表明，当还有上一页时，显示当前图标，没有时显示它后面指定的图标，比如这里的「方框」
+    special: page-prev 方框
+    material: LIME_STAINED_GLASS_PANE
+    display: '&e上一页'
+    left-click:
+      commands: ['[prev]']
+  下一页:
+    slot: 下
+    # 特殊标记，page-next 表明，当还有下一页时，显示当前图标，同上
+    special: page-next 方框
+    material: LIME_STAINED_GLASS_PANE
+    display: '&e下一页'
+    left-click:
+      commands: ['[next]']
+
+  按钮1:
+    slot: 一
     material: GRASS_BLOCK
     display: '&f按钮'
     lore:
@@ -22,5 +49,13 @@ items:
     right-click:
       commands:
         - '[console]kill %player_name%'
+  按钮2:
+    slot: 二
+    material: STONE
+    display: '&f按钮'
+    lore: []
+    left-click:
+      commands:
+        - '[message]你点击了按钮2'
 
 # TODO: 更完善的示例配置

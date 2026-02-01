@@ -13,15 +13,16 @@ import top.mrxiaom.sweet.inventory.SweetInventory;
 import java.util.*;
 
 public class MenuConfig {
-    final String id;
-    final List<String> aliasIds;
-    final String title;
-    final char[] inventory;
-    final Map<Character, List<MenuIcon>> iconsByChar;
-    final Map<String, MenuIcon> iconsByName;
-    final @Nullable String bindCommand;
-    final List<IAction> openCommands;
-    final int updateInterval;
+    private final String id;
+    private final List<String> aliasIds;
+    private final String title;
+    private final char[] inventory;
+    private final Map<Character, List<MenuIcon>> iconsByChar;
+    private final Map<String, MenuIcon> iconsByName;
+    private final @Nullable String bindCommand;
+    private final List<IAction> openCommands;
+    private final int updateInterval;
+    private final @Nullable MenuPageGuide pageGuide;
 
     MenuConfig(boolean alt, String id, YamlConfiguration config) {
         SweetInventory plugin = SweetInventory.getInstance();
@@ -32,6 +33,12 @@ public class MenuConfig {
         this.bindCommand = config.getString(alt ? "绑定界面命令" : "bind-command", null);
         this.openCommands = ActionProviders.loadActions(config, alt ? "打开界面执行命令" : "open-commands");
         this.updateInterval = Math.max(0, config.getInt(alt ? "更新周期" : "update-interval", 0));
+        ConfigurationSection pageGuideSection = config.getConfigurationSection(alt ? "分页向导" : "page-guide");
+        if (pageGuideSection != null) {
+            this.pageGuide = MenuPageGuide.load(this, alt, pageGuideSection);
+        } else {
+            this.pageGuide = null;
+        }
 
         this.iconsByChar = new HashMap<>();
         this.iconsByName = new HashMap<>();
@@ -78,15 +85,41 @@ public class MenuConfig {
     }
 
     public char[] inventory(int page) {
-        return inventory; // TODO: 分页支持
+        if (pageGuide != null) {
+            char[] pageInv = pageGuide.page(page);
+            if (pageInv != null) {
+                char[] inv = new char[inventory.length];
+                int length = pageInv.length;
+                for (int i = 0, j = 0; i < inventory.length; i++) {
+                    if (j >= length) break;
+                    char ch = inventory[i];
+                    if (pageGuide.slots().contains(ch)) {
+                        inv[i] = pageInv[j];
+                        j++;
+                        continue;
+                    }
+                    inv[i] = ch;
+                }
+                return inv;
+            }
+        }
+        return inventory;
     }
 
     public Map<Character, List<MenuIcon>> iconsByChar() {
         return iconsByChar;
     }
 
+    public List<MenuIcon> iconsByChar(char ch) {
+        return iconsByChar.get(ch);
+    }
+
     public Map<String, MenuIcon> iconsByName() {
         return iconsByName;
+    }
+
+    public MenuIcon iconByName(String name) {
+        return iconsByName.get(name);
     }
 
     @Nullable
@@ -100,6 +133,11 @@ public class MenuConfig {
 
     public int updateInterval() {
         return updateInterval;
+    }
+
+    @Nullable
+    public MenuPageGuide pageGuide() {
+        return pageGuide;
     }
 
     public MenuInstance create(Player player) {

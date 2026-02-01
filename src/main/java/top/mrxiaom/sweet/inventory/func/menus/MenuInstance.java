@@ -1,7 +1,6 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
 import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryAction;
@@ -21,7 +20,6 @@ import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
-import top.mrxiaom.sweet.inventory.func.Menus;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
 import java.util.ArrayList;
@@ -44,12 +42,13 @@ public class MenuInstance implements IGuiHolder {
     protected MenuInstance(MenuConfig config, Player player) {
         this.config = config;
         this.player = player;
+        this.updateCounter = config.updateInterval();
     }
 
     public void onTick() {
-        if (actionLock || config.updateInterval == 0) return;
-        if (++updateCounter == config.updateInterval) {
-            updateCounter = 0;
+        if (actionLock || config.updateInterval() == 0) return;
+        if (--updateCounter == 0) {
+            updateCounter = config.updateInterval();
             // 更新需要更新的图标物品内容
             Map<Integer, ItemStack> commits = new HashMap<>();
             for (Map.Entry<Integer, MenuIcon> entry : currentIcons.entrySet()) {
@@ -72,17 +71,39 @@ public class MenuInstance implements IGuiHolder {
         }
     }
 
-    public MenuConfig getConfig() {
+    public MenuConfig config() {
         return config;
     }
 
-    public Component getTitle() {
+    public Component title() {
         return title;
+    }
+
+    public SweetInventory plugin() {
+        return plugin;
     }
 
     @Override
     public Player getPlayer() {
         return player;
+    }
+
+    public boolean hasPrevPage() {
+        MenuPageGuide pageGuide = config.pageGuide();
+        return pageGuide != null && pageGuide.hasPrevPage(page);
+    }
+
+    public boolean hasNextPage() {
+        MenuPageGuide pageGuide = config.pageGuide();
+        return pageGuide != null && pageGuide.hasNextPage(page);
+    }
+
+    public int page() {
+        return page;
+    }
+
+    public void page(int page) {
+        this.page = page;
     }
 
     @Override
@@ -100,17 +121,19 @@ public class MenuInstance implements IGuiHolder {
                 setItem.accept(i, null);
                 continue;
             }
-            List<MenuIcon> list = config.iconsByChar.get(id); // list 已经过优先级排序
-            if (list != null && !list.isEmpty()) for (MenuIcon icon : list) {
-                // 满足条件时，释放图标到界面
-                if (checkRequirements(icon)) {
-                    ItemStack item = icon.generateIcon(player);
-                    setItem.accept(i, item);
-                    currentIcons.put(i, icon);
-                    break;
+            ItemStack item = null;
+            List<MenuIcon> list = config.iconsByChar(id); // list 已经过优先级排序
+            if (list != null && !list.isEmpty()) {
+                for (MenuIcon icon : list) {
+                    // 满足条件时，释放图标到界面
+                    if (checkRequirements(icon)) {
+                        item = icon.generateIcon(player);
+                        currentIcons.put(i, icon);
+                        break;
+                    }
                 }
             }
-            setItem.accept(i, null);
+            setItem.accept(i, item);
         }
         actionLock = false;
     }
@@ -124,9 +147,13 @@ public class MenuInstance implements IGuiHolder {
         player.updateInventory();
     }
 
+    public void updateInventory() {
+        updateInventory(inventory::setItem);
+    }
+
     @Override
     public Inventory newInventory() {
-        String rawTitle = PAPI.setPlaceholders(player, config.title);
+        String rawTitle = PAPI.setPlaceholders(player, config.title());
         title = AdventureUtil.miniMessage(rawTitle);
         inventory = plugin.createInventory(this, inventoryTemplate.length, rawTitle);
         updateInventory(inventory);
@@ -198,7 +225,7 @@ public class MenuInstance implements IGuiHolder {
     }
 
     public boolean checkRequirements(MenuIcon icon) {
-        return checkRequirements(icon.viewRequirements, icon.viewDenyCommands);
+        return checkRequirements(icon.viewRequirements(), icon.viewDenyCommands());
     }
 
     public boolean checkRequirements(List<IRequirement> requirements, @Nullable List<IAction> denyCommands) {

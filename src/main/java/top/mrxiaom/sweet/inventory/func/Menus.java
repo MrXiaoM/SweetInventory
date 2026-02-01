@@ -29,7 +29,7 @@ import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 public class Menus extends AbstractModule {
     private final Map<String, MenuConfig> menus = new HashMap<>();
     private final Map<String, MenuConfig> menusById = new HashMap<>();
-    File menusFolder;
+    private final File menusFolder;
     public Menus(SweetInventory plugin) {
         super(plugin);
         this.registerAlternativeProvider();
@@ -55,6 +55,8 @@ public class Menus extends AbstractModule {
             if (s.startsWith("连接子服:")) return new ActionConnectServer(s.substring(5));
             if (s.startsWith("[connect]")) return new ActionConnectServer(s.substring(9));
             if (s.startsWith("connect:")) return new ActionConnectServer(s.substring(8));
+            if (s.equals("[上一页]") || s.equals("上一页") || s.equals("[prev]") || s.equals("prev")) return PREV;
+            if (s.equals("[下一页]") || s.equals("下一页") || s.equals("[next]") || s.equals("next")) return NEXT;
             return null;
         });
     }
