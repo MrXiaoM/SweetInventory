@@ -31,6 +31,7 @@ public class RequirementsRegistry extends AbstractModule {
         deserializers.clear();
         simpleDeserializers.clear();
         NumberRequirement.init(this);
+        PageRequirement.init(this);
         PermissionRequirement.init(this);
         EvalRequirement.init(this);
     }
