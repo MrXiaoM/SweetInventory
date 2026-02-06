@@ -1,4 +1,4 @@
-title: '界面标题'
+title: '界面标题 %page%/%max_page%'
 inventory:
   - '框框框框框框框框框'
   - '上页页页页页页页下'

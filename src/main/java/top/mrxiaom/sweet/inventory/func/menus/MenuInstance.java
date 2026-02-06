@@ -15,8 +15,11 @@ import org.jspecify.annotations.NonNull;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.GuiManager;
+import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
+import top.mrxiaom.pluginbase.utils.ListPair;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
@@ -115,6 +118,9 @@ public class MenuInstance implements IGuiHolder {
     public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
         currentIcons.clear();
         inventoryTemplate = config.inventory(page);
+        ListPair<String, Object> r = newReplacements();
+        IModifier<String> displayModifier = str -> Pair.replace(str, r);
+        IModifier<List<String>> loreModifier = list -> Pair.replace(list, r);
         for (int i = 0; i < inventoryTemplate.length; i++) {
             char id = inventoryTemplate[i];
             if (id == ' ' || id == '　' || Character.isSpaceChar(id)) { // 忽略空格
@@ -127,7 +133,7 @@ public class MenuInstance implements IGuiHolder {
                 for (MenuIcon icon : list) {
                     // 满足条件时，释放图标到界面
                     if (checkRequirements(icon)) {
-                        item = icon.generateIcon(player);
+                        item = icon.generateIcon(player, displayModifier, loreModifier);
                         currentIcons.put(i, icon);
                         break;
                     }
@@ -151,9 +157,17 @@ public class MenuInstance implements IGuiHolder {
         updateInventory(inventory::setItem);
     }
 
+    public ListPair<String, Object> newReplacements() {
+        ListPair<String, Object> r = new ListPair<>();
+        MenuPageGuide pageGuide = config.pageGuide();
+        r.add("%page%", page);
+        r.add("%max_page%", pageGuide == null ? 1 : pageGuide.pages().size());
+        return r;
+    }
+
     @Override
     public Inventory newInventory() {
-        String rawTitle = PAPI.setPlaceholders(player, config.title());
+        String rawTitle = PAPI.setPlaceholders(player, Pair.replace(config.title(), newReplacements()));
         title = AdventureUtil.miniMessage(rawTitle);
         inventory = plugin.createInventory(this, config.inventory().length, rawTitle);
         updateInventory(inventory);
