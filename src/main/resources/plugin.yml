@@ -15,4 +15,4 @@ libraries:
 commands:
   sweetinventory:
     description: 'The main command of SweetInventory'
-    aliases: [ sinv, si ]
+    aliases: [ sinv, si, menu ]
