@@ -1,6 +1,5 @@
 package top.mrxiaom.sweet.inventory.requirements;
 
-import org.bukkit.entity.Player;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 

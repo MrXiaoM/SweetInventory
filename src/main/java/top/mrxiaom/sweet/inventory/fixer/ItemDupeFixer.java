@@ -16,7 +16,6 @@ import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
-import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 /**

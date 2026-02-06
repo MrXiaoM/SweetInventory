@@ -7,7 +7,6 @@ import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
-import java.util.Collections;
 import java.util.List;
 
 import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;

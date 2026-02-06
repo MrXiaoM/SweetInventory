@@ -1,5 +1,5 @@
 package top.mrxiaom.sweet.inventory.commands;
-        
+
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -18,7 +18,10 @@ import top.mrxiaom.sweet.inventory.func.AbstractModule;
 import top.mrxiaom.sweet.inventory.func.Menus;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 @AutoRegister
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {

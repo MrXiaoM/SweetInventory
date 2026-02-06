@@ -1,6 +1,5 @@
 package top.mrxiaom.sweet.inventory.requirements;
 
-import com.ezylang.evalex.BaseException;
 import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import org.bukkit.configuration.ConfigurationSection;

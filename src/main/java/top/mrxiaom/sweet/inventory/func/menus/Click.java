@@ -9,7 +9,6 @@ import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
 
 public class Click {

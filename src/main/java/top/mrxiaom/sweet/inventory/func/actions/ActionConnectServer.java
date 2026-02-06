@@ -5,8 +5,6 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.inventory.SweetInventory;
-import top.mrxiaom.sweet.inventory.func.Menus;
-import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 
 import java.util.List;
 
