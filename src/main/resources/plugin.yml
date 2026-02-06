@@ -10,6 +10,8 @@ softdepend:
   - MythicMobs
   - PlayerPoints
 authors: [ MrXiaoM ]
+libraries:
+  - "org.jetbrains:annotations:24.0.0"
 commands:
   sweetinventory:
     description: 'The main command of SweetInventory'
