@@ -17,6 +17,7 @@ import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
 import top.mrxiaom.sweet.inventory.func.actions.ActionOpenMenu;
+import top.mrxiaom.sweet.inventory.func.actions.ActionRefresh;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
@@ -59,6 +60,7 @@ public class Menus extends AbstractModule {
             if (s.startsWith("connect:")) return new ActionConnectServer(s.substring(8));
             if (s.equals("[上一页]") || s.equals("上一页") || s.equals("[prev]") || s.equals("prev")) return PREV;
             if (s.equals("[下一页]") || s.equals("下一页") || s.equals("[next]") || s.equals("next")) return NEXT;
+            if (s.equals("[刷新]") || s.equals("刷新") || s.equals("[refresh]") || s.equals("refresh")) return ActionRefresh.INSTANCE;
             return null;
         });
     }
