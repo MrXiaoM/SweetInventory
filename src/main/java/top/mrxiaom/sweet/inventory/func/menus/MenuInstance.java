@@ -155,7 +155,7 @@ public class MenuInstance implements IGuiHolder {
     public Inventory newInventory() {
         String rawTitle = PAPI.setPlaceholders(player, config.title());
         title = AdventureUtil.miniMessage(rawTitle);
-        inventory = plugin.createInventory(this, inventoryTemplate.length, rawTitle);
+        inventory = plugin.createInventory(this, config.inventory().length, rawTitle);
         updateInventory(inventory);
         return inventory;
     }

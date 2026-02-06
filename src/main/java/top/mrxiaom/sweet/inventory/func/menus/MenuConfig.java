@@ -33,6 +33,9 @@ public class MenuConfig {
         this.aliasIds = config.getStringList(alt ? "菜单别名" : "alias-ids");
         this.title = config.getString(alt ? "标题" : "title", "");
         this.inventory = getInventory(config,  alt ? "布局" : "inventory");
+        if (inventory.length == 0 || (inventory.length % 9 != 0)) {
+            throw new IllegalArgumentException("菜单布局配置有误，长度应为 9 的倍数 (当前 " + inventory.length + ")" )
+        }
         this.bindCommand = config.getString(alt ? "绑定界面命令" : "bind-command", null);
         this.openCommands = ActionProviders.loadActions(config, alt ? "打开界面执行命令" : "open-commands");
         this.updateInterval = Math.max(0, config.getInt(alt ? "更新周期" : "update-interval", 0));
