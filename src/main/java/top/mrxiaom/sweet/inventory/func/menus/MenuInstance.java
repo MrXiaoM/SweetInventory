@@ -197,6 +197,10 @@ public class MenuInstance implements IGuiHolder {
     }
 
     private void handleIconClick(Click click) {
+        if (click == null) {
+            actionLock = false;
+            return;
+        }
         plugin.getScheduler().runTask(() -> {
             if (checkRequirements(click.requirements, click.denyCommands)) {
                 executeCommands(click.commands);
