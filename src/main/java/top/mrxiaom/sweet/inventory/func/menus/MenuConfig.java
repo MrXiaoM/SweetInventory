@@ -97,9 +97,8 @@ public class MenuConfig {
                 char[] inv = new char[inventory.length];
                 int length = pageInv.length;
                 for (int i = 0, j = 0; i < inventory.length; i++) {
-                    if (j >= length) break;
                     char ch = inventory[i];
-                    if (pageGuide.slots().contains(ch)) {
+                    if (j < length && pageGuide.slots().contains(ch)) {
                         inv[i] = pageInv[j];
                         j++;
                         continue;
