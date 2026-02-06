@@ -15,7 +15,7 @@ group = "top.mrxiaom.sweet.inventory"
 version = "1.0.0"
 
 val targetJavaVersion = 8
-val pluginBaseModules = base.modules.run { listOf(library, paper, gui, actions, l10n) }
+val pluginBaseModules = base.modules.run { listOf(library, paper, gui, actions, l10n, misc) }
 val shadowGroup = "top.mrxiaom.sweet.inventory.libs"
 val shadowLink = configurations.create("shadowLink")
 
