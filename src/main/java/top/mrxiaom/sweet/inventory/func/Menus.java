@@ -3,6 +3,7 @@ package top.mrxiaom.sweet.inventory.func;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
@@ -11,6 +12,7 @@ import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.actions.*;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
@@ -116,7 +118,7 @@ public class Menus extends AbstractModule {
     }
 
     private void loadConfig(String id, File file) {
-        YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        FileConfiguration config = plugin.resolveGotoFlag(ConfigUtils.load(file));
         boolean alt = getBoolean(true, config, "中文配置", false);
         MenuConfig loaded = MenuConfig.load(alt, id, config);
         menusById.put(id, loaded);

@@ -1,7 +1,10 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.MemorySection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
@@ -24,7 +27,7 @@ public class MenuConfig {
     private final int updateInterval;
     private final @Nullable MenuPageGuide pageGuide;
 
-    MenuConfig(boolean alt, String id, YamlConfiguration config) {
+    MenuConfig(boolean alt, String id, MemoryConfiguration config) {
         SweetInventory plugin = SweetInventory.getInstance();
         this.id = id;
         this.aliasIds = config.getStringList(alt ? "菜单别名" : "alias-ids");
@@ -153,7 +156,7 @@ public class MenuConfig {
         return list;
     }
 
-    public static MenuConfig load(boolean alt, String id, YamlConfiguration config) {
+    public static MenuConfig load(boolean alt, String id, MemoryConfiguration config) {
         return new MenuConfig(alt, id, config);
     }
 
