@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.inventory.commands;
         
 import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,6 +11,7 @@ import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
@@ -66,6 +68,12 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             return t(sender, sb.toString());
         }
         if (args.length == 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
+            GuiManager gui = GuiManager.inst();
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (gui.getOpeningGui(p) != null) {
+                    p.closeInventory();
+                }
+            }
             plugin.reloadConfig();
             return t(sender, "&a配置文件已重载");
         }
