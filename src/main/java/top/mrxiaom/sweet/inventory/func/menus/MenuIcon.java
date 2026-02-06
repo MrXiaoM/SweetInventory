@@ -87,7 +87,7 @@ public class MenuIcon {
         }
 
         this.needsUpdate = getBoolean(alt, config, alt ? "需要更新" : "needs-update");
-        this.priority = config.getInt(alt ? "优先级_越小越优先" : "priority-less");
+        this.priority = config.getInt(alt ? "优先级" : "priority");
         this.viewRequirements = loadRequirements(alt, config, alt ? "查看图标" : "view");
         this.viewDenyCommands = loadActions(config, alt ? "查看图标.不满足需求执行" : "view.deny-commands");
         this.leftClick = Click.load(alt, config, alt ? "左键点击" : "left-click");
