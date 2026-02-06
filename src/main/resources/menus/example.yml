@@ -15,21 +15,20 @@ pages-guide:
 items:
   方框:
     # 这个图标应该在布局的哪里
-    slot: 框
+    slots: [ 框, 上, 下 ]
+    priority: 10
     material: WHITE_STAINED_GLASS_PANE
     display: '&f方框'
   上一页:
     slot: 上
-    # 特殊标记，page-prev 表明，当还有上一页时，显示当前图标，没有时显示它后面指定的图标，比如这里的「方框」
-    special: page-prev 方框
+    view-requirement: page has-prev-page
     material: LIME_STAINED_GLASS_PANE
     display: '&e上一页'
     left-click:
       commands: ['[prev]']
   下一页:
     slot: 下
-    # 特殊标记，page-next 表明，当还有下一页时，显示当前图标，同上
-    special: page-next 方框
+    view-requirement: page has-next-page
     material: LIME_STAINED_GLASS_PANE
     display: '&e下一页'
     left-click:
