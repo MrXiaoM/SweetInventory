@@ -44,7 +44,7 @@ public class ActionTurnPage implements IAction {
                     menu.page(menu.page() + 1);
                 }
             } else {
-                if (menu.hasNextPage()) {
+                if (menu.hasPrevPage()) {
                     menu.page(menu.page() - 1);
                 }
             }
