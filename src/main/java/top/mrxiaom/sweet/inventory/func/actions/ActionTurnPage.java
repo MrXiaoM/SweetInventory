@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.inventory.func.actions;
 
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.GuiManager;
@@ -48,7 +49,7 @@ public class ActionTurnPage implements IAction {
                     menu.page(menu.page() - 1);
                 }
             }
-            menu.plugin().getScheduler().runTask(menu::updateInventory);
+            menu.plugin().getScheduler().runTask(menu::open);
         }
     }
 }
