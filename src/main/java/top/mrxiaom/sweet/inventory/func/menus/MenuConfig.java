@@ -2,16 +2,18 @@ package top.mrxiaom.sweet.inventory.func.menus;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.utils.CollectionUtils;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 
 import java.util.*;
 
+@SuppressWarnings("UnusedReturnValue")
 public class MenuConfig {
     private final String id;
     private final List<String> aliasIds;
@@ -24,12 +26,12 @@ public class MenuConfig {
     private final int updateInterval;
     private final @Nullable MenuPageGuide pageGuide;
 
-    MenuConfig(boolean alt, String id, MemoryConfiguration config) {
+    protected MenuConfig(boolean alt, String id, MemoryConfiguration config) {
         SweetInventory plugin = SweetInventory.getInstance();
         this.id = id;
         this.aliasIds = config.getStringList(alt ? "菜单别名" : "alias-ids");
         this.title = config.getString(alt ? "标题" : "title", "");
-        this.inventory = getInventory(config,  alt ? "布局" : "inventory");
+        this.inventory = String.join("", config.getStringList(alt ? "布局" : "inventory")).toCharArray();
         if (inventory.length == 0 || (inventory.length % 9 != 0)) {
             throw new IllegalArgumentException("菜单布局配置有误，长度应为 9 的倍数 (当前 " + inventory.length + ")" );
         }
@@ -58,7 +60,7 @@ public class MenuConfig {
             }
             iconsByName.put(key, icon);
             for (Character c : icon.slots()) {
-                List<MenuIcon> list = getIconsList(iconsByChar, c);
+                List<MenuIcon> list = CollectionUtils.getOrPut(iconsByChar, c, () -> new ArrayList<>());
                 list.add(icon);
             }
         }
@@ -67,27 +69,47 @@ public class MenuConfig {
         }
     }
 
+    /**
+     * 获取界面配置 ID
+     */
     public String id() {
         return id;
     }
 
+    /**
+     * 获取界面配置别名
+     */
     public List<String> aliasIds() {
         return aliasIds;
     }
 
+    /**
+     * 检查目标是否有权限可以打开这个菜单
+     * @param p 目标
+     */
     public boolean hasPermission(Permissible p) {
         return p.hasPermission("sweet.inventory.open.menu." + id);
     }
 
+    /**
+     * 获取菜单标题
+     */
     public String title() {
         return title;
     }
 
+    /**
+     * 获取菜单布局字符数组
+     */
     public char[] inventory() {
         return inventory;
     }
 
-    public char[] inventory(int page) {
+    /**
+     * 获取某一页的菜单布局字符数组
+     * @param page 页码
+     */
+    public char[] inventory(@Range(from = 1, to = Integer.MAX_VALUE) int page) {
         if (pageGuide != null) {
             char[] pageInv = pageGuide.page(page);
             if (pageInv != null) {
@@ -108,51 +130,88 @@ public class MenuConfig {
         return inventory;
     }
 
+    /**
+     * 获取按模板字符储存的图标列表
+     * @return 图标列表，已经过优先级排序
+     */
     public Map<Character, List<MenuIcon>> iconsByChar() {
         return iconsByChar;
     }
 
+    /**
+     * 获取按模板字符储存的图标列表
+     * @param ch 模板字符
+     * @return 图标列表，已经过优先级排序
+     */
     public List<MenuIcon> iconsByChar(char ch) {
         return iconsByChar.get(ch);
     }
 
+    /**
+     * 获取按图标名称储存的图标列表
+     * @return 图标列表，已经过优先级排序
+     */
     public Map<String, MenuIcon> iconsByName() {
         return iconsByName;
     }
 
+    /**
+     * 获取按图标名称储存的图标列表
+     * @param name 图标名称
+     * @return 图标列表，已经过优先级排序
+     */
     public MenuIcon iconByName(String name) {
         return iconsByName.get(name);
     }
 
+    /**
+     * 获取这个菜单绑定的自定义命令
+     */
     @Nullable
     public String bindCommand() {
         return bindCommand;
     }
 
+    /**
+     * 获取打开菜单时执行的操作
+     */
     public List<IAction> openCommands() {
         return openCommands;
     }
 
+    /**
+     * 获取菜单刷新周期 (ticks)
+     */
     public int updateInterval() {
         return updateInterval;
     }
 
+    /**
+     * 获取菜单分页配置
+     */
     @Nullable
     public MenuPageGuide pageGuide() {
         return pageGuide;
     }
 
+    /**
+     * 创建一个菜单实例，但不打开菜单
+     * @param player 要打开菜单的玩家
+     * @see MenuInstance#create(MenuConfig, Player)
+     */
     public MenuInstance create(Player player) {
         return MenuInstance.create(this, player);
     }
 
-    private static List<MenuIcon> getIconsList(Map<Character, List<MenuIcon>> map, Character c) {
-        List<MenuIcon> list = map.get(c);
-        if (list == null) {
-            list = new ArrayList<>();
-            map.put(c, list);
-        }
-        return list;
+    /**
+     * 创建一个菜单实例，并打开菜单
+     * @param player 要打开菜单的玩家
+     * @see MenuInstance#create(MenuConfig, Player)
+     */
+    public MenuInstance open(Player player) {
+        MenuInstance menu = create(player);
+        menu.open();
+        return menu;
     }
 
     public static MenuConfig load(boolean alt, String id, MemoryConfiguration config) {
@@ -169,9 +228,5 @@ public class MenuConfig {
         if (s.equals("true") || s.equals("yes") || s.equals("是") || s.equals("真") || s.equals("开")) return true;
         if (s.equals("false") || s.equals("no") || s.equals("否") || s.equals("假") || s.equals("关")) return false;
         return def;
-    }
-
-    public static char[] getInventory(MemorySection config, String key) {
-        return String.join("", config.getStringList(key)).toCharArray();
     }
 }

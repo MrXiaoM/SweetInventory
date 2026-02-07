@@ -9,18 +9,19 @@ import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class EvalRequirement implements IRequirement {
-    final boolean reverse;
-    final String expression;
-    final List<String> denyCommands;
+import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
 
-    EvalRequirement(boolean reverse, String expression) {
+public class EvalRequirement implements IRequirement {
+    private final boolean reverse;
+    private final String expression;
+    private final List<IAction> denyCommands;
+
+    protected EvalRequirement(boolean reverse, String expression) {
         this(reverse, expression, new ArrayList<>());
     }
-    EvalRequirement(boolean reverse, String expression, List<String> denyCommands) {
+    protected EvalRequirement(boolean reverse, String expression, List<IAction> denyCommands) {
         this.reverse = reverse;
         this.expression = expression;
         this.denyCommands = denyCommands;
@@ -34,7 +35,7 @@ public class EvalRequirement implements IRequirement {
     protected static IRequirement deserializer(boolean alt, boolean reverse, ConfigurationSection section, String key) {
         String expression = section.getString(key + (alt ? ".表达式" : ".expression"));
         if (expression == null) return null;
-        List<String> denyCommands = section.getStringList(key + (alt ? ".不满足需求执行" : ".deny-commands"));
+        List<IAction> denyCommands = loadActions(section, key + (alt ? ".不满足需求执行" : ".deny-commands"));
         return new EvalRequirement(reverse, expression, denyCommands);
     }
     protected static IRequirement simpleDeserializer(String str) {
@@ -46,8 +47,8 @@ public class EvalRequirement implements IRequirement {
     }
 
     @Override
-    public boolean check(MenuInstance instance) {
-        String str = PAPI.setPlaceholders(instance.getPlayer(), this.expression);
+    public boolean check(MenuInstance menu) {
+        String str = PAPI.setPlaceholders(menu.getPlayer(), this.expression);
         try {
             Expression expression = new Expression(str);
             EvaluationValue result = expression.evaluate();
@@ -55,15 +56,13 @@ public class EvalRequirement implements IRequirement {
             if (booleanValue == null) throw new NullPointerException("evaluate result is null");
             return !booleanValue.equals(reverse);
         } catch (Throwable e) {
-            SweetInventory.getInstance().warn(
-                    String.format("计算表达式 `%s` 时出现一个异常: %s", str, e.toString())
-            );
+            menu.plugin().warn("计算表达式 `" + str + "` 时出现一个异常", e);
         }
         return reverse;
     }
 
     @Override
-    public List<IAction> getDenyCommands() {
-        return Collections.emptyList();
+    public List<IAction> denyCommands() {
+        return denyCommands;
     }
 }

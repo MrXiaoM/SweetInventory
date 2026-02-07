@@ -12,24 +12,33 @@ import java.util.List;
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
 
 public class Click {
-    final List<IRequirement> requirements;
-    final List<IAction> commands;
-    final List<IAction> denyCommands;
+    private final List<IRequirement> requirements;
+    private final List<IAction> commands;
+    private final List<IAction> denyCommands;
 
-    Click(List<IRequirement> requirements, List<IAction> commands, List<IAction> denyCommands) {
+    protected Click(List<IRequirement> requirements, List<IAction> commands, List<IAction> denyCommands) {
         this.requirements = requirements;
         this.commands = commands;
         this.denyCommands = denyCommands;
     }
 
+    /**
+     * 获取点击需求列表
+     */
     public List<IRequirement> requirements() {
         return requirements;
     }
 
+    /**
+     * 获取执行操作列表
+     */
     public List<IAction> commands() {
         return commands;
     }
 
+    /**
+     * 获取需求不满足时执行的操作列表
+     */
     public List<IAction> denyCommands() {
         return denyCommands;
     }

@@ -18,12 +18,14 @@ public class ActionOpenMenu implements IAction {
 
     @Override
     public void run(@Nullable Player player, @Nullable List<Pair<String, Object>> list) {
-        MenuConfig menu = Menus.inst().getMenu(this.menu);
-        if (menu == null) {
-            SweetInventory.getInstance().warn("找不到菜单 " + this.menu);
-            player.closeInventory();
-            return;
+        if (player != null) {
+            MenuConfig menu = Menus.inst().getMenu(this.menu);
+            if (menu == null) {
+                SweetInventory.getInstance().warn("找不到菜单 " + this.menu);
+                player.closeInventory();
+                return;
+            }
+            menu.open(player);
         }
-        menu.create(player).open();
     }
 }

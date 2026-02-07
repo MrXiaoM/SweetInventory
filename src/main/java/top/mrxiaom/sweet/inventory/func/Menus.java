@@ -1,6 +1,5 @@
 package top.mrxiaom.sweet.inventory.func;
 
-import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,6 +26,9 @@ import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.NEXT;
 import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.PREV;
 import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 
+/**
+ * 菜单配置管理器
+ */
 @AutoRegister
 public class Menus extends AbstractModule {
     private final Map<String, MenuConfig> menus = new HashMap<>();
@@ -74,15 +76,10 @@ public class Menus extends AbstractModule {
         }
     }
 
-    @CanIgnoreReturnValue
-    private static boolean mkdirs(File folder) {
-        return folder.mkdirs();
-    }
-
     @Override
     public void reloadConfig(MemoryConfiguration cfg) {
         if (!menusFolder.exists()) {
-            mkdirs(menusFolder);
+            Util.mkdirs(menusFolder);
             plugin.saveResource("menus/example.yml", new File(menusFolder, "example.yml"));
         }
         menus.clear();
@@ -98,13 +95,9 @@ public class Menus extends AbstractModule {
                 warn("路径 " + path + " 指向的不是一个目录");
                 continue;
             }
-            Util.reloadFolder(folder, false, (id, file) -> {
-                loadConfig(id.replace("\\", "/"), file);
-            });
+            Util.reloadFolder(folder, false, this::loadConfig);
         }
-        Util.reloadFolder(menusFolder, false, (id, file) -> {
-            loadConfig(id.replace("\\", "/"), file);
-        });
+        Util.reloadFolder(menusFolder, false, this::loadConfig);
         menus.putAll(menusById);
         for (MenuConfig config : menusById.values()) {
             for (String aliasId : config.aliasIds()) {
@@ -121,8 +114,8 @@ public class Menus extends AbstractModule {
     private void loadConfig(String id, File file) {
         FileConfiguration config = plugin.resolveGotoFlag(ConfigUtils.load(file));
         boolean alt = getBoolean(true, config, "中文配置", false);
-        MenuConfig loaded = MenuConfig.load(alt, id, config);
-        menusById.put(id, loaded);
+        MenuConfig loaded = MenuConfig.load(alt, id.replace("\\", "/"), config);
+        menusById.put(loaded.id(), loaded);
     }
 
     public Set<String> getMenuIds() {

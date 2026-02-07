@@ -16,6 +16,8 @@ public class ActionConnectServer implements IAction {
 
     @Override
     public void run(@Nullable Player player, @Nullable List<Pair<String, Object>> list) {
-        SweetInventory.getInstance().connect(player, server);
+        if (player != null) {
+            SweetInventory.getInstance().connect(player, server);
+        }
     }
 }

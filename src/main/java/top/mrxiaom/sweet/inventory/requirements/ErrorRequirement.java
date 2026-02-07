@@ -9,12 +9,12 @@ import java.util.List;
 public class ErrorRequirement implements IRequirement {
     public static final ErrorRequirement INSTANCE = new ErrorRequirement();
     @Override
-    public boolean check(MenuInstance instance) {
+    public boolean check(MenuInstance menu) {
         return false;
     }
 
     @Override
-    public List<IAction> getDenyCommands() {
+    public List<IAction> denyCommands() {
         return Collections.emptyList();
     }
 }

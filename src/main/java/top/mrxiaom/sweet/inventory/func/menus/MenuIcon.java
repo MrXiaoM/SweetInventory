@@ -53,7 +53,7 @@ public class MenuIcon {
     private final @Nullable Click dropClick;
     private final @Nullable Click ctrlDropClick;
 
-    public MenuIcon(boolean alt, ConfigurationSection config, String id) {
+    protected MenuIcon(boolean alt, @NotNull ConfigurationSection config, @NotNull String id) {
         this.id = id;
         this.section = config;
         this.slots = loadSlots(alt, config);
@@ -73,7 +73,7 @@ public class MenuIcon {
         this.amount = config.getInt(alt ? "数量" : "amount", 1);
         this.display = config.getString(alt ? "名字" : "display", "");
         this.lore = config.getStringList(alt ? "描述" : "lore");
-        this.glow = config.getBoolean(alt ? "发光" : "glow");
+        this.glow = getBoolean(alt, config, alt ? "发光" : "glow");
         this.customModelData = config.contains(alt ? "模型数据" : "custom-model-data") ? config.getInt(alt ? "模型数据" : "custom-model-data") : null;
         this.nbtStrings = new HashMap<>();
         section = config.getConfigurationSection(alt ? "nbt字符串" : "nbt-strings");
@@ -98,54 +98,87 @@ public class MenuIcon {
         this.ctrlDropClick = Click.load(alt, config, alt ? "Ctrl+Q键点击" : "ctrl-drop-click");
     }
 
+    /**
+     * 获取菜单图标配置
+     */
     @NotNull
     public ConfigurationSection section() {
         return section;
     }
 
+    /**
+     * 获取菜单图标 ID，即图标在配置中的名称
+     */
     @NotNull
     public String id() {
         return id;
     }
 
+    /**
+     * 获取图标物品类型
+     */
     @NotNull
     public String material() {
         return material;
     }
 
+    /**
+     * 获取图标物品数量
+     */
     public int amount() {
         return amount;
     }
 
+    /**
+     * 获取图标物品显示名称
+     */
     @NotNull
     public String display() {
         return display;
     }
 
+    /**
+     * 获取图标物品描述
+     */
     @NotNull
     public List<String> lore() {
         return lore;
     }
 
+    /**
+     * 获取图标是否发光（即是否添加附魔光泽）
+     */
     public boolean glow() {
         return glow;
     }
 
+    /**
+     * 获取图标物品的自定义模型数据值，用于修改图标贴图
+     */
     @Nullable
     public Integer customModelData() {
         return customModelData;
     }
 
+    /**
+     * 获取图标物品 NBT 标签
+     */
     @NotNull
     public Map<String, String> nbtStrings() {
         return nbtStrings;
     }
 
+    /**
+     * 获取图标物品 NBT 标签
+     */
     @NotNull
     public Map<String, String> nbtInts() {
         return nbtInts;
     }
 
+    /**
+     * 获取图标物品会在哪些模板字符上显示
+     */
     @NotNull
     public List<Character> slots() {
         return slots;
@@ -282,7 +315,7 @@ public class MenuIcon {
     }
 
     /**
-     * 获取左键点击需求与执行操作
+     * 获取 左键 点击需求与执行操作
      */
     @Nullable
     public Click leftClick() {
@@ -290,7 +323,7 @@ public class MenuIcon {
     }
 
     /**
-     * 获取右键点击需求与执行操作
+     * 获取 右键 点击需求与执行操作
      */
     @Nullable
     public Click rightClick() {
@@ -298,7 +331,7 @@ public class MenuIcon {
     }
 
     /**
-     * 获取Shift+左键点击需求与执行操作
+     * 获取 Shift+左键 点击需求与执行操作
      */
     @Nullable
     public Click shiftLeftClick() {
@@ -306,7 +339,7 @@ public class MenuIcon {
     }
 
     /**
-     * 获取Shift+右键点击需求与执行操作
+     * 获取 Shift+右键 点击需求与执行操作
      */
     @Nullable
     public Click shiftRightClick() {
@@ -314,7 +347,7 @@ public class MenuIcon {
     }
 
     /**
-     * 获取Q键点击需求与执行操作
+     * 获取 Q键 点击需求与执行操作
      */
     @Nullable
     public Click dropClick() {
@@ -322,7 +355,7 @@ public class MenuIcon {
     }
 
     /**
-     * 获取Ctrl+Q键点击需求与执行操作
+     * 获取 Ctrl+Q键 点击需求与执行操作
      */
     @Nullable
     public Click ctrlDropClick() {

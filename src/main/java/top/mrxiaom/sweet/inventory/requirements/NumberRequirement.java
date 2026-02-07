@@ -69,9 +69,9 @@ public class NumberRequirement implements IRequirement {
     }
 
     @Override
-    public boolean check(MenuInstance instance) {
-        String input = PAPI.setPlaceholders(instance.getPlayer(), this.input);
-        String output = PAPI.setPlaceholders(instance.getPlayer(), this.output);
+    public boolean check(MenuInstance menu) {
+        String input = PAPI.setPlaceholders(menu.getPlayer(), this.input);
+        String output = PAPI.setPlaceholders(menu.getPlayer(), this.output);
         if (type.equals(Operator.EQUALS)) {
             if (input.equals(output)) return true;
         }
@@ -96,7 +96,7 @@ public class NumberRequirement implements IRequirement {
     }
 
     @Override
-    public List<IAction> getDenyCommands() {
+    public List<IAction> denyCommands() {
         return denyCommands;
     }
 }

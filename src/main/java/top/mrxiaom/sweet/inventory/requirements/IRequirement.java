@@ -6,6 +6,6 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 import java.util.List;
 
 public interface IRequirement {
-    boolean check(MenuInstance instance);
-    List<IAction> getDenyCommands();
+    boolean check(MenuInstance menu);
+    List<IAction> denyCommands();
 }

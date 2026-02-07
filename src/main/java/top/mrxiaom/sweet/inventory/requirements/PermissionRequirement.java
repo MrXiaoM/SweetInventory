@@ -46,14 +46,14 @@ public class PermissionRequirement implements IRequirement {
     }
 
     @Override
-    public boolean check(MenuInstance instance) {
-        Player player = instance.getPlayer();
+    public boolean check(MenuInstance menu) {
+        Player player = menu.getPlayer();
         String permission = PAPI.setPlaceholders(player, this.permission);
         return player.hasPermission(permission) != reverse;
     }
 
     @Override
-    public List<IAction> getDenyCommands() {
+    public List<IAction> denyCommands() {
         return denyCommands;
     }
 }

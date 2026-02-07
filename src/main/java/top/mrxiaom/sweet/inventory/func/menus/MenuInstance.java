@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
@@ -35,8 +36,9 @@ public class MenuInstance implements IGuiHolder {
     private final SweetInventory plugin = SweetInventory.getInstance();
     private final MenuConfig config;
     private final Player player;
+    private final Map<Integer, MenuIcon> currentIcons = new HashMap<>();
+    private final Map<String, Object> variables = new HashMap<>();
     private int updateCounter = 0;
-    private Map<Integer, MenuIcon> currentIcons = new HashMap<>();
     private Component title;
     private Inventory inventory;
     private int page = 1;
@@ -74,41 +76,68 @@ public class MenuInstance implements IGuiHolder {
         }
     }
 
+    /**
+     * 获取菜单配置
+     */
     public MenuConfig config() {
         return config;
     }
 
+    /**
+     * 获取当前已计算的菜单标题
+     */
     public Component title() {
         return title;
     }
 
+    /**
+     * 获取插件实例
+     */
     public SweetInventory plugin() {
         return plugin;
     }
 
+    /**
+     * 获取浏览这个菜单的玩家实例
+     */
     @Override
     public Player getPlayer() {
         return player;
     }
 
+    /**
+     * 获取是否还有上一页可用
+     */
     public boolean hasPrevPage() {
         MenuPageGuide pageGuide = config.pageGuide();
         return pageGuide != null && pageGuide.hasPrevPage(page);
     }
 
+    /**
+     * 获取是否还有下一页可用
+     */
     public boolean hasNextPage() {
         MenuPageGuide pageGuide = config.pageGuide();
         return pageGuide != null && pageGuide.hasNextPage(page);
     }
 
+    /**
+     * 获取当前页码
+     */
     public int page() {
         return page;
     }
 
+    /**
+     * 设置当前页码
+     */
     public void page(int page) {
         this.page = page;
     }
 
+    /**
+     * 打开或重新打开菜单，会执行打开操作命令
+     */
     @Override
     public void open() {
         GuiManager.inst().openGui(this);
@@ -122,7 +151,7 @@ public class MenuInstance implements IGuiHolder {
         GuiManager.inst().openGui(this);
     }
 
-    public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
+    private void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
         currentIcons.clear();
         inventoryTemplate = config.inventory(page);
         ListPair<String, Object> r = newReplacements();
@@ -139,7 +168,7 @@ public class MenuInstance implements IGuiHolder {
             if (list != null && !list.isEmpty()) {
                 for (MenuIcon icon : list) {
                     // 满足条件时，释放图标到界面
-                    if (checkRequirements(icon)) {
+                    if (checkRequirements(icon.viewRequirements(), icon.viewDenyCommands(), r)) {
                         item = icon.generateIcon(player, displayModifier, loreModifier);
                         currentIcons.put(i, icon);
                         break;
@@ -151,25 +180,49 @@ public class MenuInstance implements IGuiHolder {
         actionLock = false;
     }
 
-    public void updateInventory(Inventory inv) {
-        updateInventory(inv::setItem);
-    }
-
-    public void updateInventory(InventoryView view) {
-        updateInventory(view::setItem);
-        player.updateInventory();
-    }
-
-    public void updateInventory() {
-        updateInventory(inventory::setItem);
-    }
-
+    /**
+     * 新建一个替换变量列表并返回
+     */
     public ListPair<String, Object> newReplacements() {
         ListPair<String, Object> r = new ListPair<>();
         MenuPageGuide pageGuide = config.pageGuide();
         r.add("%page%", page);
         r.add("%max_page%", pageGuide == null ? 1 : pageGuide.pages().size());
+        for (Map.Entry<String, Object> entry : variables.entrySet()) {
+            r.add("${" + entry.getKey() + "}", entry.getValue());
+        }
         return r;
+    }
+
+    /**
+     * 获取菜单所有的临时变量
+     */
+    @NotNull
+    public Map<String, Object> variables() {
+        return variables;
+    }
+
+    /**
+     * 获取菜单临时变量的值
+     * @param name 变量名
+     * @return 如果变量不存在，返回 <code>null</code>
+     */
+    @Nullable
+    public Object variable(@NotNull String name) {
+        return variables.get(name);
+    }
+
+    /**
+     * 设置菜单临时变量的值
+     * @param name 变量名
+     * @param value 变量值，如果传入 <code>null</code>，则代表删除变量
+     */
+    public void variable(@NotNull String name, @Nullable Object value) {
+        if (value != null) {
+            variables.put(name, value);
+        } else {
+            variables.remove(name);
+        }
     }
 
     @Override
@@ -177,7 +230,7 @@ public class MenuInstance implements IGuiHolder {
         String rawTitle = PAPI.setPlaceholders(player, Pair.replace(config.title(), newReplacements()));
         title = AdventureUtil.miniMessage(rawTitle);
         inventory = plugin.createInventory(this, config.inventory().length, rawTitle);
-        updateInventory(inventory);
+        updateInventory(inventory::setItem);
         return inventory;
     }
 
@@ -217,19 +270,26 @@ public class MenuInstance implements IGuiHolder {
         actionLock = false;
     }
 
-    private void handleIconClick(Click click) {
+    private void handleIconClick(@Nullable Click click) {
         if (click == null) {
             actionLock = false;
             return;
         }
         plugin.getScheduler().runTask(() -> {
-            if (checkRequirements(click.requirements, click.denyCommands)) {
-                executeCommands(click.commands);
+            ListPair<String, Object> r = newReplacements();
+            if (checkRequirements(click.requirements(), click.denyCommands(), r)) {
+                executeCommands(click.commands(), r);
             }
             actionLock = false;
         });
     }
 
+    /**
+     * 获取点击的界面物品索引指向的模板字符
+     * @param slot 格子索引
+     * @return 模板字符，找不到时返回 <code>null</code>
+     */
+    @Nullable
     public Character getClickedId(int slot) {
         if (slot >= 0 && slot < inventoryTemplate.length) {
             return inventoryTemplate[slot];
@@ -238,6 +298,12 @@ public class MenuInstance implements IGuiHolder {
         }
     }
 
+    /**
+     * 获取某个模板字符，截至指定界面物品索引出现过多少次
+     * @param id 模板字符
+     * @param slot 格子索引
+     * @return 模板字符出现次数
+     */
     public int getAppearTimes(Character id, int slot) {
         int appearTimes = 0;
         for (int i = 0; i < inventoryTemplate.length; i++) {
@@ -249,17 +315,19 @@ public class MenuInstance implements IGuiHolder {
         return appearTimes;
     }
 
-    public boolean checkRequirements(MenuIcon icon) {
-        return checkRequirements(icon.viewRequirements(), icon.viewDenyCommands());
-    }
-
-    public boolean checkRequirements(List<IRequirement> requirements, @Nullable List<IAction> denyCommands) {
+    /**
+     * 检查是否符合指定需求，不满足需求时执行拒绝命令
+     * @param requirements 需求列表
+     * @param denyCommands 拒绝时必执行的拒绝命令
+     * @param r 变量替换列表
+     */
+    public boolean checkRequirements(@NotNull List<IRequirement> requirements, @Nullable List<IAction> denyCommands, @Nullable ListPair<String, Object> r) {
         boolean success = true;
         List<IAction> commands = new ArrayList<>();
         for (IRequirement requirement : requirements) {
             if (!requirement.check(this)) {
                 success = false;
-                commands.addAll(requirement.getDenyCommands());
+                commands.addAll(requirement.denyCommands());
                 break;
             }
         }
@@ -267,15 +335,26 @@ public class MenuInstance implements IGuiHolder {
             commands.addAll(denyCommands);
         }
         if (!commands.isEmpty()) {
-            executeCommands(commands);
+            executeCommands(commands, r);
         }
         return success;
     }
 
-    public void executeCommands(List<IAction> commands) {
-        ActionProviders.run(plugin, player, commands);
+    /**
+     * 使用预览该菜单的玩家作为上下文，执行指定操作
+     * @param commands 操作列表
+     * @param r 变量替换列表
+     */
+    public void executeCommands(@NotNull List<IAction> commands, @Nullable ListPair<String, Object> r) {
+        ActionProviders.run(plugin, player, commands, r);
     }
 
+    /**
+     * 创建菜单实例
+     * @param config 菜单配置
+     * @param player 要打开菜单的玩家
+     */
+    @NotNull
     public static MenuInstance create(MenuConfig config, Player player) {
         return new MenuInstance(config, player);
     }

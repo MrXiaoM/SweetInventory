@@ -8,16 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
+import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 
 public class PageRequirement implements IRequirement {
-    final boolean reverse;
-    final boolean hasPrevPage, hasNextPage;
-    final List<IAction> denyCommands;
+    private final boolean reverse;
+    private final boolean hasPrevPage, hasNextPage;
+    private final List<IAction> denyCommands;
 
-    PageRequirement(boolean reverse, boolean hasPrevPage, boolean hasNextPage) {
+    protected PageRequirement(boolean reverse, boolean hasPrevPage, boolean hasNextPage) {
         this(reverse, hasPrevPage, hasNextPage, new ArrayList<>());
     }
-    PageRequirement(boolean reverse, boolean hasPrevPage, boolean hasNextPage, List<IAction> denyCommands) {
+    protected PageRequirement(boolean reverse, boolean hasPrevPage, boolean hasNextPage, List<IAction> denyCommands) {
         this.reverse = reverse;
         this.hasPrevPage = hasPrevPage;
         this.hasNextPage = hasNextPage;
@@ -31,10 +32,10 @@ public class PageRequirement implements IRequirement {
     }
 
     protected static IRequirement deserializer(boolean alt, boolean reverse, ConfigurationSection section, String key) {
-        boolean hasPrevPage = section.getBoolean(key + (alt ? ".有上一页" : ".has-prev-page"), false);
-        boolean hasNextPage = section.getBoolean(key + (alt ? ".有上一页" : ".has-next-page"), false);
+        boolean hasPrevPage = getBoolean(alt, section, key + (alt ? ".有上一页" : ".has-prev-page"), false);
+        boolean hasNextPage = getBoolean(alt, section, key + (alt ? ".有上一页" : ".has-next-page"), false);
         List<IAction> denyCommands = loadActions(section, key + (alt ? ".不满足需求执行" : ".deny-commands"));
-        return new PageRequirement(reverse, hasPrevPage, hasPrevPage, denyCommands);
+        return new PageRequirement(reverse, hasPrevPage, hasNextPage, denyCommands);
     }
 
     protected static IRequirement simpleDeserializer(String str) {
@@ -46,18 +47,18 @@ public class PageRequirement implements IRequirement {
     }
 
     @Override
-    public boolean check(MenuInstance instance) {
+    public boolean check(MenuInstance menu) {
         if (hasPrevPage) {
-            return instance.hasPrevPage() != reverse;
+            return menu.hasPrevPage() != reverse;
         }
         if (hasNextPage) {
-            return instance.hasNextPage() != reverse;
+            return menu.hasNextPage() != reverse;
         }
-        return false != reverse;
+        return reverse;
     }
 
     @Override
-    public List<IAction> getDenyCommands() {
+    public List<IAction> denyCommands() {
         return denyCommands;
     }
 }

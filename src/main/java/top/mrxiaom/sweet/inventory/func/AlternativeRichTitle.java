@@ -24,6 +24,9 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 当不支持 PaperInventory 时，通过 ProtocolLib 复原菜单标题 Component
+ */
 @AutoRegister(requirePlugins = {"ProtocolLib"})
 public class AlternativeRichTitle extends AbstractModule implements Listener {
     Map<String, InventoryView> openedWindow = new HashMap<>();

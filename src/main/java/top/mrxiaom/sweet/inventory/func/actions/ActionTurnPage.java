@@ -35,19 +35,21 @@ public class ActionTurnPage implements IAction {
 
     @Override
     public void run(@Nullable Player player, @Nullable List<Pair<String, Object>> list) {
-        IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
-        if (gui instanceof MenuInstance) {
-            MenuInstance menu = (MenuInstance) gui;
-            if (next) {
-                if (menu.hasNextPage()) {
-                    menu.page(menu.page() + 1);
+        if (player != null) {
+            IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
+            if (gui instanceof MenuInstance) {
+                MenuInstance menu = (MenuInstance) gui;
+                if (next) {
+                    if (menu.hasNextPage()) {
+                        menu.page(menu.page() + 1);
+                    }
+                } else {
+                    if (menu.hasPrevPage()) {
+                        menu.page(menu.page() - 1);
+                    }
                 }
-            } else {
-                if (menu.hasPrevPage()) {
-                    menu.page(menu.page() - 1);
-                }
+                menu.plugin().getScheduler().runTask(menu::refresh);
             }
-            menu.plugin().getScheduler().runTask(menu::refresh);
         }
     }
 }

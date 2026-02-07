@@ -2,15 +2,18 @@ package top.mrxiaom.sweet.inventory.func.menus;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MenuPageGuide {
+    private final MenuConfig config;
     private final List<Character> slots;
     private final List<char[]> pages;
-    MenuPageGuide(MenuConfig parent, boolean alt, ConfigurationSection section) {
+    protected MenuPageGuide(MenuConfig parent, boolean alt, ConfigurationSection section) {
+        this.config = parent;
         this.slots = loadSlots(alt, section);
         if (slots.isEmpty()) {
             throw new IllegalArgumentException("没有将分页器添加到布局的任意格子中");
@@ -21,25 +24,51 @@ public class MenuPageGuide {
         }
     }
 
+    /**
+     * 获取这个分页配置属于哪个菜单
+     */
+    public MenuConfig config() {
+        return config;
+    }
+
+    /**
+     * 获取菜单布局中的哪些格子用于分页内容
+     */
     @NotNull
     public List<Character> slots() {
         return slots;
     }
 
+    /**
+     * 获取每一页的分页内容
+     */
     @NotNull
     public List<char[]> pages() {
         return pages;
     }
 
-    public char @Nullable [] page(int page) {
+    /**
+     * 获取某一页的分页内容
+     * @param page 第几页，从 <code>1</code> 开始
+     */
+    public char @Nullable [] page(@Range(from=1, to=Integer.MAX_VALUE) int page) {
+        // noinspection ConstantValue
         return page < 1 || page > pages.size() ? null : pages.get(page - 1);
     }
 
-    public boolean hasPrevPage(int page) {
+    /**
+     * 获取指定页码是否还有上一页可用
+     * @param page 第几页，从 <code>1</code> 开始
+     */
+    public boolean hasPrevPage(@Range(from=1, to=Integer.MAX_VALUE) int page) {
         return page > 1;
     }
 
-    public boolean hasNextPage(int page) {
+    /**
+     * 获取指定页码是否还有下一页可用
+     * @param page 第几页，从 <code>1</code> 开始
+     */
+    public boolean hasNextPage(@Range(from=1, to=Integer.MAX_VALUE) int page) {
         return page < pages.size();
     }
 
