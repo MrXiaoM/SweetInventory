@@ -82,7 +82,12 @@ public class RequirementsRegistry extends AbstractModule {
         RequirementsRegistry self = inst();
         if (section != null) for (String ignore : section.getKeys(false)) {
             if (section.isConfigurationSection(ignore)) {
-                String type = section.getString(ignore + (alt ? ".类型" : ".type"));
+                String type = section.getString(ignore + (alt ? ".类型" : ".type"), null);
+                if (type == null) {
+                    self.warn("[需求:" + ignore + "] 未配置需求类型");
+                    error.set(true);
+                    continue;
+                }
                 boolean reverse = type.startsWith("!");
                 if (reverse) type = type.substring(1);
                 RequirementDeserializer deserializer = self.deserializers.get(type);
