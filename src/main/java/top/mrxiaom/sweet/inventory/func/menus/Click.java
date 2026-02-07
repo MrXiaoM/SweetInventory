@@ -35,7 +35,18 @@ public class Click {
     }
 
     public static Click load(boolean alt, ConfigurationSection section, String key) {
-        List<IAction> commands = loadActions(section, key + (alt ? ".命令列表" : ".commands"));
+        List<IAction> commands = new ArrayList<>();
+        if (alt) {
+            commands.addAll(loadActions(section, key + ".命令列表"));
+            commands.addAll(loadActions(section, key + ".命令"));
+            commands.addAll(loadActions(section, key + "命令列表"));
+            commands.addAll(loadActions(section, key + "命令"));
+        } else {
+            commands.addAll(loadActions(section, key + ".commands"));
+            commands.addAll(loadActions(section, key + ".command"));
+            commands.addAll(loadActions(section, key + "-commands"));
+            commands.addAll(loadActions(section, key + "-command"));
+        }
         if (commands.isEmpty()) return null;
         List<IRequirement> requirements = loadRequirements(alt, section, key);
         List<IAction> denyCommands = loadActions(section, key + (alt ? ".不满足需求执行" : ".deny-commands"));
