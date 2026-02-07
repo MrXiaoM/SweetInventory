@@ -115,6 +115,13 @@ public class MenuInstance implements IGuiHolder {
         ActionProviders.run(plugin, player, config.openCommands());
     }
 
+    /**
+     * 打开或刷新菜单，不会执行打开操作命令
+     */
+    public void refresh() {
+        GuiManager.inst().openGui(this);
+    }
+
     public void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
         currentIcons.clear();
         inventoryTemplate = config.inventory(page);

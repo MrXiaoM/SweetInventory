@@ -47,7 +47,7 @@ public class ActionTurnPage implements IAction {
                     menu.page(menu.page() - 1);
                 }
             }
-            menu.plugin().getScheduler().runTask(menu::open);
+            menu.plugin().getScheduler().runTask(menu::refresh);
         }
     }
 }

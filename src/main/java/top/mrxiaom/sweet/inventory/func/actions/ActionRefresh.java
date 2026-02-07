@@ -18,7 +18,7 @@ public class ActionRefresh implements IAction {
         IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
         if (gui instanceof MenuInstance) {
             MenuInstance menu = (MenuInstance) gui;
-            menu.plugin().getScheduler().runTask(menu::open);
+            menu.plugin().getScheduler().runTask(menu::refresh);
         }
     }
 }
