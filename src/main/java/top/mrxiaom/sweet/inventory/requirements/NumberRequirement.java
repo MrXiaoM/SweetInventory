@@ -17,7 +17,7 @@ public class NumberRequirement implements IRequirement {
         LARGE_THAN(">", "large than", "大于"),
         LARGE_THAN_OR_EUALS(">=", "large than or equals", "大于等于", "大于或等于"),
         LESS_THAN("<", "less than", "smaller than", "小于"),
-        LESS_THAN_OR_EUALS("<=", "less than or euals", "smaller than or equals", "小于等于", "小于或等于");
+        LESS_THAN_OR_EUALS("<=", "less than or equals", "smaller than or equals", "小于等于", "小于或等于");
 
         public final String[] types;
         Operator(String... types) {

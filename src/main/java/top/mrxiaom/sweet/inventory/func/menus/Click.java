@@ -58,7 +58,15 @@ public class Click {
         }
         if (commands.isEmpty()) return null;
         List<IRequirement> requirements = loadRequirements(alt, section, key);
-        List<IAction> denyCommands = loadActions(section, key + (alt ? ".不满足需求执行" : ".deny-commands"));
+
+        List<IAction> denyCommands = new ArrayList<>();
+        if (alt) {
+            denyCommands.addAll(loadActions(section, key + ".不满足需求执行"));
+            denyCommands.addAll(loadActions(section, key + "不满足需求执行"));
+        } else {
+            denyCommands.addAll(loadActions(section, key + ".deny-commands"));
+            denyCommands.addAll(loadActions(section, key + "-deny-commands"));
+        }
         return new Click(requirements, commands, denyCommands);
     }
 
