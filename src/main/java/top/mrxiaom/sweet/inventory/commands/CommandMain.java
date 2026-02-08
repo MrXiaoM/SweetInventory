@@ -71,14 +71,17 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             return t(sender, sb.toString());
         }
         if (args.length == 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
-            GuiManager gui = GuiManager.inst();
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                if (gui.getOpeningGui(p) != null) {
-                    p.closeInventory();
+            plugin.getScheduler().runTask(() -> {
+                GuiManager gui = GuiManager.inst();
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (gui.getOpeningGui(p) != null) {
+                        p.closeInventory();
+                    }
                 }
-            }
-            plugin.reloadConfig();
-            return t(sender, "&a配置文件已重载");
+                plugin.reloadConfig();
+                t(sender, "&a配置文件已重载");
+            });
+            return true;
         }
         return true;
     }
