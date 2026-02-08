@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.BukkitPlugin;
+import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
 import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
@@ -73,6 +74,15 @@ public class SweetInventory extends BukkitPlugin {
         MinecraftVersion.disableUpdateCheck();
         MinecraftVersion.disableBStats();
         MinecraftVersion.getVersion();
+    }
+
+    @Override
+    protected void beforeEnable() {
+        LanguageManager.inst()
+                .setLangFile("messages.yml")
+                .register(Messages.class)
+                .register(Messages.Command.class)
+                .reload();
     }
 
     @SuppressWarnings({"all"})

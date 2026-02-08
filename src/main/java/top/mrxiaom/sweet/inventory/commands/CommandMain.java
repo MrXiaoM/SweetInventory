@@ -12,16 +12,17 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.GuiManager;
+import top.mrxiaom.pluginbase.utils.AdventureUtil;
+import top.mrxiaom.pluginbase.utils.ListPair;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.sweet.inventory.Messages;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
 import top.mrxiaom.sweet.inventory.func.Menus;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @AutoRegister
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {
@@ -33,27 +34,30 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (args.length >= 2 && "open".equalsIgnoreCase(args[0])) {
+            if (!sender.hasPermission("sweet.inventory.open")) {
+                return Messages.no_permission.tm(sender);
+            }
             MenuConfig menu = Menus.inst().getMenu(args[1]);
             if (menu == null) {
-                return t(sender, "&4找不到菜单 &c" + args[1]);
+                return Messages.Command.open__no_menu_found.tm(sender, Pair.of("%menu%", args[1]));
             }
             Player player;
             if (args.length == 3) {
                 if (!sender.hasPermission("sweet.inventory.open.other")) {
-                    return t(sender, "&c你没有执行该操作的权限");
+                    return Messages.no_permission.tm(sender);
                 }
                 player = Util.getOnlinePlayer(args[2]).orElse(null);
                 if (player == null) {
-                    return t(sender, "&c玩家不在线");
+                    return Messages.player__not_online.tm(sender);
                 }
             } else {
                 if (sender instanceof Player) {
                     player = (Player) sender;
-                    if (!menu.hasPermission(player)) {
-                        return t(sender, "&c你没有执行该操作的权限");
+                    if (!menu.hasPermission(sender)) {
+                        return Messages.no_permission.tm(sender);
                     }
                 } else {
-                    return t(sender, "&c只有玩家可以执行该命令");
+                    return Messages.player__only.tm(sender);
                 }
             }
             menu.open(player);
@@ -61,14 +65,26 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
         if (args.length == 1 && "list".equalsIgnoreCase(args[0])) {
             if (!sender.hasPermission("sweet.inventory.list")) {
-                return t(sender, "&c你没有进行该操作的权限");
+                return Messages.no_permission.tm(sender);
             }
             Set<String> menusId = Menus.inst().getMenuIds();
-            StringBuilder sb = new StringBuilder("&e&l菜单列表:");
-            for (String s : menusId) {
-                sb.append("\n  &8· &f").append(s);
+            StringJoiner joiner = new StringJoiner("\n");
+            for (String line : Messages.Command.list__header.list()) {
+                joiner.add(line);
             }
-            return t(sender, sb.toString());
+            for (String s : menusId) {
+                ListPair<String, Object> r = new ListPair<>();
+                r.add("%menu%", s);
+                List<String> list = Messages.Command.list__entry.list(r);
+                for (String line : list) {
+                    joiner.add(line);
+                }
+            }
+            for (String line : Messages.Command.list__footer.list()) {
+                joiner.add(line);
+            }
+            AdventureUtil.sendMessage(sender, joiner.toString());
+            return true;
         }
         if (args.length == 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
             plugin.getScheduler().runTask(() -> {
@@ -79,7 +95,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                     }
                 }
                 plugin.reloadConfig();
-                t(sender, "&a配置文件已重载");
+                Messages.Command.reload__success.tm(sender);
             });
             return true;
         }
@@ -92,13 +108,13 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             List<String> sub = new ArrayList<>();
-            sub.add("open");
+            if (sender.hasPermission("sweet.inventory.open")) sub.add("open");
             if (sender.hasPermission("sweet.inventory.list")) sub.add("list");
             if (sender.hasPermission("sweet.inventory.reload")) sub.add("reload");
             return startsWith(sub, args[0]);
         }
         if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("open")) {
+            if (args[0].equalsIgnoreCase("open") && sender.hasPermission("sweet.inventory.open")) {
                 return startsWith(Menus.inst().getMenuKeys(sender), args[1]);
             }
         }
