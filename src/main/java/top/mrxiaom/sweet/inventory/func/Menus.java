@@ -7,9 +7,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.permissions.Permissible;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.actions.*;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.func.GuiManager;
+import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
@@ -21,6 +24,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.NEXT;
 import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.PREV;
@@ -34,6 +38,7 @@ public class Menus extends AbstractModule {
     private final Map<String, MenuConfig> menus = new HashMap<>();
     private final Map<String, MenuConfig> menusById = new HashMap<>();
     private final File menusFolder;
+    private final List<File> menuFolders = new ArrayList<>();
     public Menus(SweetInventory plugin) {
         super(plugin);
         this.registerAlternativeProvider();
@@ -82,8 +87,12 @@ public class Menus extends AbstractModule {
             Util.mkdirs(menusFolder);
             plugin.saveResource("menus/example.yml", new File(menusFolder, "example.yml"));
         }
+        for (MenuConfig menu : menusById.values()) {
+            onMenuUnload(menu);
+        }
         menus.clear();
         menusById.clear();
+        menuFolders.clear();
         List<String> pathList = cfg.getStringList("extra-menus-folders");
         for (String path : pathList) {
             File folder = new File(path);
@@ -95,9 +104,11 @@ public class Menus extends AbstractModule {
                 warn("路径 " + path + " 指向的不是一个目录");
                 continue;
             }
-            Util.reloadFolder(folder, false, this::loadConfig);
+            menuFolders.add(folder);
+            reloadFolder(folder, this::loadConfig);
         }
-        Util.reloadFolder(menusFolder, false, this::loadConfig);
+        menuFolders.add(menusFolder);
+        reloadFolder(menusFolder, this::loadConfig);
         menus.putAll(menusById);
         for (MenuConfig config : menusById.values()) {
             for (String aliasId : config.aliasIds()) {
@@ -116,6 +127,39 @@ public class Menus extends AbstractModule {
         boolean alt = getBoolean(true, config, "中文配置", false);
         MenuConfig loaded = MenuConfig.load(alt, id.replace("\\", "/"), config);
         menusById.put(loaded.id(), loaded);
+    }
+
+    protected void updateConfig(String id, File file) {
+        removeConfig(id);
+        loadConfig(id, file);
+    }
+
+    protected void removeConfig(String id) {
+        MenuConfig exists = menusById.get(id);
+        if (exists != null) {
+            for (String aliasId : exists.aliasIds()) {
+                if (menus.containsKey(aliasId)) continue;
+                menus.remove(aliasId);
+            }
+            menus.remove(id);
+            menusById.remove(id);
+            onMenuUnload(exists);
+            plugin.getScheduler().runTask(() -> {
+                GuiManager manager = GuiManager.inst();
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    IGuiHolder gui = manager.getOpeningGui(p);
+                    if (gui instanceof MenuInstance) {
+                        if (((MenuInstance) gui).config().id().equals(id)) {
+                            p.closeInventory();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private void onMenuUnload(MenuConfig menu) {
+
     }
 
     public Set<String> getMenuIds() {
@@ -145,6 +189,43 @@ public class Menus extends AbstractModule {
     @Nullable
     public MenuConfig getMenu(String key) {
         return menus.get(key);
+    }
+
+    @NotNull
+    public List<File> getMenuFolders() {
+        return Collections.unmodifiableList(menuFolders);
+    }
+
+    protected static void reloadFolder(File folder, BiConsumer<String, File> reloadConfig) {
+        reloadFolder(folder, null, reloadConfig);
+    }
+
+    private static void reloadFolder(File root, File folder, BiConsumer<String, File> reloadConfig) {
+        File[] files = (folder == null ? root : folder).listFiles();
+        if (files != null) for (File file : files) {
+            if (file.isDirectory()) {
+                reloadFolder(root, file, reloadConfig);
+                continue;
+            }
+            String id = getRelationPath(root, file);
+            if (id != null) {
+                reloadConfig.accept(id, file);
+            }
+        }
+    }
+
+    @Nullable
+    protected static String getRelationPath(File folder, File file) {
+        String parentPath = folder.getAbsolutePath();
+        String path = file.getAbsolutePath();
+        if (path.startsWith(parentPath)) {
+            if (path.endsWith(".yml") || path.endsWith(".yaml")) {
+                String s = path.substring(parentPath.length()).replace("\\", "/");
+                String relation = s.startsWith("/") ? s.substring(1) : s;
+                return Util.nameWithoutSuffix(relation);
+            }
+        }
+        return null;
     }
 
     public static Menus inst() {

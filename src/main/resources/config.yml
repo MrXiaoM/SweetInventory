@@ -3,4 +3,9 @@
 # 文件名 (菜单ID) 冲突时，以主 menus 文件夹为准
 extra-menus-folders: []
 
+# 文件变更监听器设置
+# 当文件变更时自动重载单个菜单，文件删除时自动卸载菜单
+file-watcher:
+  enable: true
+  interval: 1000
 
