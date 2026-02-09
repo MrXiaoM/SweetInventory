@@ -21,18 +21,16 @@ items:
     display: '&f方框'
   上一页:
     slot: 上
-    view-requirement: page has-prev-page
     material: LIME_STAINED_GLASS_PANE
     display: '&e上一页'
-    left-click:
-      commands: ['[prev]']
+    view-requirement: page has-prev-page
+    left-click-commands: ['[prev]']
   下一页:
     slot: 下
-    view-requirement: page has-next-page
     material: LIME_STAINED_GLASS_PANE
     display: '&e下一页'
-    left-click:
-      commands: ['[next]']
+    view-requirement: page has-next-page
+    left-click-commands: ['[next]']
 
   按钮1:
     slot: 一
@@ -42,19 +40,14 @@ items:
       - ''
       - '&a左键 &7| &f回城'
       - '&b右键 &7| &f回满血(雾'
-    left-click:
-      commands:
-        - '[player]spawn'
-    right-click:
-      commands:
-        - '[console]kill %player_name%'
+    left-click-commands:
+      - '[player]spawn'
+    right-click-commands:
+      - '[console]kill %player_name%'
   按钮2:
     slot: 二
     material: STONE
     display: '&f按钮'
     lore: []
-    left-click:
-      commands:
-        - '[message]你点击了按钮2'
-
-# TODO: 更完善的示例配置
+    left-click-commands:
+      - '[message]你点击了按钮2'
