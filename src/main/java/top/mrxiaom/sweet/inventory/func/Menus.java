@@ -1,6 +1,10 @@
 package top.mrxiaom.sweet.inventory.func;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -14,15 +18,20 @@ import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.sweet.inventory.Messages;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
 import top.mrxiaom.sweet.inventory.func.actions.ActionOpenMenu;
 import top.mrxiaom.sweet.inventory.func.actions.ActionRefresh;
+import top.mrxiaom.sweet.inventory.func.menus.MenuCommand;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -37,10 +46,12 @@ import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 public class Menus extends AbstractModule {
     private final Map<String, MenuConfig> menus = new HashMap<>();
     private final Map<String, MenuConfig> menusById = new HashMap<>();
+    private final Map<String, MenuConfig> menusByCommand = new HashMap<>();
     private final File menusFolder;
     private final List<File> menuFolders = new ArrayList<>();
     public Menus(SweetInventory plugin) {
         super(plugin);
+        this.initReflection();
         this.registerAlternativeProvider();
         this.menusFolder = new File(plugin.getDataFolder(), "menus");
         Bukkit.getScheduler().runTaskTimer(plugin, this::onTick, 1L, 1L);
@@ -127,6 +138,59 @@ public class Menus extends AbstractModule {
         boolean alt = getBoolean(true, config, "中文配置", false);
         MenuConfig loaded = MenuConfig.load(alt, id.replace("\\", "/"), config);
         menusById.put(loaded.id(), loaded);
+        registerCommand(loaded);
+    }
+
+    private void registerCommand(MenuConfig menu) {
+        String label = menu.bindCommand();
+        if (label == null) return;
+        MenuConfig existsMenu = menusByCommand.get(label);
+        if (existsMenu != null) {
+            warn("菜单 " + menu.id() + " 绑定的命令与 " + existsMenu.id() + " 绑定的命令冲突，保留后者");
+            return;
+        }
+        Pair<SimpleCommandMap, Map<String, Command>> pair = getCommandMap();
+        if (pair == null) return;
+        Map<String, Command> knownCommands = pair.value();
+        Command existsCommand = knownCommands.get(label);
+        if (existsCommand != null) {
+            if (existsCommand instanceof PluginCommand) {
+                String pluginName = ((PluginCommand) existsCommand).getPlugin().getDescription().getName();
+                warn("菜单 " + menu.id() + " 要绑定的命令 /" + label + " 已经与现有插件 " + pluginName + " 的命令冲突");
+            } else {
+                warn("菜单 " + menu.id() + " 要绑定的命令 /" + label + " 已经与现有命令冲突");
+            }
+            return;
+        }
+        MenuCommand command = new MenuCommand(this, label);
+        knownCommands.put(label, command);
+        command.register(pair.key());
+        menusByCommand.put(label, menu);
+    }
+
+    public void onCommand(
+            @NotNull CommandSender sender,
+            @NotNull String label,
+            @NotNull String[] args
+    ) {
+        if (!(sender instanceof Player)) {
+            Messages.player__only.tm(sender);
+            return;
+        }
+        Player player = (Player) sender;
+        MenuConfig menu = menusByCommand.get(label);
+        if (menu != null) {
+            menu.open(player);
+        }
+    }
+
+    @Nullable
+    public List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull String label,
+            @NotNull String[] args
+    ) {
+        return Collections.emptyList();
     }
 
     protected void updateConfig(String id, File file) {
@@ -159,7 +223,17 @@ public class Menus extends AbstractModule {
     }
 
     private void onMenuUnload(MenuConfig menu) {
-
+        String label = menu.bindCommand();
+        if (label != null && menusByCommand.remove(label) != null) {
+            Pair<SimpleCommandMap, Map<String, Command>> pair = getCommandMap();
+            if (pair != null) {
+                Map<String, Command> knownCommands = pair.value();
+                Command command = knownCommands.remove(label);
+                if (command != null) {
+                    command.unregister(pair.key());
+                }
+            }
+        }
     }
 
     public Set<String> getMenuIds() {
@@ -226,6 +300,34 @@ public class Menus extends AbstractModule {
             }
         }
         return null;
+    }
+
+    private Method methodCommandMap;
+    private void initReflection() {
+        Method method;
+        try {
+            method = Bukkit.getServer().getClass().getDeclaredMethod("getCommandMap");
+            method.setAccessible(true);
+            method.invoke(Bukkit.getServer());
+        } catch (ReflectiveOperationException e) {
+            method = null;
+        }
+        methodCommandMap = method;
+    }
+    @SuppressWarnings("unchecked")
+    private Pair<SimpleCommandMap, Map<String, Command>> getCommandMap() {
+        if (methodCommandMap == null) {
+            return null;
+        }
+        try {
+            SimpleCommandMap commandMap = (SimpleCommandMap) methodCommandMap.invoke(Bukkit.getServer());
+            Field field = SimpleCommandMap.class.getDeclaredField("knownCommands");
+            field.setAccessible(true);
+            Map<String, Command> knownCommands = (Map<String, Command>) field.get(commandMap);
+            return Pair.of(commandMap, knownCommands);
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     public static Menus inst() {
