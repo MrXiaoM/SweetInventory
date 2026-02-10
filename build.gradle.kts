@@ -58,7 +58,7 @@ dependencies {
 
     implementation("de.tr7zw:item-nbt-api:2.15.5")
     implementation("top.mrxiaom:EvalEx-j8:3.4.0")
-    implementation("commons-io:commons-io:2.7")
+    implementation("commons-io:commons-io:2.21.0")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
         implementation(artifact)
@@ -114,8 +114,6 @@ tasks {
     }
     javadoc {
         (options as StandardJavadocDocletOptions).apply {
-            links("https://hub.spigotmc.org/javadocs/spigot/")
-
             locale("zh_CN")
             encoding("UTF-8")
             docEncoding("UTF-8")
