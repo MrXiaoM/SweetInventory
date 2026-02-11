@@ -2,13 +2,8 @@ name: SweetInventory
 version: '${version}'
 main: top.mrxiaom.sweet.inventory.SweetInventory
 api-version: 1.13
-depend:
-  - Vault
 softdepend:
-  - ProtocolLib
   - PlaceholderAPI
-  - MythicMobs
-  - PlayerPoints
 authors: [ MrXiaoM ]
 libraries:
   - "org.jetbrains:annotations:24.0.0"
