@@ -4,6 +4,7 @@ main: top.mrxiaom.sweet.inventory.SweetInventory
 api-version: 1.13
 softdepend:
   - PlaceholderAPI
+  - ProtocolLib
 authors: [ MrXiaoM ]
 libraries:
   - "org.jetbrains:annotations:24.0.0"
