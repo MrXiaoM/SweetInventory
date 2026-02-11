@@ -19,7 +19,7 @@ import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.Messages;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
-import top.mrxiaom.sweet.inventory.func.Menus;
+import top.mrxiaom.sweet.inventory.func.MenuManager;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 
 import java.util.*;
@@ -37,7 +37,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if (!sender.hasPermission("sweet.inventory.open")) {
                 return Messages.no_permission.tm(sender);
             }
-            MenuConfig menu = Menus.inst().getMenu(args[1]);
+            MenuConfig menu = MenuManager.inst().getMenu(args[1]);
             if (menu == null) {
                 return Messages.Command.open__no_menu_found.tm(sender, Pair.of("%menu%", args[1]));
             }
@@ -67,7 +67,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             if (!sender.hasPermission("sweet.inventory.list")) {
                 return Messages.no_permission.tm(sender);
             }
-            Set<String> menusId = Menus.inst().getMenuIds();
+            Set<String> menusId = MenuManager.inst().getMenuIds();
             StringJoiner joiner = new StringJoiner("\n");
             for (String line : Messages.Command.list__header.list()) {
                 joiner.add(line);
@@ -115,7 +115,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("open") && sender.hasPermission("sweet.inventory.open")) {
-                return startsWith(Menus.inst().getMenuKeys(sender), args[1]);
+                return startsWith(MenuManager.inst().getMenuKeys(sender), args[1]);
             }
         }
         if (args.length == 3) {

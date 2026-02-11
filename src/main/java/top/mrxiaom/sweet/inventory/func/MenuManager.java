@@ -34,13 +34,13 @@ import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
  * 菜单配置管理器
  */
 @AutoRegister
-public class Menus extends AbstractModule {
+public class MenuManager extends AbstractModule {
     private final MenuCommandManager commandManager;
     private final Map<String, MenuConfig> menus = new HashMap<>();
     private final Map<String, MenuConfig> menusById = new HashMap<>();
     private final File menusFolder;
     private final List<File> menuFolders = new ArrayList<>();
-    public Menus(SweetInventory plugin) {
+    public MenuManager(SweetInventory plugin) {
         super(plugin);
         this.registerAlternativeProvider();
         this.commandManager = instanceOf(MenuCommandManager.class);
@@ -246,7 +246,7 @@ public class Menus extends AbstractModule {
         menusById.clear();
     }
 
-    public static Menus inst() {
-        return instanceOf(Menus.class);
+    public static MenuManager inst() {
+        return instanceOf(MenuManager.class);
     }
 }

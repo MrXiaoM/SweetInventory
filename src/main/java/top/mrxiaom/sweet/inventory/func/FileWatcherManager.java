@@ -29,7 +29,7 @@ public class FileWatcherManager extends AbstractModule {
         disableWatcher();
         if (config.getBoolean("file-watcher.enable", false)) {
             long interval = config.getLong("file-watcher.interval", 1000L);
-            Menus manager = Menus.inst();
+            MenuManager manager = MenuManager.inst();
             List<File> folders = manager.getMenuFolders();
             try {
                 FileAlterationObserver[] observers = new FileAlterationObserver[folders.size()];
@@ -49,15 +49,15 @@ public class FileWatcherManager extends AbstractModule {
     }
 
     public static class FileListener extends FileAlterationListenerAdaptor {
-        private final Menus manager;
+        private final MenuManager manager;
         private final File folder;
-        protected FileListener(Menus manager, File folder) {
+        protected FileListener(MenuManager manager, File folder) {
             this.manager = manager;
             this.folder = folder;
         }
         @Nullable
         private String getId(File file) {
-            return Menus.getRelationPath(folder, file);
+            return MenuManager.getRelationPath(folder, file);
         }
 
         @Override
