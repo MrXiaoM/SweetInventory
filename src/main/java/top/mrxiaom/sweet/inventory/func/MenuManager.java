@@ -141,9 +141,11 @@ public class MenuManager extends AbstractModule {
     }
 
     protected void updateConfig(String id, File file) {
+        // 重载单个菜单配置，先卸载菜单，然后再加载
         removeConfig(id, false);
         MenuConfig menu = loadConfig(id, file);
         menus.put(menu.id(), menu);
+        // 加载完成后更新别名和命令列表
         updateAlias(menu);
         refreshCommands();
     }
@@ -151,37 +153,57 @@ public class MenuManager extends AbstractModule {
     protected void removeConfig(String id, boolean refreshCommands) {
         MenuConfig exists = menusById.get(id);
         if (exists != null) {
+            // 卸载所有菜单别名
             for (String aliasId : exists.aliasIds()) {
                 if (menus.containsKey(aliasId)) continue;
                 menus.remove(aliasId);
             }
+            // 正式卸载菜单
             menus.remove(id);
             menusById.remove(id);
+            // 如果需要，则刷新命令列表
             if (refreshCommands) {
                 refreshCommands();
             }
-            plugin.getScheduler().runTask(() -> {
-                GuiManager manager = GuiManager.inst();
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    IGuiHolder gui = manager.getOpeningGui(p);
-                    if (gui instanceof MenuInstance) {
-                        if (((MenuInstance) gui).config().id().equals(id)) {
-                            p.closeInventory();
-                        }
+            // 关闭所有打开了菜单的玩家的界面
+            List<Player> players = new ArrayList<>();
+            GuiManager manager = GuiManager.inst();
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                IGuiHolder gui = manager.getOpeningGui(p);
+                if (gui instanceof MenuInstance) {
+                    if (((MenuInstance) gui).config().id().equals(id)) {
+                        players.add(p);
                     }
                 }
-            });
+            }
+            if (!players.isEmpty()) {
+                plugin.getScheduler().runTask(() -> {
+                    for (Player p : players) {
+                        p.closeInventory();
+                    }
+                });
+            }
         }
     }
 
+    /**
+     * 获取所有 菜单ID
+     */
     public Set<String> getMenuIds() {
-        return menusById.keySet();
+        return Collections.unmodifiableSet(menusById.keySet());
     }
 
+    /**
+     * 获取所有 菜单ID 和 菜单别名
+     */
     public Set<String> getMenuKeys() {
-        return menus.keySet();
+        return Collections.unmodifiableSet(menus.keySet());
     }
 
+    /**
+     * 获取目标拥有权限的所有 菜单ID 和 菜单别名
+     * @param p 目标
+     */
     public Set<String> getMenuKeys(Permissible p) {
         Set<String> sets = new HashSet<>();
         for (MenuConfig config : menusById.values()) {
@@ -190,19 +212,30 @@ public class MenuManager extends AbstractModule {
                 sets.addAll(config.aliasIds());
             }
         }
-        return sets;
+        return Collections.unmodifiableSet(sets);
     }
 
+    /**
+     * 根据 菜单ID 获取菜单配置
+     * @param id 菜单 ID
+     */
     @Nullable
     public MenuConfig getMenuById(String id) {
         return menusById.get(id);
     }
 
+    /**
+     * 根据 菜单ID 或 菜单别名 获取菜单配置
+     * @param key 输入键
+     */
     @Nullable
     public MenuConfig getMenu(String key) {
         return menus.get(key);
     }
 
+    /**
+     * 获取所有可用的菜单目录列表
+     */
     @NotNull
     public List<File> getMenuFolders() {
         return Collections.unmodifiableList(menuFolders);

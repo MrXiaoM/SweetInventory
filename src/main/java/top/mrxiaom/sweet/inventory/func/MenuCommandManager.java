@@ -19,12 +19,24 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * 菜单命令动态注册管理器
+ */
 @AutoRegister(priority = 990)
 public class MenuCommandManager extends AbstractModule {
     private final Map<String, MenuConfig> menusByCommand = new HashMap<>();
     public MenuCommandManager(SweetInventory plugin) {
         super(plugin);
         this.initReflection();
+    }
+
+    /**
+     * 通过根命令获取菜单配置
+     * @param label 根命令
+     */
+    @Nullable
+    public MenuConfig getByCommand(@NotNull String label) {
+        return menusByCommand.get(label);
     }
 
     public void onCommand(
@@ -56,6 +68,7 @@ public class MenuCommandManager extends AbstractModule {
         Pair<SimpleCommandMap, Map<String, Command>> pair = getCommandMap();
         cleanupMenuCommands(pair);
         if (pair == null) return;
+
         SimpleCommandMap commandMap = pair.key();
         Map<String, Command> knownCommands = pair.value();
         for (MenuConfig menu : menus) {
@@ -63,11 +76,13 @@ public class MenuCommandManager extends AbstractModule {
             if (label == null) continue;
             MenuConfig existsMenu = menusByCommand.get(label);
             if (existsMenu != null) {
+                // 冲突处理: 已有的菜单命令
                 warn("菜单 " + menu.id() + " 绑定的命令与 " + existsMenu.id() + " 绑定的命令冲突，保留后者");
                 continue;
             }
             Command existsCommand = knownCommands.get(label);
             if (existsCommand != null) {
+                // 冲突处理: 已有的其他插件命令
                 if (existsCommand instanceof PluginCommand) {
                     String pluginName = ((PluginCommand) existsCommand).getPlugin().getDescription().getName();
                     warn("菜单 " + menu.id() + " 要绑定的命令 /" + label + " 已经与现有插件 " + pluginName + " 的命令冲突");
@@ -76,11 +91,13 @@ public class MenuCommandManager extends AbstractModule {
                 }
                 continue;
             }
+            // 均没有冲突时，才注册命令
             MenuCommand command = new MenuCommand(this, label);
             knownCommands.put(label, command);
             command.register(commandMap);
             menusByCommand.put(label, menu);
         }
+        // 如果服务端支持，提交刷新命令操作
         if (syncCommands()) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.updateCommands();
