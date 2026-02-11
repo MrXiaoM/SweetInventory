@@ -337,6 +337,15 @@ public class Menus extends AbstractModule {
         }
     }
 
+    @Override
+    public void onDisable() {
+        for (MenuConfig menu : menusById.values()) {
+            onMenuUnload(menu);
+        }
+        menus.clear();
+        menusById.clear();
+    }
+
     public static Menus inst() {
         return instanceOf(Menus.class);
     }
