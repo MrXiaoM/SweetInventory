@@ -3,6 +3,7 @@ package top.mrxiaom.sweet.inventory.func;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.apache.commons.io.monitor.FileEntry;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
@@ -28,13 +29,14 @@ public class FileWatcherManager extends AbstractModule {
         disableWatcher();
         if (config.getBoolean("file-watcher.enable", false)) {
             long interval = config.getLong("file-watcher.interval", 1000L);
-            List<File> folders = Menus.inst().getMenuFolders();
+            Menus manager = Menus.inst();
+            List<File> folders = manager.getMenuFolders();
             try {
                 FileAlterationObserver[] observers = new FileAlterationObserver[folders.size()];
                 for (int i = 0; i < folders.size(); i++) {
                     File folder = folders.get(i);
-                    FileAlterationObserver observer = new FileAlterationObserver(folder);
-                    observer.addListener(new FileListener(folder));
+                    FileAlterationObserver observer = FileAlterationObserver.builder().setRootEntry(new FileEntry(folder)).get();
+                    observer.addListener(new FileListener(manager, folder));
                     observers[i] = observer;
                 }
                 FileAlterationMonitor monitor = new FileAlterationMonitor(interval, observers);
@@ -47,8 +49,10 @@ public class FileWatcherManager extends AbstractModule {
     }
 
     public static class FileListener extends FileAlterationListenerAdaptor {
+        private final Menus manager;
         private final File folder;
-        protected FileListener(File folder) {
+        protected FileListener(Menus manager, File folder) {
+            this.manager = manager;
             this.folder = folder;
         }
         @Nullable
@@ -61,7 +65,7 @@ public class FileWatcherManager extends AbstractModule {
             if (file.length() > 16) {
                 String id = getId(file);
                 if (id != null) {
-                    Menus.inst().updateConfig(id, file);
+                    manager.updateConfig(id, file);
                 }
             }
         }
@@ -70,7 +74,7 @@ public class FileWatcherManager extends AbstractModule {
         public void onFileChange(File file) {
             String id = getId(file);
             if (id != null) {
-                Menus.inst().updateConfig(id, file);
+                manager.updateConfig(id, file);
             }
         }
 
@@ -78,7 +82,7 @@ public class FileWatcherManager extends AbstractModule {
         public void onFileDelete(File file) {
             String id = getId(file);
             if (id != null) {
-                Menus.inst().removeConfig(id);
+                manager.removeConfig(id, true);
             }
         }
     }
