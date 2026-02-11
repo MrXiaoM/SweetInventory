@@ -121,24 +121,29 @@ public class Menus extends AbstractModule {
         menuFolders.add(menusFolder);
         reloadFolder(menusFolder, this::loadConfig);
         menus.putAll(menusById);
-        for (MenuConfig config : menusById.values()) {
-            for (String aliasId : config.aliasIds()) {
-                MenuConfig exists = menus.get(aliasId);
-                if (exists != null) {
-                    warn("菜单 " + config.id() + " 的别名 " + aliasId + " 已被其它菜单占用 (" + exists.id() + ")");
-                } else {
-                    menus.put(aliasId, config);
-                }
+        for (MenuConfig menu : menusById.values()) {
+            updateAlias(menu);
+        }
+    }
+
+    private void updateAlias(MenuConfig menu) {
+        for (String aliasId : menu.aliasIds()) {
+            MenuConfig exists = menus.get(aliasId);
+            if (exists != null) {
+                warn("菜单 " + menu.id() + " 的别名 " + aliasId + " 已被其它菜单占用 (" + exists.id() + ")");
+            } else {
+                menus.put(aliasId, menu);
             }
         }
     }
 
-    private void loadConfig(String id, File file) {
+    private MenuConfig loadConfig(String id, File file) {
         FileConfiguration config = plugin.resolveGotoFlag(ConfigUtils.load(file));
         boolean alt = getBoolean(true, config, "中文配置", false);
         MenuConfig loaded = MenuConfig.load(alt, id.replace("\\", "/"), config);
         menusById.put(loaded.id(), loaded);
         registerCommand(loaded);
+        return loaded;
     }
 
     private void registerCommand(MenuConfig menu) {
@@ -195,7 +200,9 @@ public class Menus extends AbstractModule {
 
     protected void updateConfig(String id, File file) {
         removeConfig(id);
-        loadConfig(id, file);
+        MenuConfig menu = loadConfig(id, file);
+        menus.put(menu.id(), menu);
+        updateAlias(menu);
     }
 
     protected void removeConfig(String id) {

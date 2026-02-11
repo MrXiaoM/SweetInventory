@@ -55,6 +55,17 @@ public class FileWatcherManager extends AbstractModule {
         private String getId(File file) {
             return Menus.getRelationPath(folder, file);
         }
+
+        @Override
+        public void onFileCreate(File file) {
+            if (file.length() > 16) {
+                String id = getId(file);
+                if (id != null) {
+                    Menus.inst().updateConfig(id, file);
+                }
+            }
+        }
+
         @Override
         public void onFileChange(File file) {
             String id = getId(file);
