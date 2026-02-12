@@ -45,7 +45,7 @@ public class MenuManager extends AbstractModule {
         this.registerAlternativeProvider();
         this.commandManager = instanceOf(MenuCommandManager.class);
         this.menusFolder = new File(plugin.getDataFolder(), "menus");
-        Bukkit.getScheduler().runTaskTimer(plugin, this::onTick, 1L, 1L);
+        plugin.getScheduler().runTaskTimer(this::onTick, 1L, 1L);
     }
 
     private void registerAlternativeProvider() {
