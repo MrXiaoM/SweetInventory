@@ -3,8 +3,6 @@ package top.mrxiaom.sweet.inventory.func.actions;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
-import top.mrxiaom.pluginbase.func.GuiManager;
-import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
@@ -36,9 +34,8 @@ public class ActionTurnPage implements IAction {
     @Override
     public void run(@Nullable Player player, @Nullable List<Pair<String, Object>> list) {
         if (player != null) {
-            IGuiHolder gui = GuiManager.inst().getOpeningGui(player);
-            if (gui instanceof MenuInstance) {
-                MenuInstance menu = (MenuInstance) gui;
+            MenuInstance menu = MenuInstance.get(player);
+            if (menu != null) {
                 if (next) {
                     if (menu.hasNextPage()) {
                         menu.page(menu.page() + 1);

@@ -11,7 +11,6 @@ import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
-import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
@@ -21,6 +20,7 @@ import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
 import top.mrxiaom.sweet.inventory.func.MenuManager;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
+import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.*;
 
@@ -88,9 +88,8 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
         }
         if (args.length == 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
             plugin.getScheduler().runTask(() -> {
-                GuiManager gui = GuiManager.inst();
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (gui.getOpeningGui(p) != null) {
+                    if (MenuInstance.get(p) != null) {
                         p.closeInventory();
                     }
                 }

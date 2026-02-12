@@ -11,8 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.actions.*;
 import top.mrxiaom.pluginbase.func.AutoRegister;
-import top.mrxiaom.pluginbase.func.GuiManager;
-import top.mrxiaom.pluginbase.gui.IGuiHolder;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
@@ -167,13 +165,10 @@ public class MenuManager extends AbstractModule {
             }
             // 关闭所有打开了菜单的玩家的界面
             List<Player> players = new ArrayList<>();
-            GuiManager manager = GuiManager.inst();
             for (Player p : Bukkit.getOnlinePlayers()) {
-                IGuiHolder gui = manager.getOpeningGui(p);
-                if (gui instanceof MenuInstance) {
-                    if (((MenuInstance) gui).config().id().equals(id)) {
-                        players.add(p);
-                    }
+                MenuInstance gui = MenuInstance.get(p);
+                if (gui != null && gui.config().id().equals(id)) {
+                    players.add(p);
                 }
             }
             if (!players.isEmpty()) {

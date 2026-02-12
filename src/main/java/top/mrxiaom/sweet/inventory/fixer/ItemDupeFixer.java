@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Contract;
 import top.mrxiaom.pluginbase.func.AutoRegister;
-import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
@@ -104,7 +103,7 @@ public class ItemDupeFixer extends AbstractModule implements Listener {
 
     public static boolean isOpenedMenu(Entity entity) {
         if (entity instanceof Player) {
-            return GuiManager.inst().getOpeningGui((Player) entity) instanceof MenuInstance;
+            return MenuInstance.get((Player) entity) != null;
         }
         return false;
     }

@@ -358,4 +358,14 @@ public class MenuInstance implements IGuiHolder {
     public static MenuInstance create(MenuConfig config, Player player) {
         return new MenuInstance(config, player);
     }
+
+    @Nullable
+    public static MenuInstance get(Player player) {
+        if (player == null) return null;
+        IGuiHolder menu = GuiManager.inst().getOpeningGui(player);
+        if (menu instanceof MenuInstance) {
+            return (MenuInstance) menu;
+        }
+        return null;
+    }
 }
