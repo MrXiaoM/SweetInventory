@@ -22,10 +22,10 @@ public enum EnumArgumentType implements IArgumentType {
             it -> null,
             null),
     INTEGER(it -> Util.parseInt(it).orElse(null),
-            parseRange(it -> Util.parseInt(it).orElse(null), IntegerRange::new),
+            parseRange(it -> Util.parseInt(it).orElse(null), Integer.MIN_VALUE, Integer.MAX_VALUE, IntegerRange::new),
             Messages.Arguments.no_integer),
     NUMBER(it -> Util.parseDouble(it).orElse(null),
-            parseRange(it -> Util.parseDouble(it).orElse(null), NumberRange::new),
+            parseRange(it -> Util.parseDouble(it).orElse(null), Double.MIN_VALUE, Double.MAX_VALUE, NumberRange::new),
             Messages.Arguments.no_number),
     MATERIAL(
             it -> Util.valueOr(Material.class, it, null),
@@ -62,7 +62,7 @@ public enum EnumArgumentType implements IArgumentType {
         return implRange.apply(input);
     }
 
-    private static <T, R extends IArgumentRange> Function<String, R> parseRange(Function<String, T> parser, BiFunction<T, T, R> funcMinMaxResult) {
+    private static <T, R extends IArgumentRange> Function<String, R> parseRange(Function<String, T> parser, T minimum, T maximum, BiFunction<T, T, R> funcMinMaxResult) {
         return input -> {
             String[] split = input.split(",", 2);
             T min, max;
@@ -73,8 +73,18 @@ public enum EnumArgumentType implements IArgumentType {
                 }
                 min = max = value;
             } else {
-                min = parser.apply(split[0].trim());
-                max = parser.apply(split[1].trim());
+                String minStr = split[0].trim();
+                String maxStr = split[1].trim();
+                if (minStr.equalsIgnoreCase("MIN")) {
+                    min = minimum;
+                } else {
+                    min = parser.apply(minStr);
+                }
+                if (maxStr.equalsIgnoreCase("MAX")) {
+                    max = maximum;
+                } else {
+                    max = parser.apply(maxStr);
+                }
                 if (min == null || max == null) {
                     return null;
                 }
