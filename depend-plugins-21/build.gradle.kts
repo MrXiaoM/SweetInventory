@@ -6,6 +6,7 @@ repositories {
     mavenCentral()
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://repo.momirealms.net/releases/")
+    maven("https://repo.nexomc.com/releases")
 }
 
 val targetJavaVersion = 21
@@ -13,8 +14,11 @@ val targetJavaVersion = 21
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
     compileOnly("top.mrxiaom.pluginbase:library:1.7.6")
+    // CraftEngine
     compileOnly("net.momirealms:craft-engine-core:0.0.67")
     compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
+    // Nexo
+    compileOnly("com.nexomc:nexo:1.19.1")
     compileOnly(rootProject)
 }
 

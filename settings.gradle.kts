@@ -1,3 +1,3 @@
 rootProject.name = "SweetInventory"
 
-include(":craft-engine")
+include(":depend-plugins-21")

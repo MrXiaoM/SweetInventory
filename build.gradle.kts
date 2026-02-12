@@ -73,7 +73,7 @@ dependencies {
         implementation(artifact)
     }
     implementation(base.resolver.lite)
-    shadowLink(project(":craft-engine"))
+    shadowLink(project(":depend-plugins-21"))
 }
 buildConfig {
     className("BuildConstants")
