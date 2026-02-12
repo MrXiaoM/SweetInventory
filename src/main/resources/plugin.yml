@@ -12,6 +12,7 @@ softdepend:
   - CraftEngine
   - NeigeItems
 authors: [ MrXiaoM ]
+folia-supported: true
 libraries:
   - "org.jetbrains:annotations:24.0.0"
 commands:
