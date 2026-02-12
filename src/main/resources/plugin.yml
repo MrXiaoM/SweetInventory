@@ -5,6 +5,10 @@ api-version: 1.13
 softdepend:
   - PlaceholderAPI
   - ProtocolLib
+  - ItemsAdder
+  - MythicLib
+  - MMOItems
+  - MythicMobs
 authors: [ MrXiaoM ]
 libraries:
   - "org.jetbrains:annotations:24.0.0"

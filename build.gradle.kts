@@ -24,6 +24,7 @@ repositories {
     maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     maven("https://mvn.lumine.io/repository/maven/")
+    maven("https://nexus.phoenixdevt.fr/repository/maven-public/")
     maven("https://repo.helpch.at/releases/")
     maven("https://jitpack.io")
     maven("https://repo.rosewooddev.io/repository/public/")
@@ -44,9 +45,14 @@ dependencies {
 
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
     compileOnly("me.clip:placeholderapi:2.11.6")
+    // MythicMobs
     compileOnly("io.lumine:Mythic-Dist:4.13.0")
     compileOnly("io.lumine:Mythic:5.6.2")
     compileOnly("io.lumine:LumineUtils:1.20-SNAPSHOT")
+    // MythicLib, MMOItems
+    compileOnly("io.lumine:MythicLib-dist:1.7.1-SNAPSHOT")
+    compileOnly("net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT")
+
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly("com.github.dmulloy2:ProtocolLib:5.3.0")
     compileOnly("org.jetbrains:annotations:24.0.0")

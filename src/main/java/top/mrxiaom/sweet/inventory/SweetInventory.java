@@ -3,8 +3,10 @@ package top.mrxiaom.sweet.inventory;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.func.LanguageManager;
@@ -15,9 +17,13 @@ import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
+import top.mrxiaom.sweet.inventory.api.IMaterialProvider;
+import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class SweetInventory extends BukkitPlugin {
@@ -66,6 +72,29 @@ public class SweetInventory extends BukkitPlugin {
     @Override
     public @NotNull ItemEditor initItemEditor() {
         return PaperFactory.createItemEditor();
+    }
+
+    private final List<IMaterialProvider> materialRegistry = new ArrayList<>();
+
+    public void registerMaterial(IMaterialProvider provider) {
+        materialRegistry.add(provider);
+        materialRegistry.sort(Comparator.comparingInt(IMaterialProvider::providerPriority));
+    }
+
+    public void unregisterMaterial(IMaterialProvider provider) {
+        materialRegistry.remove(provider);
+        materialRegistry.sort(Comparator.comparingInt(IMaterialProvider::providerPriority));
+    }
+
+    @NotNull
+    public ItemStack parseMaterial(Player player, MenuIcon icon) {
+        for (IMaterialProvider provider : materialRegistry) {
+            ItemStack item = provider.parse(player, icon);
+            if (item != null) {
+                return item;
+            }
+        }
+        return new ItemStack(Material.PAPER);
     }
 
     @Override
