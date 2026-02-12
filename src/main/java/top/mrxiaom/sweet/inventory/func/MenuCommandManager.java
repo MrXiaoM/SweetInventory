@@ -51,7 +51,7 @@ public class MenuCommandManager extends AbstractModule {
         Player player = (Player) sender;
         MenuConfig menu = menusByCommand.get(label);
         if (menu != null) {
-            menu.open(player);
+            menu.open(player, args);
         }
     }
 

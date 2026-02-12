@@ -12,6 +12,14 @@ public class Messages {
     public static final Message player__not_online = field("&c玩家不在线 &7(或不存在)");
     public static final Message player__only = field("只有玩家才能执行该操作");
 
+    @Language(prefix="messages.arguments")
+    public static class Arguments {
+        public static final Message no_integer = field("&e请输入一个整数");
+        public static final Message no_number = field("&e请输入一个实数");
+        public static final Message no_material = field("&e请输入一个物品类型");
+        public static final Message out_of_range = field("&e你输入的参数不在指定范围内");
+    }
+
     @Language(prefix="messages.command.")
     public static class Command {
         public static final Message open__no_menu_found = field("&c找不到菜单&e %menu%");

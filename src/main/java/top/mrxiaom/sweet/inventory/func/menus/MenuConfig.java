@@ -4,29 +4,33 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.utils.CollectionUtils;
+import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.sweet.inventory.SweetInventory;
+import top.mrxiaom.sweet.inventory.func.menus.arguments.MenuArguments;
 
 import java.util.*;
 
 @SuppressWarnings("UnusedReturnValue")
 public class MenuConfig {
-    private final String id;
-    private final List<String> aliasIds;
-    private final String title;
+    private final @NotNull String id;
+    private final @NotNull List<String> aliasIds;
+    private final @NotNull String title;
     private final char[] inventory;
-    private final Map<Character, List<MenuIcon>> iconsByChar;
-    private final Map<String, MenuIcon> iconsByName;
+    private final @NotNull Map<Character, List<MenuIcon>> iconsByChar;
+    private final @NotNull Map<String, MenuIcon> iconsByName;
     private final @Nullable String bindCommand;
-    private final List<IAction> openCommands;
+    private final @NotNull MenuArguments menuArguments;
+    private final @NotNull List<IAction> openCommands;
     private final int updateInterval;
     private final @Nullable MenuPageGuide pageGuide;
 
-    protected MenuConfig(boolean alt, String id, MemoryConfiguration config) {
+    protected MenuConfig(boolean alt, @NotNull String id, @NotNull MemoryConfiguration config) {
         SweetInventory plugin = SweetInventory.getInstance();
         this.id = id;
         this.aliasIds = config.getStringList(alt ? "菜单别名" : "alias-ids");
@@ -35,7 +39,18 @@ public class MenuConfig {
         if (inventory.length == 0 || (inventory.length % 9 != 0)) {
             throw new IllegalArgumentException("菜单布局配置有误，长度应为 9 的倍数 (当前 " + inventory.length + ")" );
         }
-        this.bindCommand = config.getString(alt ? "绑定界面命令" : "bind-command", null);
+        String bindCommandKey = alt ? "绑定界面命令" : "bind-command";
+        if (config.isConfigurationSection(bindCommandKey)) {
+            ConfigurationSection section = config.getConfigurationSection(bindCommandKey);
+            assert section != null;
+            this.bindCommand = section.getString(alt ? "名称" : "name", null);
+            List<IAction> helpActions = ActionProviders.loadActions(section, alt ? "帮助操作" : "help-actions");
+            List<ConfigurationSection> arguments = ConfigUtils.getSectionList(section, alt ? "参数" : "arguments");
+            this.menuArguments = MenuArguments.load(alt, helpActions, arguments);
+        } else {
+            this.bindCommand = config.getString(bindCommandKey, null);
+            this.menuArguments = MenuArguments.EMPTY;
+        }
         this.openCommands = ActionProviders.loadActions(config, alt ? "打开界面执行命令" : "open-commands");
         this.updateInterval = Math.max(0, config.getInt(alt ? "更新周期" : "update-interval", 0));
         ConfigurationSection pageGuideSection = config.getConfigurationSection(alt ? "分页向导" : "page-guide");
@@ -72,6 +87,7 @@ public class MenuConfig {
     /**
      * 获取界面配置 ID
      */
+    @NotNull
     public String id() {
         return id;
     }
@@ -79,6 +95,7 @@ public class MenuConfig {
     /**
      * 获取界面配置别名
      */
+    @NotNull
     public List<String> aliasIds() {
         return aliasIds;
     }
@@ -94,6 +111,7 @@ public class MenuConfig {
     /**
      * 获取菜单标题
      */
+    @NotNull
     public String title() {
         return title;
     }
@@ -134,6 +152,7 @@ public class MenuConfig {
      * 获取按模板字符储存的图标列表
      * @return 图标列表，已经过优先级排序
      */
+    @NotNull
     public Map<Character, List<MenuIcon>> iconsByChar() {
         return iconsByChar;
     }
@@ -143,6 +162,7 @@ public class MenuConfig {
      * @param ch 模板字符
      * @return 图标列表，已经过优先级排序
      */
+    @Nullable
     public List<MenuIcon> iconsByChar(char ch) {
         return iconsByChar.get(ch);
     }
@@ -151,6 +171,7 @@ public class MenuConfig {
      * 获取按图标名称储存的图标列表
      * @return 图标列表，已经过优先级排序
      */
+    @NotNull
     public Map<String, MenuIcon> iconsByName() {
         return iconsByName;
     }
@@ -160,6 +181,7 @@ public class MenuConfig {
      * @param name 图标名称
      * @return 图标列表，已经过优先级排序
      */
+    @Nullable
     public MenuIcon iconByName(String name) {
         return iconsByName.get(name);
     }
@@ -173,8 +195,17 @@ public class MenuConfig {
     }
 
     /**
+     * 获取这个菜单的自定义命令参数
+     */
+    @NotNull
+    public MenuArguments menuArguments() {
+        return menuArguments;
+    }
+
+    /**
      * 获取打开菜单时执行的操作
      */
+    @NotNull
     public List<IAction> openCommands() {
         return openCommands;
     }
@@ -199,8 +230,21 @@ public class MenuConfig {
      * @param player 要打开菜单的玩家
      * @see MenuInstance#create(MenuConfig, Player)
      */
+    @NotNull
     public MenuInstance create(Player player) {
         return MenuInstance.create(this, player);
+    }
+
+    /**
+     * 创建一个菜单实例，但不打开菜单
+     * @param player 要打开菜单的玩家
+     * @param args 命令参数
+     * @return 当命令参数解析有误时，返回 <code>null</code>
+     * @see MenuInstance#create(MenuConfig, Player, String[])
+     */
+    @Nullable
+    public MenuInstance create(Player player, String[] args) {
+        return MenuInstance.create(this, player, args);
     }
 
     /**
@@ -208,13 +252,32 @@ public class MenuConfig {
      * @param player 要打开菜单的玩家
      * @see MenuInstance#create(MenuConfig, Player)
      */
+    @NotNull
     public MenuInstance open(Player player) {
         MenuInstance menu = create(player);
         menu.open();
         return menu;
     }
 
-    public static MenuConfig load(boolean alt, String id, MemoryConfiguration config) {
+    /**
+     * 创建一个菜单实例，并打开菜单
+     * @param player 要打开菜单的玩家
+     * @param args 命令参数
+     * @return 当命令参数解析有误时，返回 <code>null</code>
+     * @see MenuInstance#create(MenuConfig, Player, String[])
+     */
+    @Nullable
+    public MenuInstance open(Player player, String[] args) {
+        MenuInstance menu = create(player, args);
+        if (menu != null) {
+            menu.open();
+            return menu;
+        }
+        return null;
+    }
+
+    @NotNull
+    public static MenuConfig load(boolean alt, @NotNull String id, @NotNull MemoryConfiguration config) {
         return new MenuConfig(alt, id, config);
     }
 

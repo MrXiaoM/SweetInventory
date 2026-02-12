@@ -42,13 +42,31 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 return Messages.Command.open__no_menu_found.tm(sender, Pair.of("%menu%", args[1]));
             }
             Player player;
-            if (args.length == 3) {
-                if (!sender.hasPermission("sweet.inventory.open.other")) {
-                    return Messages.no_permission.tm(sender);
+            String[] menuArgs;
+            if (args.length >= 3) {
+                if (args[2].equals("-")) {
+                    // 玩家名填写 "-" 代表自己
+                    if (sender instanceof Player) {
+                        player = (Player) sender;
+                        if (!menu.hasPermission(sender)) {
+                            return Messages.no_permission.tm(sender);
+                        }
+                    } else {
+                        return Messages.player__only.tm(sender);
+                    }
+                } else {
+                    if (!sender.hasPermission("sweet.inventory.open.other")) {
+                        return Messages.no_permission.tm(sender);
+                    }
+                    player = Util.getOnlinePlayer(args[2]).orElse(null);
+                    if (player == null) {
+                        return Messages.player__not_online.tm(sender);
+                    }
                 }
-                player = Util.getOnlinePlayer(args[2]).orElse(null);
-                if (player == null) {
-                    return Messages.player__not_online.tm(sender);
+                // 接收命令参数
+                menuArgs = new String[args.length - 3];
+                if (menuArgs.length > 0) {
+                    System.arraycopy(args, 3, menuArgs, 0, menuArgs.length);
                 }
             } else {
                 if (sender instanceof Player) {
@@ -59,8 +77,9 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
                 } else {
                     return Messages.player__only.tm(sender);
                 }
+                menuArgs = new String[0];
             }
-            menu.open(player);
+            menu.open(player, menuArgs);
             return true;
         }
         if (args.length == 1 && "list".equalsIgnoreCase(args[0])) {

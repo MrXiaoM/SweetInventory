@@ -56,10 +56,10 @@ public class MenuManager extends AbstractModule {
             if (s.startsWith("聊天消息:")) return new ActionMessageAdventure(s.substring(5));
             if (s.startsWith("[动作消息]")) return new ActionActionBar(s.substring(6));
             if (s.startsWith("动作消息:")) return new ActionActionBar(s.substring(5));
-            if (s.startsWith("[打开菜单]")) return new ActionOpenMenu(s.substring(6));
-            if (s.startsWith("打开菜单:")) return new ActionOpenMenu(s.substring(5));
-            if (s.startsWith("[open]")) return new ActionOpenMenu(s.substring(6));
-            if (s.startsWith("open:")) return new ActionOpenMenu(s.substring(5));
+            if (s.startsWith("[打开菜单]")) return ActionOpenMenu.of(s.substring(6).trim());
+            if (s.startsWith("打开菜单:")) return ActionOpenMenu.of(s.substring(5).trim());
+            if (s.startsWith("[open]")) return ActionOpenMenu.of(s.substring(6).trim());
+            if (s.startsWith("open:")) return ActionOpenMenu.of(s.substring(5).trim());
             if (s.startsWith("[连接子服]")) return new ActionConnectServer(s.substring(6));
             if (s.startsWith("连接子服:")) return new ActionConnectServer(s.substring(5));
             if (s.startsWith("[connect]")) return new ActionConnectServer(s.substring(9));

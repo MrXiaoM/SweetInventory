@@ -24,6 +24,7 @@ import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
+import top.mrxiaom.sweet.inventory.func.menus.arguments.MenuArguments;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class MenuInstance implements IGuiHolder {
     private final Player player;
     private final Map<Integer, MenuIcon> currentIcons = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
-    private int updateCounter = 0;
+    private int updateCounter;
     private Component title;
     private Inventory inventory;
     private int page = 1;
@@ -225,6 +226,14 @@ public class MenuInstance implements IGuiHolder {
         }
     }
 
+    /**
+     * 设置菜单临时变量的值
+     * @param append 多个临时变量
+     */
+    public void putVariables(@NotNull Map<String, Object> append) {
+        variables.putAll(append);
+    }
+
     @Override
     public Inventory newInventory() {
         String rawTitle = PAPI.setPlaceholders(player, Pair.replace(config.title(), newReplacements()));
@@ -357,6 +366,26 @@ public class MenuInstance implements IGuiHolder {
     @NotNull
     public static MenuInstance create(MenuConfig config, Player player) {
         return new MenuInstance(config, player);
+    }
+
+    /**
+     * 创建菜单实例
+     * @param config 菜单配置
+     * @param player 要打开菜单的玩家
+     * @param args 命令参数
+     * @return 当命令参数解析有误时，返回 <code>null</code>
+     */
+    @Nullable
+    public static MenuInstance create(MenuConfig config, Player player, String[] args) {
+        MenuArguments arguments = config.menuArguments();
+        if (arguments.isEmpty()) {
+            return create(config, player);
+        }
+        Map<String, Object> variables = arguments.parseVariables(player, args);
+        if (variables == null) return null;
+        MenuInstance inst = create(config, player);
+        inst.putVariables(variables);
+        return inst;
     }
 
     @Nullable

@@ -12,8 +12,10 @@ import java.util.List;
 
 public class ActionOpenMenu implements IAction {
     public final String menu;
-    public ActionOpenMenu(String menu) {
+    public final String[] args;
+    public ActionOpenMenu(String menu, String[] args) {
         this.menu = menu.trim();
+        this.args = args;
     }
 
     @Override
@@ -25,7 +27,17 @@ public class ActionOpenMenu implements IAction {
                 player.closeInventory();
                 return;
             }
-            menu.open(player);
+            menu.open(player, args);
         }
+    }
+
+    public static ActionOpenMenu of(String menuAndArgs) {
+        int spaceIndex = menuAndArgs.indexOf(' ');
+        if (spaceIndex != -1) {
+            String menu = menuAndArgs.substring(0, spaceIndex);
+            String args = menuAndArgs.substring(spaceIndex + 1);
+            return new ActionOpenMenu(menu, args.split(" "));
+        }
+        return new ActionOpenMenu(menuAndArgs, new String[0]);
     }
 }
