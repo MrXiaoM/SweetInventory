@@ -3,6 +3,8 @@ package top.mrxiaom.sweet.inventory.requirements;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.utils.ListPair;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
@@ -48,7 +50,8 @@ public class PermissionRequirement implements IRequirement {
     @Override
     public boolean check(MenuInstance menu) {
         Player player = menu.getPlayer();
-        String permission = PAPI.setPlaceholders(player, this.permission);
+        ListPair<String, Object> r = menu.newReplacements();
+        String permission = PAPI.setPlaceholders(player, Pair.replace(this.permission, r));
         return player.hasPermission(permission) != reverse;
     }
 
