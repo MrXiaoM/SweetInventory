@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
@@ -16,6 +15,7 @@ import top.mrxiaom.pluginbase.utils.ItemStackUtil;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
+import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.fixer.ItemDupeFixer;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
@@ -30,7 +30,7 @@ import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
 
 public class MenuIcon {
-    private final boolean adventure = BukkitPlugin.getInstance().options.adventure();
+    private final SweetInventory plugin = SweetInventory.getInstance();
     private final @NotNull ConfigurationSection section;
     private final @NotNull String id;
     private final @NotNull List<Character> slots;
@@ -96,6 +96,10 @@ public class MenuIcon {
         this.shiftRightClick = Click.load(alt, config, alt ? "Shift右键点击" : "shift-right-click");
         this.dropClick = Click.load(alt, config, alt ? "Q键点击" : "drop-click");
         this.ctrlDropClick = Click.load(alt, config, alt ? "Ctrl+Q键点击" : "ctrl-drop-click");
+    }
+
+    public SweetInventory plugin() {
+        return plugin;
     }
 
     /**
@@ -186,23 +190,23 @@ public class MenuIcon {
 
     /**
      * 生成一个新的物品
-     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param player 玩家，用于替换 PAPI 变量
      * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
      */
     @NotNull
-    public ItemStack generateIcon(Player player) {
+    public ItemStack generateIcon(@NotNull Player player) {
         return generateIcon(player, null, null);
     }
 
     /**
      * 生成一个新的物品
-     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param player 玩家，用于替换 PAPI 变量
      * @param displayNameModifier 物品名称修饰器
      * @param loreModifier 物品Lore修饰器
      * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
      */
     @NotNull
-    public ItemStack generateIcon(Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
+    public ItemStack generateIcon(@NotNull Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (material.equals("AIR") || amount == 0) return new ItemStack(Material.AIR);
         Pair<Material, Integer> pair = ItemStackUtil.parseMaterial(this.material);
         ItemStack item = pair == null ? new ItemStack(Material.PAPER) : ItemStackUtil.legacy(pair);
@@ -212,25 +216,25 @@ public class MenuIcon {
     /**
      * 基于已有物品，覆盖图标配置到该物品上。这个方法会忽略 <code>material</code> 选项。
      * @param item 原物品
-     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param player 玩家，用于替换 PAPI 变量
      * @return <code>item</code> 的引用
      * @see LoadedIcon#generateIcon(ItemStack, Player, IModifier, IModifier)
      */
     @NotNull
-    public ItemStack generateIcon(@Nullable ItemStack item, @Nullable Player player) {
+    public ItemStack generateIcon(@Nullable ItemStack item, @NotNull Player player) {
         return generateIcon(item, player, null, null);
     }
 
     /**
      * 基于已有物品，覆盖图标配置到该物品上。这个方法会忽略 <code>material</code> 选项。
      * @param item 原物品
-     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param player 玩家，用于替换 PAPI 变量
      * @param displayNameModifier 物品名称修饰器
      * @param loreModifier 物品Lore修饰器
      * @return 如果 <code>item</code> 不是 <code>null</code>，返回原物品的引用
      */
     @NotNull
-    public ItemStack generateIcon(@Nullable ItemStack item, @Nullable Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
+    public ItemStack generateIcon(@Nullable ItemStack item, @NotNull Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (item == null || amount == 0) return new ItemStack(Material.AIR);
         item.setAmount(amount);
         applyItemMeta(item, player, displayNameModifier, loreModifier);
@@ -240,29 +244,29 @@ public class MenuIcon {
     /**
      * 应用该图标配置中的 物品名、物品Lore、发光、自定义标记… 等元数据到指定物品
      * @param item 原物品
-     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param player 玩家，用于替换 PAPI 变量
      * @see LoadedIcon#applyItemMeta(ItemStack, Player, IModifier, IModifier)
      */
-    public void applyItemMeta(@NotNull ItemStack item, @Nullable Player player) {
+    public void applyItemMeta(@NotNull ItemStack item, @NotNull Player player) {
         applyItemMeta(item, player, null, null);
     }
 
     /**
      * 应用该图标配置中的 物品名、物品Lore、发光、自定义标记… 等元数据到指定物品
      * @param item 原物品
-     * @param player 玩家，用于替换 PAPI 变量。使用 <code>null</code> 则不替换 PAPI 变量
+     * @param player 玩家，用于替换 PAPI 变量
      * @param displayNameModifier 物品名称修饰器
      * @param loreModifier 物品Lore修饰器
      */
-    public void applyItemMeta(@NotNull ItemStack item, @Nullable Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
+    public void applyItemMeta(@NotNull ItemStack item, @NotNull Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (!display.isEmpty()) {
             String displayName = PAPI.setPlaceholders(player, fit(displayNameModifier, display));
-            if (adventure) AdventureItemStack.setItemDisplayName(item, displayName);
+            if (plugin.options.adventure()) AdventureItemStack.setItemDisplayName(item, displayName);
             else ItemStackUtil.setItemDisplayName(item, displayName);
         }
         if (!lore.isEmpty()) {
             List<String> loreList = PAPI.setPlaceholders(player, fit(loreModifier, lore));
-            if (adventure) AdventureItemStack.setItemLoreMiniMessage(item, loreList);
+            if (plugin.options.adventure()) AdventureItemStack.setItemLoreMiniMessage(item, loreList);
             else ItemStackUtil.setItemLore(item, loreList);
         }
         if (glow) ItemStackUtil.setGlow(item);
