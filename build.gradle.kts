@@ -70,6 +70,7 @@ dependencies {
         implementation(artifact)
     }
     implementation(base.resolver.lite)
+    shadowLink(project(":craft-engine"))
 }
 buildConfig {
     className("BuildConstants")
@@ -125,6 +126,12 @@ tasks {
             docEncoding("UTF-8")
             addBooleanOption("keywords", true)
             addBooleanOption("Xdoclint:none", true)
+        }
+    }
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
+            options.release.set(targetJavaVersion)
         }
     }
 }

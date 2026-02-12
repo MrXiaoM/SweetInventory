@@ -9,6 +9,7 @@ softdepend:
   - MythicLib
   - MMOItems
   - MythicMobs
+  - CraftEngine
 authors: [ MrXiaoM ]
 libraries:
   - "org.jetbrains:annotations:24.0.0"
