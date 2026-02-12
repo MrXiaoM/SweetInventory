@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -10,10 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.func.gui.LoadedIcon;
-import top.mrxiaom.pluginbase.utils.AdventureItemStack;
-import top.mrxiaom.pluginbase.utils.ItemStackUtil;
-import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.*;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.fixer.ItemDupeFixer;
@@ -38,6 +36,7 @@ public class MenuIcon {
     private final int amount;
     private final @NotNull String display;
     private final @NotNull List<String> lore;
+    private final boolean resetLore;
     private final boolean glow;
     private final @Nullable Integer customModelData;
     private final @NotNull Map<String, String> nbtStrings;
@@ -73,6 +72,7 @@ public class MenuIcon {
         this.amount = config.getInt(alt ? "数量" : "amount", 1);
         this.display = config.getString(alt ? "名字" : "display", "");
         this.lore = config.getStringList(alt ? "描述" : "lore");
+        this.resetLore = config.getBoolean(alt ? "重设描述" : "reset-lore");
         this.glow = getBoolean(alt, config, alt ? "发光" : "glow");
         this.customModelData = config.contains(alt ? "模型数据" : "custom-model-data") ? config.getInt(alt ? "模型数据" : "custom-model-data") : null;
         this.nbtStrings = new HashMap<>();
@@ -261,13 +261,17 @@ public class MenuIcon {
     public void applyItemMeta(@NotNull ItemStack item, @NotNull Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (!display.isEmpty()) {
             String displayName = PAPI.setPlaceholders(player, fit(displayNameModifier, display));
-            if (plugin.options.adventure()) AdventureItemStack.setItemDisplayName(item, displayName);
-            else ItemStackUtil.setItemDisplayName(item, displayName);
+            AdventureItemStack.setItemDisplayName(item, displayName);
         }
         if (!lore.isEmpty()) {
             List<String> loreList = PAPI.setPlaceholders(player, fit(loreModifier, lore));
-            if (plugin.options.adventure()) AdventureItemStack.setItemLoreMiniMessage(item, loreList);
-            else ItemStackUtil.setItemLore(item, loreList);
+            if (resetLore) {
+                AdventureItemStack.setItemLoreMiniMessage(item, loreList);
+            } else {
+                List<Component> lore = AdventureItemStack.getItemLore(item);
+                lore.addAll(AdventureUtil.miniMessage(loreList));
+                AdventureItemStack.setItemLore(item, lore);
+            }
         }
         if (glow) ItemStackUtil.setGlow(item);
         if (customModelData != null) ItemStackUtil.setCustomModelData(item, customModelData);
