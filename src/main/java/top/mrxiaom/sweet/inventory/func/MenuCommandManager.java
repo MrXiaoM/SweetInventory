@@ -74,6 +74,11 @@ public class MenuCommandManager extends AbstractModule {
         for (MenuConfig menu : menus) {
             String label = menu.bindCommand();
             if (label == null) continue;
+            if (label.contains(" ")) {
+                // TODO: 支持子命令
+                warn("菜单 " + menu.id() + " 绑定的根命令存在空格，不为其注册命令");
+                continue;
+            }
             MenuConfig existsMenu = menusByCommand.get(label);
             if (existsMenu != null) {
                 // 冲突处理: 已有的菜单命令
