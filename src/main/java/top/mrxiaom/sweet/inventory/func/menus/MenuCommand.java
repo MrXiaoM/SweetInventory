@@ -115,12 +115,18 @@ public class MenuCommand extends Command {
         for (ChildCommand child : childCommands) {
             String[] newArgs = child.match(args);
             if (newArgs != null) {
+                if (!child.menu().hasPermission(player)) {
+                    return Messages.no_permission.tm(player);
+                }
                 child.menu().open(player, newArgs);
                 return true;
             }
         }
         if (menu != null) {
             // 如果不匹配子命令，且根菜单存在，则执行根菜单命令
+            if (!menu.hasPermission(player)) {
+                return Messages.no_permission.tm(player);
+            }
             menu.open(player, args);
             return true;
         } else {
