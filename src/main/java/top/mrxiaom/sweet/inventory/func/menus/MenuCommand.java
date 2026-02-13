@@ -48,7 +48,7 @@ public class MenuCommand extends Command {
         @Nullable
         public String[] match(String[] args) {
             if (args.length < arguments.size()) return null;
-            for (int i = 0; i < args.length; i++) {
+            for (int i = 0; i < arguments.size(); i++) {
                 if (!args[i].equalsIgnoreCase(arguments.get(i))) {
                     return null;
                 }
