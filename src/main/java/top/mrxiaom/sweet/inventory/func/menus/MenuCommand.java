@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
+import com.google.common.collect.Iterables;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -7,7 +8,9 @@ import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.sweet.inventory.Messages;
+import top.mrxiaom.sweet.inventory.SweetInventory;
 
 import java.util.*;
 
@@ -117,8 +120,15 @@ public class MenuCommand extends Command {
             }
         }
         if (menu != null) {
+            // 如果不匹配子命令，且根菜单存在，则执行根菜单命令
             menu.open(player, args);
             return true;
+        } else {
+            // 如果根菜单不存在，显示第一个子命令的帮助
+            ChildCommand first = Iterables.getFirst(childCommands, null);
+            if (first != null) {
+                ActionProviders.run(SweetInventory.getInstance(), player, first.menu().menuArguments().helpActions());
+            }
         }
         return true;
     }

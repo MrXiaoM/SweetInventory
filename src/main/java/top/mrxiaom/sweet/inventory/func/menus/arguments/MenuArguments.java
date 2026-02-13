@@ -122,6 +122,11 @@ public class MenuArguments {
         return arguments.isEmpty();
     }
 
+    @NotNull
+    public List<IAction> helpActions() {
+        return helpActions;
+    }
+
     /**
      * 从命令参数解析变量，如果解析失败，返回 <code>null</code>
      * @param player 发送命令的玩家
