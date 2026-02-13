@@ -2,7 +2,6 @@ package top.mrxiaom.sweet.inventory.func;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.entity.Player;
@@ -10,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.sweet.inventory.Messages;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.menus.MenuCommand;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
@@ -24,44 +22,29 @@ import java.util.*;
  */
 @AutoRegister(priority = 990)
 public class MenuCommandManager extends AbstractModule {
-    private final Map<String, MenuConfig> menusByCommand = new HashMap<>();
+    private final Map<String, MenuCommand> menusByCommand = new HashMap<>();
     public MenuCommandManager(SweetInventory plugin) {
         super(plugin);
         this.initReflection();
     }
 
     /**
-     * 通过根命令获取菜单配置
+     * 通过根命令获取菜单命令配置
      * @param label 根命令
      */
     @Nullable
-    public MenuConfig getByCommand(@NotNull String label) {
+    public MenuCommand getCommand(@NotNull String label) {
         return menusByCommand.get(label);
     }
 
-    public void onCommand(
-            @NotNull CommandSender sender,
-            @NotNull String label,
-            @NotNull String[] args
-    ) {
-        if (!(sender instanceof Player)) {
-            Messages.player__only.tm(sender);
-            return;
+    private boolean addChild(MenuCommand command, MenuConfig menu, String label, List<String> childArguments) {
+        // 注意: 注册成功返回 false，注册失败返回 true
+        MenuCommand.ChildCommand existsChild = command.getChild(childArguments);
+        if (existsChild != null) {
+            warn("菜单 " + menu.id() + " 在根命令 /" + label + " 绑定的子命令与 " + existsChild.menu().id() + " 绑定的子命令冲突，保留后者");
+            return true;
         }
-        Player player = (Player) sender;
-        MenuConfig menu = menusByCommand.get(label);
-        if (menu != null) {
-            menu.open(player, args);
-        }
-    }
-
-    @Nullable
-    public List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull String label,
-            @NotNull String[] args
-    ) {
-        return Collections.emptyList();
+        return !command.addChild(childArguments, menu);
     }
 
     protected void refreshCommands(Collection<MenuConfig> menus) {
@@ -74,16 +57,34 @@ public class MenuCommandManager extends AbstractModule {
         for (MenuConfig menu : menus) {
             String label = menu.bindCommand();
             if (label == null) continue;
+            List<String> childArguments;
             if (label.contains(" ")) {
-                // TODO: 支持子命令
-                warn("菜单 " + menu.id() + " 绑定的根命令存在空格，不为其注册命令");
-                continue;
+                String[] split = label.trim().split(" ");
+                label = split[0];
+                childArguments = Arrays.asList(split).subList(1, split.length);
+            } else {
+                childArguments = Collections.emptyList();
             }
-            MenuConfig existsMenu = menusByCommand.get(label);
-            if (existsMenu != null) {
-                // 冲突处理: 已有的菜单命令
-                warn("菜单 " + menu.id() + " 绑定的命令与 " + existsMenu.id() + " 绑定的命令冲突，保留后者");
-                continue;
+            MenuCommand existsMenuCommand = menusByCommand.get(label);
+            if (existsMenuCommand != null) {
+                // 冲突处理: 已有的其它菜单命令
+                if (!childArguments.isEmpty()) {
+                    // 子命令不为空时，注册子命令
+                    if (addChild(existsMenuCommand, menu, label, childArguments)) {
+                        continue;
+                    }
+                } else {
+                    // 子命令为空时
+                    MenuConfig existsMenu = existsMenuCommand.menu();
+                    if (existsMenu != null) {
+                        // 冲突处理: 已有的菜单命令
+                        warn("菜单 " + menu.id() + " 绑定的命令与 " + existsMenu.id() + " 绑定的命令冲突，保留后者");
+                        continue;
+                    } else {
+                        // 如果这个命令还没有根菜单，则设为当前菜单
+                        existsMenuCommand.menu(menu);
+                    }
+                }
             }
             Command existsCommand = knownCommands.get(label);
             if (existsCommand != null) {
@@ -97,10 +98,20 @@ public class MenuCommandManager extends AbstractModule {
                 continue;
             }
             // 均没有冲突时，才注册命令
-            MenuCommand command = new MenuCommand(this, label);
+            MenuCommand command;
+            if (childArguments.isEmpty()) {
+                // 子命令为空，注册根命令
+                command = new MenuCommand(label, menu);
+            } else {
+                // 子命令不为空，注册子命令
+                command = new MenuCommand(label, null);
+                if (addChild(command, menu, label, childArguments)) {
+                    continue;
+                }
+            }
             knownCommands.put(label, command);
             command.register(commandMap);
-            menusByCommand.put(label, menu);
+            menusByCommand.put(label, command);
         }
         // 如果服务端支持，提交刷新命令操作
         if (syncCommands()) {

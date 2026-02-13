@@ -43,12 +43,14 @@ public class MenuConfig {
         if (config.isConfigurationSection(bindCommandKey)) {
             ConfigurationSection section = config.getConfigurationSection(bindCommandKey);
             assert section != null;
-            this.bindCommand = section.getString(alt ? "名称" : "name", null);
+            String bindCommand = section.getString(alt ? "名称" : "name", null);
             List<IAction> helpActions = ActionProviders.loadActions(section, alt ? "帮助操作" : "help-actions");
             List<ConfigurationSection> arguments = ConfigUtils.getSectionList(section, alt ? "参数" : "arguments");
+            this.bindCommand = bindCommand == null ? null : bindCommand.trim();
             this.menuArguments = MenuArguments.load(alt, helpActions, arguments);
         } else {
-            this.bindCommand = config.getString(bindCommandKey, null);
+            String bindCommand = config.getString(bindCommandKey, null);
+            this.bindCommand = bindCommand == null ? null : bindCommand.trim();
             this.menuArguments = MenuArguments.EMPTY;
         }
         this.openCommands = ActionProviders.loadActions(config, alt ? "打开界面执行命令" : "open-commands");
