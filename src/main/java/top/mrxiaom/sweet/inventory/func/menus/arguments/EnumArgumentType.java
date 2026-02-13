@@ -27,6 +27,13 @@ public enum EnumArgumentType implements IArgumentType {
     NUMBER(it -> Util.parseDouble(it).orElse(null),
             parseRange(it -> Util.parseDouble(it).orElse(null), Double.MIN_VALUE, Double.MAX_VALUE, NumberRange::new),
             Messages.Arguments.no_number),
+    BOOLEAN(it -> {
+                if (it.equals("true") || it.equals("yes") || it.equals("on") || it.equals("开") || it.equals("是") || it.equals("好")) return true;
+                if (it.equals("false") || it.equals("no") || it.equals("off") || it.equals("关") || it.equals("否") || it.equals("不")) return false;
+                return null;
+            },
+            it -> null,
+            Messages.Arguments.no_boolean),
     MATERIAL(
             it -> Util.valueOr(Material.class, it, null),
             it -> null,

@@ -16,6 +16,7 @@ public class Messages {
     public static class Arguments {
         public static final Message no_integer = field("&e请输入一个整数");
         public static final Message no_number = field("&e请输入一个实数");
+        public static final Message no_boolean = field("&e请输入一个开关值&7 (true, false)");
         public static final Message no_material = field("&e请输入一个物品类型");
         public static final Message out_of_range = field("&e你输入的参数不在指定范围内");
     }
