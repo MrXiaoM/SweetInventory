@@ -10,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
+import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.ListPair;
@@ -105,6 +107,26 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             AdventureUtil.sendMessage(sender, joiner.toString());
             return true;
         }
+        if (args.length > 1 && "execute".equalsIgnoreCase(args[0])) {
+            if (!sender.hasPermission("sweet.inventory.execute")) {
+                return Messages.no_permission.tm(sender);
+            }
+            StringJoiner joiner = new StringJoiner(" ");
+            for (int i = 1; i < args.length; i++) {
+                joiner.add(args[i]);
+            }
+            IAction action = ActionProviders.loadAction(joiner.toString());
+            if (action == null) {
+                return Messages.Command.execute__parse_failed.tm(sender);
+            }
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+                action.run(player);
+            } else {
+                action.run(null);
+            }
+            return true;
+        }
         if (args.length == 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
             plugin.getScheduler().runTask(() -> {
                 for (Player p : Bukkit.getOnlinePlayers()) {
@@ -128,6 +150,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             List<String> sub = new ArrayList<>();
             if (sender.hasPermission("sweet.inventory.open")) sub.add("open");
             if (sender.hasPermission("sweet.inventory.list")) sub.add("list");
+            if (sender.hasPermission("sweet.inventory.execute")) sub.add("execute");
             if (sender.hasPermission("sweet.inventory.reload")) sub.add("reload");
             return startsWith(sub, args[0]);
         }

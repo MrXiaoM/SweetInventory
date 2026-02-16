@@ -27,6 +27,7 @@ public class Messages {
         public static final Message list__header = field(Lists.newArrayList("&e&l菜单列表: "));
         public static final Message list__entry = field(Lists.newArrayList("  &8· &f%menu%"));
         public static final Message list__footer = field(Lists.newArrayList());
+        public static final Message execute__parse_failed = field("&e无法解析输入内容为可执行操作");
         public static final Message reload__success = field("&a配置文件已重载");
     }
 }
