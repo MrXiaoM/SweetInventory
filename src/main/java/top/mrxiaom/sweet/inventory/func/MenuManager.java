@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.inventory.func;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -47,27 +48,32 @@ public class MenuManager extends AbstractModule {
     }
 
     private void registerAlternativeProvider() {
-        ActionProviders.registerActionProvider(s -> {
-            if (s.startsWith("[控制台执行]")) return new ActionConsole(s.substring(7));
-            if (s.startsWith("控制台执行:")) return new ActionConsole(s.substring(6));
-            if (s.startsWith("[玩家执行]")) return new ActionPlayer(s.substring(6));
-            if (s.startsWith("玩家执行:")) return new ActionPlayer(s.substring(5));
-            if (s.startsWith("[聊天消息]")) return new ActionMessageAdventure(s.substring(6));
-            if (s.startsWith("聊天消息:")) return new ActionMessageAdventure(s.substring(5));
-            if (s.startsWith("[动作消息]")) return new ActionActionBar(s.substring(6));
-            if (s.startsWith("动作消息:")) return new ActionActionBar(s.substring(5));
-            if (s.startsWith("[打开菜单]")) return ActionOpenMenu.of(s.substring(6).trim());
-            if (s.startsWith("打开菜单:")) return ActionOpenMenu.of(s.substring(5).trim());
-            if (s.startsWith("[open]")) return ActionOpenMenu.of(s.substring(6).trim());
-            if (s.startsWith("open:")) return ActionOpenMenu.of(s.substring(5).trim());
-            if (s.startsWith("[连接子服]")) return new ActionConnectServer(s.substring(6));
-            if (s.startsWith("连接子服:")) return new ActionConnectServer(s.substring(5));
-            if (s.startsWith("[connect]")) return new ActionConnectServer(s.substring(9));
-            if (s.startsWith("connect:")) return new ActionConnectServer(s.substring(8));
-            //noinspection IfCanBeSwitch
-            if (s.equals("[上一页]") || s.equals("上一页") || s.equals("[prev]") || s.equals("prev")) return PREV;
-            if (s.equals("[下一页]") || s.equals("下一页") || s.equals("[next]") || s.equals("next")) return NEXT;
-            if (s.equals("[刷新]") || s.equals("刷新") || s.equals("[refresh]") || s.equals("refresh")) return ActionRefresh.INSTANCE;
+        ActionProviders.registerActionProvider(input -> {
+            if (input instanceof ConfigurationSection) {
+                return null;
+            } else {
+                String s = String.valueOf(input);
+                if (s.startsWith("[控制台执行]")) return new ActionConsole(s.substring(7));
+                if (s.startsWith("控制台执行:")) return new ActionConsole(s.substring(6));
+                if (s.startsWith("[玩家执行]")) return new ActionPlayer(s.substring(6));
+                if (s.startsWith("玩家执行:")) return new ActionPlayer(s.substring(5));
+                if (s.startsWith("[聊天消息]")) return new ActionMessageAdventure(s.substring(6));
+                if (s.startsWith("聊天消息:")) return new ActionMessageAdventure(s.substring(5));
+                if (s.startsWith("[动作消息]")) return new ActionActionBar(s.substring(6));
+                if (s.startsWith("动作消息:")) return new ActionActionBar(s.substring(5));
+                if (s.startsWith("[打开菜单]")) return ActionOpenMenu.of(s.substring(6).trim());
+                if (s.startsWith("打开菜单:")) return ActionOpenMenu.of(s.substring(5).trim());
+                if (s.startsWith("[open]")) return ActionOpenMenu.of(s.substring(6).trim());
+                if (s.startsWith("open:")) return ActionOpenMenu.of(s.substring(5).trim());
+                if (s.startsWith("[连接子服]")) return new ActionConnectServer(s.substring(6));
+                if (s.startsWith("连接子服:")) return new ActionConnectServer(s.substring(5));
+                if (s.startsWith("[connect]")) return new ActionConnectServer(s.substring(9));
+                if (s.startsWith("connect:")) return new ActionConnectServer(s.substring(8));
+                //noinspection IfCanBeSwitch
+                if (s.equals("[上一页]") || s.equals("上一页") || s.equals("[prev]") || s.equals("prev")) return PREV;
+                if (s.equals("[下一页]") || s.equals("下一页") || s.equals("[next]") || s.equals("next")) return NEXT;
+                if (s.equals("[刷新]") || s.equals("刷新") || s.equals("[refresh]") || s.equals("refresh")) return ActionRefresh.INSTANCE;
+            }
             return null;
         });
     }

@@ -73,7 +73,7 @@ public class Click {
     private static List<IAction> loadActions(ConfigurationSection section, String key) {
         if (section.contains(key)) {
             if (section.isList(key)) {
-                return ActionProviders.loadActions(section.getStringList(key));
+                return ActionProviders.loadActions(section, key);
             } else {
                 String line = section.getString(key);
                 if (line != null) {
