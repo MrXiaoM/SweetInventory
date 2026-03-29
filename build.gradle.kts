@@ -1,13 +1,13 @@
 plugins {
     java
     `maven-publish`
-    id ("com.gradleup.shadow") version "8.3.0"
+    id ("com.gradleup.shadow") version "9.3.0"
     id ("com.github.gmazzo.buildconfig") version "5.6.7"
 }
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.12")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.13")
 }
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
@@ -17,7 +17,6 @@ version = "1.0.1"
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, paper, gui, actions, l10n, misc) }
 val shadowGroup = "top.mrxiaom.sweet.inventory.libs"
-val shadowLink = configurations.create("shadowLink")
 
 repositories {
     mavenCentral()
@@ -29,6 +28,8 @@ repositories {
     maven("https://jitpack.io")
     maven("https://repo.rosewooddev.io/repository/public/")
     maven("https://r.irepo.space/maven/")
+    maven("https://repo.momirealms.net/releases/")
+    maven("https://repo.nexomc.com/releases")
 }
 
 allprojects {
@@ -55,6 +56,11 @@ dependencies {
     compileOnly("net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT")
     // NeigeItems
     compileOnly("pers.neige.neigeitems:NeigeItems:1.21.128")
+    // CraftEngine
+    compileOnly("net.momirealms:craft-engine-core:0.0.67")
+    compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
+    // Nexo
+    compileOnly("com.nexomc:nexo:1.19.1")
 
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly("com.github.dmulloy2:ProtocolLib:5.3.0")
@@ -65,7 +71,7 @@ dependencies {
     base.library("net.kyori:adventure-text-minimessage:4.22.0")
     base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
 
-    implementation("de.tr7zw:item-nbt-api:2.15.5")
+    implementation("de.tr7zw:item-nbt-api:2.15.6")
     implementation("top.mrxiaom:EvalEx-j8:3.4.0")
     implementation("commons-io:commons-io:2.21.0")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
@@ -73,7 +79,6 @@ dependencies {
         implementation(artifact)
     }
     implementation(base.resolver.lite)
-    shadowLink(project(":depend-plugins-21"))
 }
 buildConfig {
     className("BuildConstants")
@@ -86,6 +91,7 @@ buildConfig {
     buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
 java {
+    disableAutoTargetJvm()
     val javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
@@ -95,7 +101,7 @@ java {
 }
 tasks {
     shadowJar {
-        configurations.add(shadowLink)
+        configurations.add(project.configurations.runtimeClasspath.get())
         mapOf(
             "top.mrxiaom.pluginbase" to "base",
             "de.tr7zw.changeme.nbtapi" to "nbtapi",
@@ -118,7 +124,10 @@ tasks {
     processResources {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
         from(sourceSets.main.get().resources.srcDirs) {
-            expand(mapOf("version" to version))
+            expand(mapOf(
+                "version" to version,
+                "libraries" to base.addedLibraries.joinToString("\"\n  - \""),
+            ))
             include("plugin.yml")
         }
     }

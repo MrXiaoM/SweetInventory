@@ -19,11 +19,23 @@ public class CraftEngineMaterial extends AbstractModule implements IMaterialProv
         plugin.registerMaterial(this);
     }
 
+    private static Key of(String namespacedId) {
+        String[] strings = new String[]{"minecraft", namespacedId};
+        int i = namespacedId.indexOf(':');
+        if (i >= 0) {
+            strings[1] = namespacedId.substring(i + 1);
+            if (i >= 1) {
+                strings[0] = namespacedId.substring(0, i);
+            }
+        }
+        return new Key(strings[0], strings[1]);
+    }
+
     @Override
     public ItemStack parse(Player player, MenuIcon icon) {
         String material = icon.material();
         if (material.startsWith("craftengine:")) {
-            Key id = Key.of(material.substring(12));
+            Key id = of(material.substring(12));
             CustomItem<ItemStack> item = CraftEngineItems.byId(id);
             if (item != null) {
                 return item.buildItemStack(BukkitAdaptors.adapt(player));
