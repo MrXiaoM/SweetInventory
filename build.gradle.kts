@@ -7,7 +7,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.13")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.15")
 }
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
@@ -67,8 +67,8 @@ dependencies {
     compileOnly("org.jetbrains:annotations:24.0.0")
 
     base.library("net.kyori:adventure-api:4.22.0")
-    base.library("net.kyori:adventure-platform-bukkit:4.4.0")
     base.library("net.kyori:adventure-text-minimessage:4.22.0")
+    base.library("net.kyori:adventure-text-serializer-gson:4.22.0")
     base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
 
     implementation("de.tr7zw:item-nbt-api:2.15.6")
@@ -90,15 +90,10 @@ buildConfig {
     buildConfigField("java.time.Instant", "BUILD_TIME", "java.time.Instant.ofEpochSecond(${System.currentTimeMillis() / 1000L}L)")
     buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
-java {
-    disableAutoTargetJvm()
-    val javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion.set(JavaLanguageVersion.of(targetJavaVersion))
-    }
-    withJavadocJar()
-    withSourcesJar()
-}
+
+top.mrxiaom.gradle.LibraryHelper.initJava(project, base, targetJavaVersion, true)
+top.mrxiaom.gradle.LibraryHelper.initPublishing(project)
+
 tasks {
     shadowJar {
         configurations.add(project.configurations.runtimeClasspath.get())
@@ -110,53 +105,6 @@ tasks {
             "org.apache.commons.io" to "commons-io"
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
-        }
-    }
-    val copyTask = create<Copy>("copyBuildArtifact") {
-        dependsOn(shadowJar)
-        from(shadowJar.get().outputs)
-        rename { "${project.name}-$version.jar" }
-        into(rootProject.file("out"))
-    }
-    build {
-        dependsOn(copyTask)
-    }
-    processResources {
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
-        from(sourceSets.main.get().resources.srcDirs) {
-            expand(mapOf(
-                "version" to version,
-                "libraries" to base.addedLibraries.joinToString("\"\n  - \""),
-            ))
-            include("plugin.yml")
-        }
-    }
-    javadoc {
-        (options as StandardJavadocDocletOptions).apply {
-            locale("zh_CN")
-            encoding("UTF-8")
-            docEncoding("UTF-8")
-            addBooleanOption("keywords", true)
-            addBooleanOption("Xdoclint:none", true)
-        }
-    }
-    withType<JavaCompile>().configureEach {
-        options.encoding = "UTF-8"
-        if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible) {
-            options.release.set(targetJavaVersion)
-        }
-    }
-}
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = project.group.toString()
-            artifactId = rootProject.name
-            version = project.version.toString()
-
-            artifact(tasks["shadowJar"]).classifier = null
-            artifact(tasks["sourcesJar"])
-            artifact(tasks["javadocJar"])
         }
     }
 }

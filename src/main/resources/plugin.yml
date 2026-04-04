@@ -13,8 +13,7 @@ softdepend:
   - NeigeItems
 authors: [ MrXiaoM ]
 folia-supported: true
-libraries:
-  - "${libraries}"
+# PluginBase Libraries ${libraries_config}
 commands:
   sweetinventory:
     description: 'The main command of SweetInventory'
