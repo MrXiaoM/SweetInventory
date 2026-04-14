@@ -5,7 +5,9 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -33,6 +35,7 @@ public class MenuIcon {
     private final @NotNull String id;
     private final @NotNull List<Character> slots;
     private final @NotNull String material;
+    private final @NotNull List<ItemFlag> itemFlags;
     private final int amount;
     private final @NotNull String display;
     private final @NotNull List<String> lore;
@@ -68,6 +71,14 @@ public class MenuIcon {
             } else material = materialStr;
         } else material = "PAPER";
         this.material = material.toUpperCase();
+
+        this.itemFlags = new ArrayList<>();
+        for (String s : config.getStringList(alt ? "物品标记" : "item-flags")) {
+            ItemFlag itemFlag = Util.valueOrNull(ItemFlag.class, s);
+            if (itemFlag != null) {
+                this.itemFlags.add(itemFlag);
+            }
+        }
 
         this.amount = config.getInt(alt ? "数量" : "amount", 1);
         if (config.contains("display_name")) {
@@ -295,6 +306,15 @@ public class MenuIcon {
                 }
             }
         });
+        if (!itemFlags.isEmpty()) {
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                for (ItemFlag itemFlag : itemFlags) {
+                    meta.addItemFlags(itemFlag);
+                }
+                item.setItemMeta(meta);
+            }
+        }
     }
 
     /**
