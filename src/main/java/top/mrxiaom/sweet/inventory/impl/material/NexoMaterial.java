@@ -14,7 +14,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 public class NexoMaterial extends AbstractModule implements IMaterialProvider {
     public NexoMaterial(SweetInventory plugin) {
         super(plugin);
-        plugin.registerMaterial(this);
+        plugin.getMaterialRegistry().register(this);
     }
 
     @Override

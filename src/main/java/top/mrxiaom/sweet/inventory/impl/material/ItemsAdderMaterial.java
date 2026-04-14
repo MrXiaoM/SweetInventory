@@ -14,7 +14,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 public class ItemsAdderMaterial extends AbstractModule implements IMaterialProvider {
     public ItemsAdderMaterial(SweetInventory plugin) {
         super(plugin);
-        plugin.registerMaterial(this);
+        plugin.getMaterialRegistry().register(this);
     }
 
     @Override

@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.BukkitPlugin;
+import top.mrxiaom.pluginbase.api.IRegistry;
+import top.mrxiaom.pluginbase.data.SimpleRegistry;
 import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
@@ -22,8 +24,6 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 public class SweetInventory extends BukkitPlugin {
@@ -79,21 +79,15 @@ public class SweetInventory extends BukkitPlugin {
         return PaperFactory.createItemEditor();
     }
 
-    private final List<IMaterialProvider> materialRegistry = new ArrayList<>();
+    private final IRegistry<IMaterialProvider> materialRegistry = new SimpleRegistry<>();
 
-    public void registerMaterial(IMaterialProvider provider) {
-        materialRegistry.add(provider);
-        materialRegistry.sort(Comparator.comparingInt(IMaterialProvider::providerPriority));
-    }
-
-    public void unregisterMaterial(IMaterialProvider provider) {
-        materialRegistry.remove(provider);
-        materialRegistry.sort(Comparator.comparingInt(IMaterialProvider::providerPriority));
+    public IRegistry<IMaterialProvider> getMaterialRegistry() {
+        return materialRegistry;
     }
 
     @NotNull
     public ItemStack parseMaterial(Player player, MenuIcon icon) {
-        for (IMaterialProvider provider : materialRegistry) {
+        for (IMaterialProvider provider : materialRegistry.all()) {
             ItemStack item = provider.parse(player, icon);
             if (item != null) {
                 return item;

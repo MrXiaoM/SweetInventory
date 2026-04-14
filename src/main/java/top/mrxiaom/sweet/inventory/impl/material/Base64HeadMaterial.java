@@ -16,7 +16,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 public class Base64HeadMaterial extends AbstractModule implements IMaterialProvider {
     public Base64HeadMaterial(SweetInventory plugin) {
         super(plugin);
-        plugin.registerMaterial(this);
+        plugin.getMaterialRegistry().register(this);
     }
 
     @Override

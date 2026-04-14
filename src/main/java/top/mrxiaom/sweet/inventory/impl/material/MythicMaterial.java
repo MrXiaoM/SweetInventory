@@ -26,7 +26,7 @@ public class MythicMaterial extends AbstractModule implements IMaterialProvider 
             mythicItem = null;
         }
         if (mythicItem != null) {
-            plugin.registerMaterial(this);
+            plugin.getMaterialRegistry().register(this);
             info("已挂钩 MythicMobs 材料");
         }
     }

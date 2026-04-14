@@ -16,7 +16,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 public class CraftEngineMaterial extends AbstractModule implements IMaterialProvider {
     public CraftEngineMaterial(SweetInventory plugin) {
         super(plugin);
-        plugin.registerMaterial(this);
+        plugin.getMaterialRegistry().register(this);
     }
 
     private static Key of(String namespacedId) {

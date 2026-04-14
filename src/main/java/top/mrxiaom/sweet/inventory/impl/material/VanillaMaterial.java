@@ -16,11 +16,11 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 public class VanillaMaterial extends AbstractModule implements IMaterialProvider {
     public VanillaMaterial(SweetInventory plugin) {
         super(plugin);
-        plugin.registerMaterial(this);
+        plugin.getMaterialRegistry().register(this);
     }
 
     @Override
-    public int providerPriority() {
+    public int getPriority() {
         return 2000;
     }
 
