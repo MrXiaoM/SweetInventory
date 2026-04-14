@@ -23,18 +23,25 @@ public class Base64HeadMaterial extends AbstractModule implements IMaterialProvi
     public @Nullable ItemStack parse(Player player, MenuIcon icon) {
         String material = icon.material();
         if (material.startsWith("head:")) {
-            ItemStack item = SkullsUtil.createHeadItem();
-            ItemMeta meta = item.getItemMeta();
-            if (meta instanceof SkullMeta) {
-                String base64 = material.substring(5);
-                SkullsUtil.Skull skull = SkullsUtil.getOrCreateSkull(base64);
-                if (skull != null) {
-                    skull.setSkull((SkullMeta) meta);
-                    item.setItemMeta(meta);
-                }
-            }
-            return item;
+            return parseHead(material.substring(5));
+        }
+        // DeluxeMenus fallback
+        if (material.startsWith("basehead-")) {
+            return parseHead(material.substring(9));
         }
         return null;
+    }
+
+    private ItemStack parseHead(String base64) {
+        ItemStack item = SkullsUtil.createHeadItem();
+        ItemMeta meta = item.getItemMeta();
+        if (meta instanceof SkullMeta) {
+            SkullsUtil.Skull skull = SkullsUtil.getOrCreateSkull(base64);
+            if (skull != null) {
+                skull.setSkull((SkullMeta) meta);
+                item.setItemMeta(meta);
+            }
+        }
+        return item;
     }
 }

@@ -70,7 +70,12 @@ public class MenuIcon {
         this.material = material.toUpperCase();
 
         this.amount = config.getInt(alt ? "数量" : "amount", 1);
-        this.display = config.getString(alt ? "名字" : "display", "");
+        if (config.contains("display_name")) {
+            // DeluxeMenus fallback
+            this.display = config.getString("display_name", "");
+        } else {
+            this.display = config.getString(alt ? "名字" : "display", "");
+        }
         this.lore = config.getStringList(alt ? "描述" : "lore");
         this.resetLore = config.getBoolean(alt ? "重设描述" : "reset-lore");
         this.glow = getBoolean(alt, config, alt ? "发光" : "glow");
