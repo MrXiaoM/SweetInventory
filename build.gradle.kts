@@ -61,6 +61,8 @@ dependencies {
     compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
     // Nexo
     compileOnly("com.nexomc:nexo:1.19.1")
+    // SX-Item
+    compileOnly("com.github.Saukiya:SX-Item:4.4.9")
 
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly("com.github.dmulloy2:ProtocolLib:5.3.0")

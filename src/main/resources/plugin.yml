@@ -11,6 +11,7 @@ softdepend:
   - MythicMobs
   - CraftEngine
   - NeigeItems
+  - SX-Item
 authors: [ MrXiaoM ]
 folia-supported: true
 # PluginBase Libraries ${libraries_config}
