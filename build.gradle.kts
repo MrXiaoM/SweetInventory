@@ -7,7 +7,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.15")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.17")
 }
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
@@ -64,15 +64,15 @@ dependencies {
 
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly("com.github.dmulloy2:ProtocolLib:5.3.0")
-    compileOnly("org.jetbrains:annotations:24.0.0")
+    compileOnly(base.depend.annotations)
 
     base.library("net.kyori:adventure-api:4.22.0")
     base.library("net.kyori:adventure-text-minimessage:4.22.0")
     base.library("net.kyori:adventure-text-serializer-gson:4.22.0")
     base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
 
-    implementation("de.tr7zw:item-nbt-api:2.15.6")
-    implementation("top.mrxiaom:EvalEx-j8:3.4.0")
+    implementation(base.depend.nbtapi)
+    implementation(base.depend.EvalEx)
     implementation("commons-io:commons-io:2.21.0")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
