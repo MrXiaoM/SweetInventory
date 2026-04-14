@@ -224,8 +224,7 @@ public class MenuIcon {
     @NotNull
     public ItemStack generateIcon(@NotNull Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (material.equals("AIR") || amount == 0) return new ItemStack(Material.AIR);
-        Pair<Material, Integer> pair = ItemStackUtil.parseMaterial(this.material);
-        ItemStack item = pair == null ? new ItemStack(Material.PAPER) : ItemStackUtil.legacy(pair);
+        ItemStack item = plugin.parseMaterial(player, this);
         return generateIcon(item, player, displayNameModifier, loreModifier);
     }
 
