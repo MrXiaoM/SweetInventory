@@ -168,8 +168,11 @@ public class MenuInstance implements IGuiHolder {
             List<MenuIcon> list = config.iconsByChar(id); // list 已经过优先级排序
             if (list != null && !list.isEmpty()) {
                 for (MenuIcon icon : list) {
+                    ListPair<String, Object> r1 = new ListPair<>();
+                    r1.addAll(r);
+                    r1.addAll(icon.extraValues());
                     // 满足条件时，释放图标到界面
-                    if (checkRequirements(icon.viewRequirements(), icon.viewDenyCommands(), r)) {
+                    if (checkRequirements(icon.viewRequirements(), icon.viewDenyCommands(), r1)) {
                         item = icon.generateIcon(player, displayModifier, loreModifier);
                         currentIcons.put(i, icon);
                         break;
@@ -258,34 +261,35 @@ public class MenuInstance implements IGuiHolder {
         // 点击操作
         if (icon != null) switch (click) {
             case LEFT:
-                handleIconClick(icon.leftClick());
+                handleIconClick(icon, icon.leftClick());
                 return;
             case RIGHT:
-                handleIconClick(icon.rightClick());
+                handleIconClick(icon, icon.rightClick());
                 return;
             case SHIFT_LEFT:
-                handleIconClick(icon.shiftLeftClick());
+                handleIconClick(icon, icon.shiftLeftClick());
                 return;
             case SHIFT_RIGHT:
-                handleIconClick(icon.shiftRightClick());
+                handleIconClick(icon, icon.shiftRightClick());
                 return;
             case DROP:
-                handleIconClick(icon.dropClick());
+                handleIconClick(icon, icon.dropClick());
                 return;
             case CONTROL_DROP:
-                handleIconClick(icon.ctrlDropClick());
+                handleIconClick(icon, icon.ctrlDropClick());
                 return;
         }
         actionLock = false;
     }
 
-    private void handleIconClick(@Nullable Click click) {
+    private void handleIconClick(@NotNull MenuIcon icon, @Nullable Click click) {
         if (click == null) {
             actionLock = false;
             return;
         }
         plugin.getScheduler().runTask(() -> {
             ListPair<String, Object> r = newReplacements();
+            r.addAll(icon.extraValues());
             if (checkRequirements(click.requirements(), click.denyCommands(), r)) {
                 executeCommands(click.commands(), r);
             }

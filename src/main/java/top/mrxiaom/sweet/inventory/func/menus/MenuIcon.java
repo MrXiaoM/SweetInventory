@@ -54,6 +54,7 @@ public class MenuIcon {
     private final @Nullable Click shiftRightClick;
     private final @Nullable Click dropClick;
     private final @Nullable Click ctrlDropClick;
+    private final @NotNull ListPair<String, Object> extraValues;
 
     protected MenuIcon(boolean alt, @NotNull ConfigurationSection config, @NotNull String id) {
         this.id = id;
@@ -112,6 +113,12 @@ public class MenuIcon {
         this.shiftRightClick = Click.load(alt, config, alt ? "Shift右键点击" : "shift-right-click");
         this.dropClick = Click.load(alt, config, alt ? "Q键点击" : "drop-click");
         this.ctrlDropClick = Click.load(alt, config, alt ? "Ctrl+Q键点击" : "ctrl-drop-click");
+        this.extraValues = new ListPair<>();
+        for (String key : config.getKeys(true)) {
+            if (config.isConfigurationSection(key) || config.isList(key)) continue;
+            String value = config.getString(key);
+            this.extraValues.add("${this." + key + "}", value);
+        }
     }
 
     public SweetInventory plugin() {
@@ -275,11 +282,11 @@ public class MenuIcon {
      */
     public void applyItemMeta(@NotNull ItemStack item, @NotNull Player player, @Nullable IModifier<String> displayNameModifier, @Nullable IModifier<List<String>> loreModifier) {
         if (!display.isEmpty()) {
-            String displayName = PAPI.setPlaceholders(player, fit(displayNameModifier, display));
+            String displayName = PAPI.setPlaceholders(player, fit(displayNameModifier, Pair.replace(display, extraValues)));
             AdventureItemStack.setItemDisplayName(item, displayName);
         }
         if (!lore.isEmpty()) {
-            List<String> loreList = PAPI.setPlaceholders(player, fit(loreModifier, lore));
+            List<String> loreList = PAPI.setPlaceholders(player, fit(loreModifier, Pair.replace(lore, extraValues)));
             if (resetLore) {
                 AdventureItemStack.setItemLoreMiniMessage(item, loreList);
             } else {
@@ -294,11 +301,11 @@ public class MenuIcon {
             nbt.setString(ItemDupeFixer.TAG, id);
             if (!nbtStrings.isEmpty() || !nbtInts.isEmpty()) {
                 for (Map.Entry<String, String> entry : nbtStrings.entrySet()) {
-                    String value = PAPI.setPlaceholders(player, entry.getValue());
+                    String value = PAPI.setPlaceholders(player, Pair.replace(entry.getValue(), extraValues));
                     nbt.setString(entry.getKey(), value);
                 }
                 for (Map.Entry<String, String> entry : nbtInts.entrySet()) {
-                    String value = PAPI.setPlaceholders(player, entry.getValue());
+                    String value = PAPI.setPlaceholders(player, Pair.replace(entry.getValue(), extraValues));
                     Integer i = Util.parseInt(value).orElse(null);
                     if (i == null) continue;
                     nbt.setInteger(entry.getKey(), i);
@@ -392,6 +399,11 @@ public class MenuIcon {
     @Nullable
     public Click ctrlDropClick() {
         return ctrlDropClick;
+    }
+
+    @NotNull
+    public ListPair<String, Object> extraValues() {
+        return extraValues;
     }
 
     /**
