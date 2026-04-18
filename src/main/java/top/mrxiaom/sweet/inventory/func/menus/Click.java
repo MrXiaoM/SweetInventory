@@ -51,10 +51,18 @@ public class Click {
             commands.addAll(loadActions(section, key + "命令列表"));
             commands.addAll(loadActions(section, key + "命令"));
         } else {
+            commands.addAll(loadActions(section, key + ".commands-pre"));
+            commands.addAll(loadActions(section, key + ".command-pre"));
+            commands.addAll(loadActions(section, key + "-commands-pre"));
+            commands.addAll(loadActions(section, key + "-command-pre"));
             commands.addAll(loadActions(section, key + ".commands"));
             commands.addAll(loadActions(section, key + ".command"));
             commands.addAll(loadActions(section, key + "-commands"));
             commands.addAll(loadActions(section, key + "-command"));
+            commands.addAll(loadActions(section, key + ".commands-post"));
+            commands.addAll(loadActions(section, key + ".command-post"));
+            commands.addAll(loadActions(section, key + "-commands-post"));
+            commands.addAll(loadActions(section, key + "-command-post"));
         }
         if (commands.isEmpty()) return null;
         List<IRequirement> requirements = loadRequirements(alt, section, key);

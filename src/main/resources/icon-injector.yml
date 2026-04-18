@@ -1,0 +1,77 @@
+# 重定向该文件到指定路径，设置这个值以后，下面所有配置均会被忽略
+#goto: 'path/to/icon-injector.yml'
+
+# 配置中拥有 require-keys 时，将 merge 配置合并进图标里面
+icon-injectors:
+  - require-keys:
+      - 'left-click-money'
+    merge:
+      left-click:
+        requirements:
+          金钱需求:
+            type: eval
+            expression: '%vault_eco_balance% >= ${this.left-click-money}'
+            deny-commands:
+              - '[message]&e你没有足够的金钱执行这个操作 &7(需要 ${this.left-click-money} 金币)'
+        commands-pre:
+          - '[console]money take %player_name% ${this.left-click-money}'
+  - require-keys:
+      - 'right-click-money'
+    merge:
+      right-click:
+        requirements:
+          金钱需求:
+            type: eval
+            expression: '%vault_eco_balance% >= ${this.right-click-money}'
+            deny-commands:
+              - '[message]&e你没有足够的金钱执行这个操作 &7(需要 ${this.right-click-money} 金币)'
+        commands-pre:
+          - '[console]money take %player_name% ${this.right-click-money}'
+  - require-keys:
+      - 'shift-left-click-money'
+    merge:
+      shift-left-click:
+        requirements:
+          金钱需求:
+            type: eval
+            expression: '%vault_eco_balance% >= ${this.shift-left-click-money}'
+            deny-commands:
+              - '[message]&e你没有足够的金钱执行这个操作 &7(需要 ${this.shift-left-click-money} 金币)'
+        commands-pre:
+          - '[console]money take %player_name% ${this.shift-left-click-money}'
+  - require-keys:
+      - 'shift-right-click-money'
+    merge:
+      shift-right-click:
+        requirements:
+          金钱需求:
+            type: eval
+            expression: '%vault_eco_balance% >= ${this.shift-right-click-money}'
+            deny-commands:
+              - '[message]&e你没有足够的金钱执行这个操作 &7(需要 ${this.shift-right-click-money} 金币)'
+        commands-pre:
+          - '[console]money take %player_name% ${this.shift-right-click-money}'
+  - require-keys:
+      - 'drop-click-money'
+    merge:
+      drop-click:
+        requirements:
+          金钱需求:
+            type: eval
+            expression: '%vault_eco_balance% >= ${this.drop-click-money}'
+            deny-commands:
+              - '[message]&e你没有足够的金钱执行这个操作 &7(需要 ${this.drop-click-money} 金币)'
+        commands-pre:
+          - '[console]money take %player_name% ${this.drop-click-money}'
+  - require-keys:
+      - 'ctrl-drop-click-money'
+    merge:
+      ctrl-drop-click:
+        requirements:
+          金钱需求:
+            type: eval
+            expression: '%vault_eco_balance% >= ${this.ctrl-drop-click-money}'
+            deny-commands:
+              - '[message]&e你没有足够的金钱执行这个操作 &7(需要 ${this.ctrl-drop-click-money} 金币)'
+        commands-pre:
+          - '[console]money take %player_name% ${this.ctrl-drop-click-money}'

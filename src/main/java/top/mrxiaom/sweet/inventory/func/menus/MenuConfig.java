@@ -12,6 +12,7 @@ import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.utils.CollectionUtils;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.sweet.inventory.SweetInventory;
+import top.mrxiaom.sweet.inventory.func.IconInjectorManager;
 import top.mrxiaom.sweet.inventory.func.menus.arguments.MenuArguments;
 
 import java.util.*;
@@ -62,11 +63,13 @@ public class MenuConfig {
             this.pageGuide = null;
         }
 
+        IconInjectorManager injectorManager = IconInjectorManager.inst();
         this.iconsByChar = new HashMap<>();
         this.iconsByName = new HashMap<>();
         ConfigurationSection section = config.getConfigurationSection(alt ? "图标列表" : "items");
         if (section != null) for (String key : section.getKeys(false)) {
             ConfigurationSection s = section.getConfigurationSection(key);
+            injectorManager.applyInjects(s);
             MenuIcon icon;
             try {
                 if (s == null) throw new IllegalArgumentException("找不到配置");
