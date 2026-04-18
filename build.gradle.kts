@@ -1,3 +1,5 @@
+import top.mrxiaom.gradle.LibraryHelper
+
 plugins {
     java
     `maven-publish`
@@ -7,9 +9,9 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.18")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.19")
 }
-val base = top.mrxiaom.gradle.LibraryHelper(project)
+val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.inventory"
 version = "1.0.3"
@@ -68,10 +70,7 @@ dependencies {
     compileOnly("com.github.dmulloy2:ProtocolLib:5.3.0")
     compileOnly(base.depend.annotations)
 
-    base.library("net.kyori:adventure-api:4.22.0")
-    base.library("net.kyori:adventure-text-minimessage:4.22.0")
-    base.library("net.kyori:adventure-text-serializer-gson:4.22.0")
-    base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
+    base.library(LibraryHelper.adventure("4.22.0"))
 
     implementation(base.depend.nbtapi)
     implementation(base.depend.EvalEx)
@@ -95,8 +94,8 @@ buildConfig {
     buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
 
-top.mrxiaom.gradle.LibraryHelper.initJava(project, base, targetJavaVersion, true)
-top.mrxiaom.gradle.LibraryHelper.initPublishing(project)
+LibraryHelper.initJava(project, base, targetJavaVersion, true)
+LibraryHelper.initPublishing(project)
 
 tasks {
     shadowJar {
