@@ -26,7 +26,7 @@ public class VanillaMaterial extends AbstractModule implements IMaterialProvider
 
     @Override
     public @Nullable ItemStack parse(Player player, MenuIcon icon) {
-        Pair<Material, Integer> pair = ItemStackUtil.parseMaterial(icon.material());
+        Pair<Material, Integer> pair = ItemStackUtil.parseMaterial(icon.material().toUpperCase());
         return pair == null ? null : ItemStackUtil.legacy(pair);
     }
 }

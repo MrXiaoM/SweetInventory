@@ -71,7 +71,7 @@ public class MenuIcon {
                 material = materialStr + ":" + config.getInt(alt ? "子ID" : "data");
             } else material = materialStr;
         } else material = "PAPER";
-        this.material = material.toUpperCase();
+        this.material = material;
 
         this.itemFlags = new ArrayList<>();
         for (String s : config.getStringList(alt ? "物品标记" : "item-flags")) {
