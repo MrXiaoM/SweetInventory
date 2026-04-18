@@ -4,7 +4,6 @@ import com.ezylang.evalex.Expression;
 import com.ezylang.evalex.data.EvaluationValue;
 import org.bukkit.configuration.ConfigurationSection;
 import top.mrxiaom.pluginbase.api.IAction;
-import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
@@ -48,8 +47,7 @@ public class EvalRequirement implements IRequirement {
     }
 
     @Override
-    public boolean check(MenuInstance menu) {
-        ListPair<String, Object> r = menu.newReplacements();
+    public boolean check(MenuInstance menu, List<Pair<String, Object>> r) {
         String str = PAPI.setPlaceholders(menu.getPlayer(), Pair.replace(this.expression, r));
         try {
             Expression expression = new Expression(str);

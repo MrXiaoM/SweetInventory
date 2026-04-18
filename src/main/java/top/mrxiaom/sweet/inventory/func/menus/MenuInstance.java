@@ -338,7 +338,7 @@ public class MenuInstance implements IGuiHolder {
         boolean success = true;
         List<IAction> commands = new ArrayList<>();
         for (IRequirement requirement : requirements) {
-            if (!requirement.check(this)) {
+            if (!requirement.check(this, r)) {
                 success = false;
                 commands.addAll(requirement.denyCommands());
                 break;

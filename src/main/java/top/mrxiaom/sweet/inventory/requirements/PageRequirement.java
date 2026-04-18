@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.inventory.requirements;
 
 import org.bukkit.configuration.ConfigurationSection;
 import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class PageRequirement implements IRequirement {
     }
 
     @Override
-    public boolean check(MenuInstance menu) {
+    public boolean check(MenuInstance menu, List<Pair<String, Object>> r) {
         if (hasPrevPage) {
             return menu.hasPrevPage() != reverse;
         }

@@ -3,7 +3,6 @@ package top.mrxiaom.sweet.inventory.requirements;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
-import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
@@ -71,8 +70,7 @@ public class NumberRequirement implements IRequirement {
     }
 
     @Override
-    public boolean check(MenuInstance menu) {
-        ListPair<String, Object> r = menu.newReplacements();
+    public boolean check(MenuInstance menu, List<Pair<String, Object>> r) {
         String input = PAPI.setPlaceholders(menu.getPlayer(), Pair.replace(this.input, r));
         String output = PAPI.setPlaceholders(menu.getPlayer(), Pair.replace(this.output, r));
         if (type.equals(Operator.EQUALS)) {
