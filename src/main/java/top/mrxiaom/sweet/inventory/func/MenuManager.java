@@ -56,8 +56,8 @@ public class MenuManager extends AbstractModule {
                 if (s.startsWith("控制台执行:")) return new ActionConsole(s.substring(6));
                 if (s.startsWith("[玩家执行]")) return new ActionPlayer(s.substring(6));
                 if (s.startsWith("玩家执行:")) return new ActionPlayer(s.substring(5));
-                if (s.startsWith("[聊天消息]")) return new ActionMessageAdventure(s.substring(6));
-                if (s.startsWith("聊天消息:")) return new ActionMessageAdventure(s.substring(5));
+                if (s.startsWith("[聊天消息]")) return new ActionMessageAdventure(s.substring(6), null, null, null);
+                if (s.startsWith("聊天消息:")) return new ActionMessageAdventure(s.substring(5), null, null, null);
                 if (s.startsWith("[动作消息]")) return new ActionActionBar(s.substring(6));
                 if (s.startsWith("动作消息:")) return new ActionActionBar(s.substring(5));
                 if (s.startsWith("[打开菜单]")) return ActionOpenMenu.of(s.substring(6).trim());
