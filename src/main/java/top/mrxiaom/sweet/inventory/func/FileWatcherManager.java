@@ -7,6 +7,7 @@ import org.apache.commons.io.monitor.FileEntry;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 
 import java.io.File;
@@ -57,7 +58,7 @@ public class FileWatcherManager extends AbstractModule {
         }
         @Nullable
         private String getId(File file) {
-            return MenuManager.getRelationPath(folder, file);
+            return Util.getRelationPath(folder, file, false);
         }
 
         @Override

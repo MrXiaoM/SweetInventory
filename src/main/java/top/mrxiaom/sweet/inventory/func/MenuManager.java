@@ -23,7 +23,6 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
 import java.io.File;
 import java.util.*;
-import java.util.function.BiConsumer;
 
 import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.NEXT;
 import static top.mrxiaom.sweet.inventory.func.actions.ActionTurnPage.PREV;
@@ -109,10 +108,22 @@ public class MenuManager extends AbstractModule {
                 continue;
             }
             menuFolders.add(folder);
-            reloadFolder(folder, this::loadConfig);
+            Util.reloadFolder(folder, false, (id, file) -> {
+                try {
+                    loadConfig(id, file);
+                } catch (Exception e) {
+                    warn("加载菜单 " + id.replace("\\", "/") + " 时出现异常:" + e.getMessage());
+                }
+            });
         }
         menuFolders.add(menusFolder);
-        reloadFolder(menusFolder, this::loadConfig);
+        Util.reloadFolder(menusFolder, false, (id, file) -> {
+            try {
+                loadConfig(id, file);
+            } catch (Exception e) {
+                warn("加载菜单 " + id.replace("\\", "/") + " 时出现异常: " + e.getMessage());
+            }
+        });
         menus.putAll(menusById);
         for (MenuConfig menu : menusById.values()) {
             updateAlias(menu);
@@ -147,8 +158,14 @@ public class MenuManager extends AbstractModule {
     protected void updateConfig(String id, File file) {
         // 重载单个菜单配置，先卸载菜单，然后再加载
         removeConfig(id, false);
-        MenuConfig menu = loadConfig(id, file);
-        menus.put(menu.id(), menu);
+        MenuConfig menu;
+        try {
+            menu = loadConfig(id, file);
+            menus.put(menu.id(), menu);
+        } catch (Exception e) {
+            warn("单独重载菜单 " + id.replace("\\", "/") + " 时出现异常: " + e.getMessage());
+            return;
+        }
         // 加载完成后更新别名和命令列表
         updateAlias(menu);
         refreshCommands();
@@ -240,38 +257,6 @@ public class MenuManager extends AbstractModule {
     @NotNull
     public List<File> getMenuFolders() {
         return Collections.unmodifiableList(menuFolders);
-    }
-
-    protected static void reloadFolder(File folder, BiConsumer<String, File> reloadConfig) {
-        reloadFolder(folder, null, reloadConfig);
-    }
-
-    private static void reloadFolder(File root, File folder, BiConsumer<String, File> reloadConfig) {
-        File[] files = (folder == null ? root : folder).listFiles();
-        if (files != null) for (File file : files) {
-            if (file.isDirectory()) {
-                reloadFolder(root, file, reloadConfig);
-                continue;
-            }
-            String id = getRelationPath(root, file);
-            if (id != null) {
-                reloadConfig.accept(id, file);
-            }
-        }
-    }
-
-    @Nullable
-    protected static String getRelationPath(File folder, File file) {
-        String parentPath = folder.getAbsolutePath();
-        String path = file.getAbsolutePath();
-        if (path.startsWith(parentPath)) {
-            if (path.endsWith(".yml") || path.endsWith(".yaml")) {
-                String s = path.substring(parentPath.length()).replace("\\", "/");
-                String relation = s.startsWith("/") ? s.substring(1) : s;
-                return Util.nameWithoutSuffix(relation);
-            }
-        }
-        return null;
     }
 
     @Override
