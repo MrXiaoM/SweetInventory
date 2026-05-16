@@ -9,7 +9,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.20")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.21")
 }
 val base = LibraryHelper(project)
 
@@ -48,7 +48,7 @@ dependencies {
     // compileOnly("org.spigotmc:spigot:1.20") // NMS
 
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
-    compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("me.clip:placeholderapi:2.12.2")
     // MythicMobs
     compileOnly("io.lumine:Mythic-Dist:4.13.0")
     compileOnly("io.lumine:Mythic:5.6.2")
@@ -59,8 +59,8 @@ dependencies {
     // NeigeItems
     compileOnly("pers.neige.neigeitems:NeigeItems:1.21.128")
     // CraftEngine
-    compileOnly("net.momirealms:craft-engine-core:0.0.67")
-    compileOnly("net.momirealms:craft-engine-bukkit:0.0.67")
+    compileOnly("net.momirealms:craft-engine-core:26.5")
+    compileOnly("net.momirealms:craft-engine-bukkit:26.5")
     // Nexo
     compileOnly("com.nexomc:nexo:1.19.1")
     // SX-Item
@@ -71,6 +71,7 @@ dependencies {
     compileOnly(base.depend.annotations)
 
     base.library(LibraryHelper.adventure("4.22.0"))
+    base.collectPluginHolders()
 
     implementation(base.depend.nbtapi)
     implementation(base.depend.EvalEx)
