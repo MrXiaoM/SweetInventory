@@ -14,7 +14,7 @@ buildscript {
 val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.inventory"
-version = "1.0.4"
+version = "1.0.5"
 
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, paper, gui, actions, l10n, misc) }
