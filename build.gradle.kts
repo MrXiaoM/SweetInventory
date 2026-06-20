@@ -9,7 +9,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.22")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.26")
 }
 val base = LibraryHelper(project)
 
@@ -44,8 +44,8 @@ allprojects {
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
-    // compileOnly("org.spigotmc:spigot:1.20") // NMS
+    compileOnly("org.spigotmc:spigot-api:1.21.2-R0.1-SNAPSHOT")
+    // compileOnly("org.spigotmc:spigot:1.21.2") // NMS
 
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
     compileOnly("me.clip:placeholderapi:2.12.2")

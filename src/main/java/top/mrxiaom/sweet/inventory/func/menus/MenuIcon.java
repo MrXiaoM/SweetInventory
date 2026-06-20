@@ -42,6 +42,9 @@ public class MenuIcon {
     private final boolean resetLore;
     private final boolean glow;
     private final @Nullable Integer customModelData;
+    private final @Nullable String itemModel;
+    private final @Nullable String tooltipStyle;
+    private final boolean hideTooltip;
     private final @NotNull Map<String, String> nbtStrings;
     private final @NotNull Map<String, String> nbtInts;
     private final boolean needsUpdate;
@@ -92,6 +95,9 @@ public class MenuIcon {
         this.resetLore = config.getBoolean(alt ? "重设描述" : "reset-lore");
         this.glow = getBoolean(alt, config, alt ? "发光" : "glow");
         this.customModelData = config.contains(alt ? "模型数据" : "custom-model-data") ? config.getInt(alt ? "模型数据" : "custom-model-data") : null;
+        this.itemModel = config.getString(alt ? "物品模型" : "item-model", null);
+        this.tooltipStyle = config.getString(alt ? "提示框样式" : "tooltip-style", null);
+        this.hideTooltip = config.getBoolean(alt ? "隐藏提示框" : "hide-tooltip", false);
         this.nbtStrings = new HashMap<>();
         section = config.getConfigurationSection(alt ? "nbt字符串" : "nbt-strings");
         if (section != null) for (String key : section.getKeys(false)) {
@@ -152,6 +158,14 @@ public class MenuIcon {
     }
 
     /**
+     * 获取物品标记
+     */
+    @NotNull
+    public List<ItemFlag> itemFlags() {
+        return itemFlags;
+    }
+
+    /**
      * 获取图标物品数量
      */
     public int amount() {
@@ -187,6 +201,29 @@ public class MenuIcon {
     @Nullable
     public Integer customModelData() {
         return customModelData;
+    }
+
+    /**
+     * 添加物品模型标记 (命名空间:键)
+     */
+    @Nullable
+    public String itemModel() {
+        return itemModel;
+    }
+
+    /**
+     * 添加物品悬停提示样式 (命名空间:键)
+     */
+    @Nullable
+    public String tooltipStyle() {
+        return tooltipStyle;
+    }
+
+    /**
+     * 是否隐藏物品悬停提示
+     */
+    public boolean hideTooltip() {
+        return hideTooltip;
     }
 
     /**
@@ -298,7 +335,18 @@ public class MenuIcon {
             }
         }
         if (glow) ItemStackUtil.setGlow(item);
-        if (customModelData != null) ItemStackUtil.setCustomModelData(item, customModelData);
+        if (customModelData != null) {
+            ItemStackUtil.setCustomModelData(item, customModelData);
+        }
+        if (itemModel != null) {
+            ItemStackUtil.setItemModel(item, itemModel);
+        }
+        if (tooltipStyle != null) {
+            ItemStackUtil.setTooltipStyle(item, tooltipStyle);
+        }
+        if (hideTooltip) {
+            ItemStackUtil.setHideTooltip(item, true);
+        }
         NBT.modify(item, nbt -> {
             nbt.setString(ItemDupeFixer.TAG, id);
             if (!nbtStrings.isEmpty() || !nbtInts.isEmpty()) {
