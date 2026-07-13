@@ -4,10 +4,12 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import de.tr7zw.changeme.nbtapi.utils.MinecraftVersion;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.api.IRegistry;
 import top.mrxiaom.pluginbase.data.SimpleRegistry;
@@ -20,6 +22,7 @@ import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.inventory.api.IMaterialProvider;
+import top.mrxiaom.sweet.inventory.api.ItemMatcher;
 import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
 
 import java.io.File;
@@ -80,9 +83,14 @@ public class SweetInventory extends BukkitPlugin {
     }
 
     private final IRegistry<IMaterialProvider> materialRegistry = new SimpleRegistry<>();
+    private final IRegistry<ItemMatcher.Provider> itemMatcherRegistry = new SimpleRegistry<>();
 
     public IRegistry<IMaterialProvider> getMaterialRegistry() {
         return materialRegistry;
+    }
+
+    public IRegistry<ItemMatcher.Provider> getItemMatcherRegistry() {
+        return itemMatcherRegistry;
     }
 
     @NotNull
@@ -94,6 +102,17 @@ public class SweetInventory extends BukkitPlugin {
             }
         }
         return new ItemStack(Material.PAPER);
+    }
+
+    @Nullable
+    public ItemMatcher parseItemMatcher(ConfigurationSection config) {
+        for (ItemMatcher.Provider provider : itemMatcherRegistry.all()) {
+            ItemMatcher itemMatcher = provider.parse(config);
+            if (itemMatcher != null) {
+                return itemMatcher;
+            }
+        }
+        return null;
     }
 
     @Override
