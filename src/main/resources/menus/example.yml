@@ -59,7 +59,7 @@ items:
           matcher:
             material: STONE
         deny-commands:
-          - '[message]你没有足够的石头'
+          - message: '<yellow>你没有足够的石头 <grey>(需要 ${takeItem.item.require} 个，还差 ${takeItem.item.leftover} 个)'
       - console: 'money give %player_name% ${vars.money}'
       - message: '<green>你出售了 <yellow>${vars.amount}</yellow> 个石头，获得 <yellow>${vars.money}</yellow> 金币'
     left-click-commands:

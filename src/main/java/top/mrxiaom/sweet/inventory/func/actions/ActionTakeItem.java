@@ -246,10 +246,16 @@ public class ActionTakeItem implements IAction, IRequirement {
             r.add(Pair.of("${" + prefix + ".leftover.count}", leftover.size()));
             for (int i = 0; i < items.size(); i++) {
                 TakeItemEntry.Inst item = this.items.get(i);
-                String key = "${" + prefix + ".items[" + i + "]";
-                r.add(Pair.of(key + ".count}", item.leftoverAmount()));
-                r.add(Pair.of(key + ".require}", item.requireAmount()));
+                if (i == 0) {
+                    addItemReplacements(prefix + ".item", item, r);
+                }
+                addItemReplacements(prefix + ".items[" + i + "]", item, r);
             }
+        }
+
+        private void addItemReplacements(String key, TakeItemEntry.Inst item, List<Pair<String, Object>> r) {
+            r.add(Pair.of("${" + key + ".leftover}", item.leftoverAmount()));
+            r.add(Pair.of("${" + key + ".require}", item.requireAmount()));
         }
 
         @NotNull
