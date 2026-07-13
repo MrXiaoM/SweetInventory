@@ -68,9 +68,9 @@ public class RequirementsRegistry extends AbstractModule {
             }
         }
         // 需求简写-多句需求
-        loadImpl(alt, parent.getConfigurationSection(key + (alt ? "需求列表" : "-requirements")), requirements, error);
+        loadImpl(alt, parent, key + (alt ? "需求列表" : "-requirements"), requirements, error);
         // 支持 deny-commands 的完整写法
-        loadImpl(alt, parent.getConfigurationSection(key + (alt ? ".需求列表" : ".requirements")), requirements, error);
+        loadImpl(alt, parent, key + (alt ? ".需求列表" : ".requirements"), requirements, error);
         if (error.get()) {
             self.warn("加载的需求中存在错误，已自动替换为恒不通过的需求，请处理配置文件中的错误");
             return Lists.newArrayList(ErrorRequirement.INSTANCE);
@@ -78,8 +78,9 @@ public class RequirementsRegistry extends AbstractModule {
         return requirements;
     }
 
-    private static void loadImpl(boolean alt, ConfigurationSection section, List<IRequirement> requirements, AtomicBoolean error) {
+    private static void loadImpl(boolean alt, ConfigurationSection parent, String requirementsKey, List<IRequirement> requirements, AtomicBoolean error) {
         RequirementsRegistry self = inst();
+        ConfigurationSection section = parent.getConfigurationSection(requirementsKey);
         if (section != null) for (String ignore : section.getKeys(false)) {
             if (section.isConfigurationSection(ignore)) {
                 String type = section.getString(ignore + (alt ? ".类型" : ".type"), null);
@@ -96,7 +97,7 @@ public class RequirementsRegistry extends AbstractModule {
                     error.set(true);
                     continue;
                 }
-                IRequirement requirement = deserializer.apply(alt, reverse, section, ignore);
+                IRequirement requirement = deserializer.apply(alt, reverse, parent, requirementsKey + "." + ignore);
                 if (requirement == null) {
                     self.warn("[需求:" + ignore + "] 加载需求 " + type + " 时出错");
                     error.set(true);

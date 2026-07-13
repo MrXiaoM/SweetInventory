@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
 import static top.mrxiaom.pluginbase.func.gui.IModifier.fit;
 import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
+import static top.mrxiaom.sweet.inventory.utils.ActionUtils.loadActions;
 
 public class MenuIcon {
     private final SweetInventory plugin = SweetInventory.getInstance();

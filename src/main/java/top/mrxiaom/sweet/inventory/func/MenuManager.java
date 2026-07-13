@@ -15,10 +15,7 @@ import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.SweetInventory;
-import top.mrxiaom.sweet.inventory.func.actions.ActionConnectServer;
-import top.mrxiaom.sweet.inventory.func.actions.ActionOpenMenu;
-import top.mrxiaom.sweet.inventory.func.actions.ActionRefresh;
-import top.mrxiaom.sweet.inventory.func.actions.ActionTakeItem;
+import top.mrxiaom.sweet.inventory.func.actions.*;
 import top.mrxiaom.sweet.inventory.func.menus.MenuConfig;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 
@@ -77,6 +74,8 @@ public class MenuManager extends AbstractModule {
             return null;
         });
         ActionProviders.registerActionProvider(ActionTakeItem.PROVIDER);
+        ActionProviders.registerActionProvider(ActionSetVars.PROVIDER);
+        ActionProviders.registerActionProvider(ActionReference.PROVIDER);
     }
 
     private void onTick() {

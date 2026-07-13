@@ -1,8 +1,6 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
-import com.google.common.collect.Lists;
 import org.bukkit.configuration.ConfigurationSection;
-import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
 
@@ -10,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static top.mrxiaom.sweet.inventory.requirements.RequirementsRegistry.loadRequirements;
+import static top.mrxiaom.sweet.inventory.utils.ActionUtils.loadActions;
 
 public class Click {
     private final List<IRequirement> requirements;
@@ -76,19 +75,5 @@ public class Click {
             denyCommands.addAll(loadActions(section, key + "-deny-commands"));
         }
         return new Click(requirements, commands, denyCommands);
-    }
-
-    private static List<IAction> loadActions(ConfigurationSection section, String key) {
-        if (section.contains(key)) {
-            if (section.isList(key)) {
-                return ActionProviders.loadActions(section, key);
-            } else {
-                String line = section.getString(key);
-                if (line != null) {
-                    return Lists.newArrayList(ActionProviders.loadAction(line));
-                }
-            }
-        }
-        return new ArrayList<>();
     }
 }

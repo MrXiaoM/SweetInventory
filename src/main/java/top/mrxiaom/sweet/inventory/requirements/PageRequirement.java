@@ -8,8 +8,8 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 import java.util.ArrayList;
 import java.util.List;
 
-import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
 import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
+import static top.mrxiaom.sweet.inventory.utils.ActionUtils.loadActions;
 
 public class PageRequirement implements IRequirement {
     private final boolean reverse;

@@ -47,7 +47,34 @@ items:
   按钮2:
     slot: 二
     material: STONE
-    display: '&f按钮'
-    lore: []
+    display: '&f收购石头'
+    lore:
+      - ''
+      - '&a左键&7 | &f出售32个石头，获得10金币'
+      - '&b右键&7 | &f出售64个石头，获得20金币'
+    take-item-actions:
+      - type: take-item
+        item:
+          count: ${vars.amount}
+          matcher:
+            material: STONE
+        deny-commands:
+          - '[message]你没有足够的石头'
+      - console: 'money give %player_name% ${vars.money}'
+      - message: '<green>你出售了 <yellow>${vars.amount}</yellow> 个石头，获得 <yellow>${vars.money}</yellow> 金币'
     left-click-commands:
-      - '[message]你点击了按钮2'
+      - set-vars:
+          key: amount
+          value: 32
+      - set-vars:
+          key: money
+          value: 10
+      - ref: take-item-actions
+    right-click-commands:
+      - set-vars:
+          key: amount
+          value: 64
+      - set-vars:
+          key: money
+          value: 20
+      - ref: take-item-actions

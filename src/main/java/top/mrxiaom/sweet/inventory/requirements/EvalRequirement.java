@@ -11,7 +11,7 @@ import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 import java.util.ArrayList;
 import java.util.List;
 
-import static top.mrxiaom.pluginbase.actions.ActionProviders.loadActions;
+import static top.mrxiaom.sweet.inventory.utils.ActionUtils.loadActions;
 
 public class EvalRequirement implements IRequirement {
     private final boolean reverse;

@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.api.IActionProvider;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
@@ -20,6 +19,7 @@ import top.mrxiaom.sweet.inventory.api.ItemMatchContext;
 import top.mrxiaom.sweet.inventory.api.ItemMatcher;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
 import top.mrxiaom.sweet.inventory.requirements.IRequirement;
+import top.mrxiaom.sweet.inventory.utils.ActionUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +62,7 @@ public class ActionTakeItem implements IAction, IRequirement {
                         items.add(new TakeItemEntry(countStr, matchers));
                     }
 
-                    List<IAction> denyCommands = ActionProviders.loadActions(config, "deny-commands");
+                    List<IAction> denyCommands = ActionUtils.loadActions(config, "deny-commands");
                     return new ActionTakeItem(prefix, denyCommands, items);
                 }
             }

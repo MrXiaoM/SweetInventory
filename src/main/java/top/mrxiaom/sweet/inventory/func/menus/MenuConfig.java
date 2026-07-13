@@ -14,6 +14,7 @@ import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.IconInjectorManager;
 import top.mrxiaom.sweet.inventory.func.menus.arguments.MenuArguments;
+import top.mrxiaom.sweet.inventory.utils.ActionUtils;
 
 import java.util.*;
 
@@ -45,7 +46,7 @@ public class MenuConfig {
             ConfigurationSection section = config.getConfigurationSection(bindCommandKey);
             assert section != null;
             String bindCommand = section.getString(alt ? "名称" : "name", null);
-            List<IAction> helpActions = ActionProviders.loadActions(section, alt ? "帮助操作" : "help-actions");
+            List<IAction> helpActions = ActionUtils.loadActions(section, alt ? "帮助操作" : "help-actions");
             List<ConfigurationSection> arguments = ConfigUtils.getSectionList(section, alt ? "参数" : "arguments");
             this.bindCommand = bindCommand == null ? null : bindCommand.trim();
             this.menuArguments = MenuArguments.load(alt, helpActions, arguments);
@@ -54,7 +55,7 @@ public class MenuConfig {
             this.bindCommand = bindCommand == null ? null : bindCommand.trim();
             this.menuArguments = MenuArguments.EMPTY;
         }
-        this.openCommands = ActionProviders.loadActions(config, alt ? "打开界面执行命令" : "open-commands");
+        this.openCommands = ActionUtils.loadActions(config, alt ? "打开界面执行命令" : "open-commands");
         this.updateInterval = Math.max(0, config.getInt(alt ? "更新周期" : "update-interval", 0));
         ConfigurationSection pageGuideSection = config.getConfigurationSection(alt ? "分页向导" : "page-guide");
         if (pageGuideSection != null) {
