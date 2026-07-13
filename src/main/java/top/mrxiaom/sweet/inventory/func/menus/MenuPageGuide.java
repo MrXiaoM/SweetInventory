@@ -2,8 +2,8 @@ package top.mrxiaom.sweet.inventory.func.menus;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class MenuPageGuide {
      * 获取某一页的分页内容
      * @param page 第几页，从 <code>1</code> 开始
      */
-    public char @Nullable [] page(@Range(from=1, to=Integer.MAX_VALUE) int page) {
+    public @Nullable char[] page(@Range(from=1, to=Integer.MAX_VALUE) int page) {
         // noinspection ConstantValue
         return page < 1 || page > pages.size() ? null : pages.get(page - 1);
     }

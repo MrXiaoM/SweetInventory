@@ -5,7 +5,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 import top.mrxiaom.pluginbase.func.language.Message;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.inventory.Messages;
@@ -50,7 +49,7 @@ public enum EnumArgumentType implements IArgumentType {
     }
 
     @Override
-    public @NonNull String getTypeName() {
+    public @NotNull String getTypeName() {
         return name().toLowerCase();
     }
 

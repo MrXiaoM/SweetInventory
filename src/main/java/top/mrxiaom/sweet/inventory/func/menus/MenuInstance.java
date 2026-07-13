@@ -12,7 +12,6 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jspecify.annotations.NonNull;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.func.GuiManager;
@@ -247,7 +246,7 @@ public class MenuInstance implements IGuiHolder {
     }
 
     @Override
-    public @NonNull Inventory getInventory() {
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 

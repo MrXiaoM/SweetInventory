@@ -9,7 +9,7 @@ import net.Indyuce.mmoitems.manager.TemplateManager;
 import net.Indyuce.mmoitems.manager.TypeManager;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.api.IMaterialProvider;

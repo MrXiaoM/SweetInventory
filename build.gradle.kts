@@ -84,6 +84,12 @@ dependencies {
 
     testImplementation("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
 }
+
+configurations.forEach {
+    // 去除 jspecify，免得总是跟 jetbrains annotations 打架
+    it.exclude(group="org.jspecify", module="jspecify")
+}
+
 buildConfig {
     className("BuildConstants")
     packageName("top.mrxiaom.sweet.inventory")

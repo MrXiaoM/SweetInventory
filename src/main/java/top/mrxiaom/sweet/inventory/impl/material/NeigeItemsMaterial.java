@@ -2,7 +2,7 @@ package top.mrxiaom.sweet.inventory.impl.material;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.jspecify.annotations.Nullable;
+import org.jetbrains.annotations.Nullable;
 import pers.neige.neigeitems.manager.ItemManager;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.inventory.SweetInventory;

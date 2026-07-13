@@ -1,6 +1,6 @@
 package top.mrxiaom.sweet.inventory.func.menus.arguments.range;
 
-import org.jspecify.annotations.NonNull;
+import org.jetbrains.annotations.NotNull;
 
 public class IntegerRange implements IArgumentRange {
     private final int min, max;
@@ -10,7 +10,7 @@ public class IntegerRange implements IArgumentRange {
     }
 
     @Override
-    public boolean isInRange(@NonNull Object value) {
+    public boolean isInRange(@NotNull Object value) {
         if (value instanceof Number) {
             int i = ((Number) value).intValue();
             return i >= min && i <= max;
