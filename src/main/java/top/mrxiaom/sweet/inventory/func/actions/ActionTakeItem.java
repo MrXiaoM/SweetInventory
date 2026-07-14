@@ -254,6 +254,7 @@ public class ActionTakeItem implements IAction, IRequirement {
         }
 
         private void addItemReplacements(String key, TakeItemEntry.Inst item, List<Pair<String, Object>> r) {
+            r.add(Pair.of("${" + key + ".count}", item.requireAmount() - item.leftoverAmount()));
             r.add(Pair.of("${" + key + ".leftover}", item.leftoverAmount()));
             r.add(Pair.of("${" + key + ".require}", item.requireAmount()));
         }
