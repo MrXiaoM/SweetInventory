@@ -15,4 +15,10 @@ public class MythicItemV5 implements IMythicItem {
         MythicItem mythicItem = mythic.getItemManager().getItem(type).orElse(null);
         return mythicItem == null ? null : BukkitAdapter.adapt(mythicItem.generateItemStack(1));
     }
+
+    @Nullable
+    @Override
+    public String getId(@NotNull ItemStack item) {
+        return mythic.getItemManager().getMythicTypeFromItem(item);
+    }
 }

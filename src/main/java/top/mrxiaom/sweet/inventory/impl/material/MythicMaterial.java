@@ -31,6 +31,11 @@ public class MythicMaterial extends AbstractModule implements IMaterialProvider 
         }
     }
 
+    @Nullable
+    public IMythicItem mythicItem() {
+        return mythicItem;
+    }
+
     @Override
     public @Nullable ItemStack parse(Player player, MenuIcon icon) {
         String material = icon.material();

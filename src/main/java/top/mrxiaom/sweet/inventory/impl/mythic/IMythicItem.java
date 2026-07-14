@@ -6,4 +6,5 @@ import org.jetbrains.annotations.Nullable;
 
 public interface IMythicItem {
     @Nullable ItemStack getItem(@NotNull String type);
+    @Nullable String getId(@NotNull ItemStack item);
 }

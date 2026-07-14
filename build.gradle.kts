@@ -57,14 +57,14 @@ dependencies {
     compileOnly("io.lumine:MythicLib-dist:1.7.1-SNAPSHOT")
     compileOnly("net.Indyuce:MMOItems-API:6.10.1-SNAPSHOT")
     // NeigeItems
-    compileOnly("pers.neige.neigeitems:NeigeItems:1.21.128")
+    compileOnly("pers.neige.neigeitems:NeigeItems:1.21.151")
     // CraftEngine
-    compileOnly("net.momirealms:craft-engine-core:26.5")
-    compileOnly("net.momirealms:craft-engine-bukkit:26.5")
+    compileOnly("net.momirealms:craft-engine-core:26.7")
+    compileOnly("net.momirealms:craft-engine-bukkit:26.7")
     // Nexo
-    compileOnly("com.nexomc:nexo:1.19.1")
+    compileOnly("com.nexomc:nexo:1.25.0")
     // SX-Item
-    compileOnly("com.github.Saukiya:SX-Item:4.4.9")
+    compileOnly("com.github.Saukiya:SX-Item:4.5.0")
 
     compileOnly("org.black_ixx:playerpoints:3.2.7")
     compileOnly("com.github.dmulloy2:ProtocolLib:5.3.0")
