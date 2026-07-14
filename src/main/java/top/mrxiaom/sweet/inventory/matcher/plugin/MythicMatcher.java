@@ -14,7 +14,6 @@ import top.mrxiaom.sweet.inventory.func.AbstractModule;
 import top.mrxiaom.sweet.inventory.impl.material.MythicMaterial;
 import top.mrxiaom.sweet.inventory.impl.mythic.IMythicItem;
 import top.mrxiaom.sweet.inventory.matcher.AbstractStringMatcher;
-import top.mrxiaom.sweet.inventory.matcher.PluginsMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class MythicMatcher extends AbstractModule implements ItemMatcher.Provide
         IMythicItem mythic = api.mythicItem();
         if (mythic != null) {
             this.mythic = mythic;
-            instanceOf(PluginsMatcher.class).pluginRegistry().register(this);
+            plugin.getItemMatcherRegistry().register(this);
         }
     }
 

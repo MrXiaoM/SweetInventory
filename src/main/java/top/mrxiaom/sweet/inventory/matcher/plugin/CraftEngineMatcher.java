@@ -14,7 +14,6 @@ import top.mrxiaom.sweet.inventory.api.ItemMatchContext;
 import top.mrxiaom.sweet.inventory.api.ItemMatcher;
 import top.mrxiaom.sweet.inventory.func.AbstractModule;
 import top.mrxiaom.sweet.inventory.matcher.AbstractStringMatcher;
-import top.mrxiaom.sweet.inventory.matcher.PluginsMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ import java.util.List;
 public class CraftEngineMatcher extends AbstractModule implements ItemMatcher.Provider {
     public CraftEngineMatcher(SweetInventory plugin) {
         super(plugin);
-        instanceOf(PluginsMatcher.class).pluginRegistry().register(this);
+        plugin.getItemMatcherRegistry().register(this);
     }
 
     @Nullable
