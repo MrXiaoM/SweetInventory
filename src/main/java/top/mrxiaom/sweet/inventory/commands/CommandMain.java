@@ -131,7 +131,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
             plugin.getScheduler().runTask(() -> {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     if (MenuInstance.get(p) != null) {
-                        p.closeInventory();
+                        plugin.getScheduler().closeInventory(p);
                     }
                 }
                 plugin.reloadConfig();

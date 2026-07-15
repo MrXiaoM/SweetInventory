@@ -198,7 +198,7 @@ public class MenuManager extends AbstractModule {
             if (!players.isEmpty()) {
                 plugin.getScheduler().runTask(() -> {
                     for (Player p : players) {
-                        p.closeInventory();
+                        plugin.getScheduler().closeInventory(p);
                     }
                 });
             }

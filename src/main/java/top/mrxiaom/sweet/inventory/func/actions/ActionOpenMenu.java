@@ -21,10 +21,11 @@ public class ActionOpenMenu implements IAction {
     @Override
     public void run(@Nullable Player player, @Nullable List<Pair<String, Object>> list) {
         if (player != null) {
-            MenuConfig menu = MenuManager.inst().getMenu(this.menu);
+            MenuManager manager = MenuManager.inst();
+            MenuConfig menu = manager.getMenu(this.menu);
             if (menu == null) {
                 SweetInventory.getInstance().warn("找不到菜单 " + this.menu);
-                player.closeInventory();
+                manager.plugin.getScheduler().closeInventory(player);
                 return;
             }
             menu.open(player, args);
