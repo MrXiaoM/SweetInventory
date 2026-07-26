@@ -15,8 +15,9 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.InventoryView;
+import top.mrxiaom.pluginbase.api.InventoryViewAccessor;
 import top.mrxiaom.pluginbase.func.AutoRegister;
+import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.inventory.BukkitInventoryFactory;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.menus.MenuInstance;
@@ -29,7 +30,7 @@ import java.util.Map;
  */
 @AutoRegister(requirePlugins = {"ProtocolLib"})
 public class AlternativeRichTitle extends AbstractModule implements Listener {
-    Map<String, InventoryView> openedWindow = new HashMap<>();
+    Map<String, InventoryViewAccessor> openedWindow = new HashMap<>();
     ProtocolManager protocolManager;
     boolean enable = false;
     public AlternativeRichTitle(SweetInventory plugin) {
@@ -60,7 +61,7 @@ public class AlternativeRichTitle extends AbstractModule implements Listener {
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent e) {
         if (!enable) return;
-        openedWindow.put(e.getPlayer().getName(), e.getView());
+        openedWindow.put(e.getPlayer().getName(), Util.getView(e));
     }
 
     @EventHandler
@@ -76,7 +77,7 @@ public class AlternativeRichTitle extends AbstractModule implements Listener {
     }
 
     public void onPacketSending(PacketEvent event) {
-        InventoryView view = openedWindow.remove(event.getPlayer().getName());
+        InventoryViewAccessor view = openedWindow.remove(event.getPlayer().getName());
         InventoryHolder holder = view == null ? null : view.getTopInventory().getHolder();
         if (holder instanceof MenuInstance) {
             PacketContainer packet = event.getPacket();

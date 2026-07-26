@@ -8,12 +8,12 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.api.InventoryViewAccessor;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
@@ -63,7 +63,7 @@ public class MenuInstance implements IGuiHolder {
                 commits.put(entry.getKey(), item);
             }
             if (!commits.isEmpty()) {
-                InventoryView inv = player.getOpenInventory();
+                InventoryViewAccessor inv = Util.getOpenInventory(player);
                 InventoryHolder holder = Util.getHolder(inv.getTopInventory());
                 // 确保玩家打开的还是这个界面再更新
                 if (holder == this) {
@@ -253,7 +253,7 @@ public class MenuInstance implements IGuiHolder {
     @Override
     public void onClick(InventoryAction action, ClickType click, InventoryType.SlotType slotType,
                         int slot, ItemStack currentItem, ItemStack cursor,
-                        InventoryView view, InventoryClickEvent event) {
+                        InventoryViewAccessor view, InventoryClickEvent event) {
         actionLock = true;
         event.setCancelled(true);
         MenuIcon icon = currentIcons.get(slot);

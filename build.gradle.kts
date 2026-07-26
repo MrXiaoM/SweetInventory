@@ -9,7 +9,7 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.28")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.29")
 }
 val base = LibraryHelper(project)
 
@@ -73,7 +73,7 @@ dependencies {
     base.library(LibraryHelper.adventure("4.25.0"))
     base.collectPluginHolders()
 
-    implementation(base.depend.nbtapi)
+    implementation("de.tr7zw:item-nbt-api:2.15.8-SNAPSHOT")
     implementation(base.depend.EvalEx)
     implementation("commons-io:commons-io:2.21.0")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
