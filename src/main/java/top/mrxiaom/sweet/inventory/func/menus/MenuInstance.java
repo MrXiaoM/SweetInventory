@@ -289,15 +289,9 @@ public class MenuInstance implements IGuiHolder {
         plugin.getScheduler().runTask(() -> {
             ListPair<String, Object> r = newReplacements();
             r.addAll(icon.extraValues());
+            click.variables(r, player);
 
-            ArrayList<IRequirement> requirements = new ArrayList<>(click.requirements());
-            for (IAction action : click.commands()) {
-                // 如果 IAction 同时是 IRequirement，将它添加到需求列表里进行判定
-                if (action instanceof IRequirement) {
-                    requirements.add((IRequirement) action);
-                }
-            }
-            if (checkRequirements(requirements, click.denyCommands(), r)) {
+            if (checkRequirements(click.fullRequirements(), click.denyCommands(), r)) {
                 executeCommands(click.commands(), r);
             }
             actionLock = false;
