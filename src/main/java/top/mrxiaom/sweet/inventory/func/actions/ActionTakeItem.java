@@ -3,7 +3,6 @@ package top.mrxiaom.sweet.inventory.func.actions;
 import com.google.common.base.Preconditions;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.NotNull;
@@ -118,17 +117,19 @@ public class ActionTakeItem implements IAction, IRequirement {
     /**
      * CraftInventory#first(item, withAmount:false)
      */
-    private static int first(Player player, Inventory inv, TakeItemEntry.Inst adapter, List<Pair<String, Object>> r) {
+    private static int first(Player player, ItemStack[] inventory, Map<Integer, Integer> finalAmounts, TakeItemEntry.Inst adapter, List<Pair<String, Object>> r) {
         if (adapter == null) {
             return -1;
         } else {
-            ItemStack[] inventory = inv.getContents(); // modified
             int i = 0;
             while (true) {
                 if (i >= inventory.length) return -1;
                 ItemStack item = inventory[i];
-                ItemMatchContext ctx = new ItemMatchContext(player, item, r);
-                if (inventory[i] != null && adapter.isMatch(ctx)) break;
+                int amount = item == null ? 0 : finalAmounts.getOrDefault(i, item.getAmount());
+                if (item != null && amount > 0) {
+                    ItemMatchContext ctx = new ItemMatchContext(player, item, amount, r);
+                    if (adapter.isMatch(ctx)) break;
+                }
                 ++i;
             }
             return i;
@@ -147,6 +148,7 @@ public class ActionTakeItem implements IAction, IRequirement {
             list.add(item.new Inst(amount));
         }
         PlayerInventory inv = player.getInventory();
+        ItemStack[] contents = inv.getContents();
         MatchResult result = new MatchResult(list);
 
         for (int i = 0; i < list.size(); ++i) {
@@ -155,14 +157,14 @@ public class ActionTakeItem implements IAction, IRequirement {
             int amountToTake = item.requireAmount();
 
             while (true) {
-                int slot = first(player, inv, item, r);
+                int slot = first(player, contents, result.finalAmounts(), item, r);
                 if (slot == -1) {
                     item.leftoverAmount(amountToTake);
                     result.leftover().put(i, item);
                     break;
                 }
 
-                ItemStack itemStack = inv.getItem(slot);
+                ItemStack itemStack = contents[slot];
                 if (itemStack == null) continue;
                 int itemAmount = result.finalAmounts().getOrDefault(slot, itemStack.getAmount());
                 int finalAmount;
