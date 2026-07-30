@@ -14,7 +14,7 @@ buildscript {
 val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.inventory"
-version = "1.0.5"
+version = "1.0.6"
 
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, paper, gui, actions, l10n, misc) }
@@ -73,7 +73,7 @@ dependencies {
     base.library(LibraryHelper.adventure("4.25.0"))
     base.collectPluginHolders()
 
-    implementation("de.tr7zw:item-nbt-api:2.15.8-SNAPSHOT")
+    implementation("de.tr7zw:item-nbt-api:2.16.0")
     implementation(base.depend.EvalEx)
     implementation("commons-io:commons-io:2.21.0")
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
