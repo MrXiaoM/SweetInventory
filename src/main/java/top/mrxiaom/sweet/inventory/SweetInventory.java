@@ -16,11 +16,11 @@ import top.mrxiaom.pluginbase.data.SimpleRegistry;
 import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
+import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;
 import top.mrxiaom.pluginbase.utils.item.ItemEditor;
-import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.inventory.api.IMaterialProvider;
 import top.mrxiaom.sweet.inventory.api.ItemMatcher;
 import top.mrxiaom.sweet.inventory.func.menus.MenuIcon;
@@ -42,7 +42,6 @@ public class SweetInventory extends BukkitPlugin {
                 .reconnectDatabaseWhenReloadConfig(false)
                 .scanIgnore("top.mrxiaom.sweet.inventory.libs")
         );
-        this.scheduler = new FoliaLibScheduler(this);
 
         try {
             //noinspection ResultOfMethodCallIgnored
@@ -66,10 +65,6 @@ public class SweetInventory extends BukkitPlugin {
                 this.classLoader.addURL(library);
             }
         }
-    }
-
-    public InventoryFactory getInventoryFactory() {
-        return inventory;
     }
 
     @Override
@@ -130,6 +125,7 @@ public class SweetInventory extends BukkitPlugin {
                 .register(Messages.class)
                 .register(Messages.Command.class)
                 .reload();
+        info("MiniMessage 实现: " + AdventureUtil.miniMessage().getClass().getName());
     }
 
     @SuppressWarnings({"all"})
