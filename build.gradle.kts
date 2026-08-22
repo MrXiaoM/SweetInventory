@@ -8,9 +8,8 @@ plugins {
 }
 
 buildscript {
-    repositories.mavenCentral()
-    repositories.maven("https://jitpack.io")
-    dependencies.classpath("top.mrxiaom.PluginBase:LibrariesResolver-Gradle:752c0760b4")
+    repositories.mavenLocal()
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.8.0")
 }
 val base = LibraryHelper(project)
 

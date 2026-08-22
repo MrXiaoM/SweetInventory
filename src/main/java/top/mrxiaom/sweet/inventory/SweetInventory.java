@@ -125,7 +125,6 @@ public class SweetInventory extends BukkitPlugin {
                 .register(Messages.class)
                 .register(Messages.Command.class)
                 .reload();
-        info("MiniMessage 实现: " + AdventureUtil.miniMessage().getClass().getName());
     }
 
     @SuppressWarnings({"all"})
