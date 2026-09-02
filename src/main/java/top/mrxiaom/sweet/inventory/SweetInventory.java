@@ -16,7 +16,6 @@ import top.mrxiaom.pluginbase.data.SimpleRegistry;
 import top.mrxiaom.pluginbase.func.LanguageManager;
 import top.mrxiaom.pluginbase.paper.PaperFactory;
 import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
-import top.mrxiaom.pluginbase.utils.AdventureUtil;
 import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.inventory.InventoryFactory;

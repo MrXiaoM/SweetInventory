@@ -49,18 +49,14 @@ public class NameMatcher extends AbstractModule implements ItemMatcher.Provider 
 
         @Override
         public boolean isItemMatch(@NotNull ItemMatchContext ctx) {
+            Component component = AdventureItemStack.getItemDisplayName(ctx.item());
+            String legacy = component == null ? "" : AdventureUtil.legacySection(component)
+                    .replace("&", "&&")
+                    .replace("§", "&");
             for (String rawValue : rawValues) {
                 String input = parseInputValue(ctx, rawValue);
-                Component component = AdventureItemStack.getItemDisplayName(ctx.item());
-                if (component != null) {
-                    String legacy = AdventureUtil.legacyAmpersand(component);
-                    if (type.isMatch(input, legacy)) {
-                        return true;
-                    }
-                } else {
-                    if (type.isMatch(input, "")) {
-                        return true;
-                    }
+                if (type.isMatch(input, legacy)) {
+                    return true;
                 }
             }
             return false;

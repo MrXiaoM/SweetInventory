@@ -50,14 +50,16 @@ public class LoreMatcher extends AbstractModule implements ItemMatcher.Provider 
 
         @Override
         public boolean isItemMatch(@NotNull ItemMatchContext ctx) {
+            StringJoiner joiner = new StringJoiner("\n");
+            List<Component> list = AdventureItemStack.getItemLore(ctx.item());
+            for (Component line : list) {
+                joiner.add(AdventureUtil.legacySection(line));
+            }
+            String legacy = joiner.toString()
+                    .replace("&", "&&")
+                    .replace("§", "&");
             for (String rawValue : rawValues) {
                 String input = parseInputValue(ctx, rawValue);
-                List<Component> list = AdventureItemStack.getItemLore(ctx.item());
-                StringJoiner joiner = new StringJoiner("\n");
-                for (Component line : list) {
-                    joiner.add(AdventureUtil.legacyAmpersand(line));
-                }
-                String legacy = joiner.toString();
                 if (type.isMatch(input, legacy)) {
                     return true;
                 }
