@@ -14,12 +14,12 @@ import java.util.regex.PatternSyntaxException;
 
 public abstract class AbstractStringMatcher implements ItemMatcher {
     public enum Type {
-        contains("-contains", (input, itemId) -> itemId.contains(input)),
-        startsWith("-starts-with", (input, itemId) -> itemId.startsWith(input)),
-        endsWith("-ends-with", (input, itemId) -> itemId.endsWith(input)),
-        equals("-equals", (input, itemId) -> itemId.equals(input)),
-        equalsIgnoreCase("-equals-ignore-case", (input, itemId) -> itemId.equalsIgnoreCase(input)),
-        regex("-regex", (input, itemId) -> {
+        contains("-contains", "包含匹配", (input, itemId) -> itemId.contains(input)),
+        startsWith("-starts-with", "开头匹配", (input, itemId) -> itemId.startsWith(input)),
+        endsWith("-ends-with", "结尾匹配", (input, itemId) -> itemId.endsWith(input)),
+        equals("-equals", "精确匹配", (input, itemId) -> itemId.equals(input)),
+        equalsIgnoreCase("-equals-ignore-case", "忽略大小写匹配", (input, itemId) -> itemId.equalsIgnoreCase(input)),
+        regex("-regex", "正则表达式匹配", (input, itemId) -> {
             try {
                 return Pattern.matches(input, itemId);
             } catch (PatternSyntaxException ignored) {
@@ -29,10 +29,16 @@ public abstract class AbstractStringMatcher implements ItemMatcher {
 
         ;
         private final String suffix;
+        private final String debugName;
         private final BiPredicate<String, String> impl;
-        Type(String suffix, BiPredicate<String, String> impl) {
+        Type(String suffix, String debugName, BiPredicate<String, String> impl) {
             this.suffix = suffix;
+            this.debugName = debugName;
             this.impl = impl;
+        }
+
+        public String debugName() {
+            return debugName;
         }
 
         public boolean isMatch(String input, String itemId) {

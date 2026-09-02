@@ -56,13 +56,28 @@ public class NBTMatcher extends AbstractModule implements ItemMatcher.Provider {
         @Override
         public boolean isItemMatch(@NotNull ItemMatchContext ctx) {
             if (kv.isEmpty()) return true;
+            if (ctx.debug()) {
+                ctx.send("\n正在进行 物品NBT 的 " + type.debugName() + " 判定");
+            }
             return NBT.get(ctx.item(), nbt -> {
                 for (Pair<String, List<String>> pair : kv) {
                     String key = pair.key();
                     String value = nbt.resolveOrNull(key, String.class);
+                    if (ctx.debug()) {
+                        ctx.send("    已从物品取得 " + key + " = '" + value + "'");
+                    }
                     if (isKeyNotMatch(ctx, pair.value(), value)) {
+                        if (ctx.debug()) {
+                            ctx.send("        匹配结果为 假，配置输入值为: '" + pair.value() + "'");
+                        }
                         return false;
                     }
+                    if (ctx.debug()) {
+                        ctx.send("        匹配结果为 真，配置输入值为: '" + pair.value() + "'");
+                    }
+                }
+                if (ctx.debug()) {
+                    ctx.send("    最终匹配结果为 真");
                 }
                 return true;
             });

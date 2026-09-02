@@ -62,7 +62,7 @@ public class ActionTakeItem implements IAction, IRequirement {
                     }
 
                     List<IAction> denyCommands = ActionUtils.loadActions(config, "deny-commands");
-                    return new ActionTakeItem(prefix, denyCommands, items);
+                    return new ActionTakeItem(prefix, denyCommands, items, config.getBoolean("debug", false));
                 }
             }
             return null;
@@ -77,10 +77,12 @@ public class ActionTakeItem implements IAction, IRequirement {
     private final String prefix;
     private final List<IAction> denyCommands;
     private final List<TakeItemEntry> items;
-    private ActionTakeItem(String prefix, List<IAction> denyCommands, List<TakeItemEntry> items) {
+    private final boolean enableDebug;
+    private ActionTakeItem(String prefix, List<IAction> denyCommands, List<TakeItemEntry> items, boolean enableDebug) {
         this.prefix = prefix;
         this.denyCommands = denyCommands;
         this.items = items;
+        this.enableDebug = enableDebug;
     }
 
     @NotNull
@@ -91,7 +93,7 @@ public class ActionTakeItem implements IAction, IRequirement {
     @Override
     public boolean check(MenuInstance menu, List<Pair<String, Object>> r) {
         Player player = menu.getPlayer();
-        MatchResult result = resolve(player, r);
+        MatchResult result = resolve(player, r, enableDebug);
         if (result != null) {
             result.addReplacements(prefix, r);
             return result.leftover().isEmpty();
@@ -117,7 +119,7 @@ public class ActionTakeItem implements IAction, IRequirement {
     /**
      * CraftInventory#first(item, withAmount:false)
      */
-    private static int first(Player player, ItemStack[] inventory, Map<Integer, Integer> finalAmounts, TakeItemEntry.Inst adapter, List<Pair<String, Object>> r) {
+    private static int first(Player player, ItemStack[] inventory, Map<Integer, Integer> finalAmounts, TakeItemEntry.Inst adapter, List<Pair<String, Object>> r, boolean debug) {
         if (adapter == null) {
             return -1;
         } else {
@@ -127,7 +129,7 @@ public class ActionTakeItem implements IAction, IRequirement {
                 ItemStack item = inventory[i];
                 int amount = item == null ? 0 : finalAmounts.getOrDefault(i, item.getAmount());
                 if (item != null && amount > 0) {
-                    ItemMatchContext ctx = new ItemMatchContext(player, item, amount, r);
+                    ItemMatchContext ctx = new ItemMatchContext(player, item, amount, r, debug);
                     if (adapter.isMatch(ctx)) break;
                 }
                 ++i;
@@ -138,11 +140,19 @@ public class ActionTakeItem implements IAction, IRequirement {
 
     @Nullable
     public MatchResult resolve(Player player, List<Pair<String, Object>> r) {
+        return resolve(player, r, false);
+    }
+
+    @Nullable
+    public MatchResult resolve(Player player, List<Pair<String, Object>> r, boolean debug) {
         List<TakeItemEntry.Inst> list = new ArrayList<>();
         for (TakeItemEntry item : items) {
-            String countStr = PAPI.setPlaceholders(player, item.countStr);
-            int amount = Util.parseInt(Pair.replace(countStr, r)).orElse(0);
+            String countStr = Pair.replace(PAPI.setPlaceholders(player, item.countStr), r);
+            int amount = Util.parseInt(countStr).orElse(0);
             if (amount <= 0) {
+                if (debug) {
+                    player.sendMessage("因为无法解析数量 " + countStr + " 为整数，匹配结果为 假");
+                }
                 return null;
             }
             list.add(item.new Inst(amount));
@@ -157,7 +167,7 @@ public class ActionTakeItem implements IAction, IRequirement {
             int amountToTake = item.requireAmount();
 
             while (true) {
-                int slot = first(player, contents, result.finalAmounts(), item, r);
+                int slot = first(player, contents, result.finalAmounts(), item, r, debug);
                 if (slot == -1) {
                     item.leftoverAmount(amountToTake);
                     result.leftover().put(i, item);

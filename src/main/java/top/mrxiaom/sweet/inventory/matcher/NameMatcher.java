@@ -53,10 +53,19 @@ public class NameMatcher extends AbstractModule implements ItemMatcher.Provider 
             String legacy = component == null ? "" : AdventureUtil.legacySection(component)
                     .replace("&", "&&")
                     .replace("§", "&");
+            if (ctx.debug()) {
+                ctx.send("\n正在进行 物品名称 的 " + type.debugName() + " 判定，已从物品取得: '" + legacy + "'");
+            }
             for (String rawValue : rawValues) {
                 String input = parseInputValue(ctx, rawValue);
                 if (type.isMatch(input, legacy)) {
+                    if (ctx.debug()) {
+                        ctx.send("    匹配结果为 真，配置输入值为: '" + input + "'");
+                    }
                     return true;
+                }
+                if (ctx.debug()) {
+                    ctx.send("    匹配结果为 假，配置输入值为: '" + input + "'");
                 }
             }
             return false;

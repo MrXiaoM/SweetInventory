@@ -47,12 +47,21 @@ public class MaterialMatcher extends AbstractModule implements ItemMatcher.Provi
 
         @Override
         public boolean isItemMatch(@NotNull ItemMatchContext ctx) {
+            ItemStack item = ctx.item();
+            String name = item.getType().name();
+            if (ctx.debug()) {
+                ctx.send("\n正在进行 物品类型 的 " + type.debugName() + " 判定，已从物品取得: " + name);
+            }
             for (String rawValue : rawValues) {
                 String input = parseInputValue(ctx, rawValue);
-                ItemStack item = ctx.item();
-                String name = item.getType().name();
                 if (type.isMatch(input, name)) {
+                    if (ctx.debug()) {
+                        ctx.send("    匹配结果为 真，配置输入值为: '" + input + "'");
+                    }
                     return true;
+                }
+                if (ctx.debug()) {
+                    ctx.send("    匹配结果为 假，配置输入值为: '" + input + "'");
                 }
             }
             return false;

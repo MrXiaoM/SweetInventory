@@ -58,10 +58,19 @@ public class LoreMatcher extends AbstractModule implements ItemMatcher.Provider 
             String legacy = joiner.toString()
                     .replace("&", "&&")
                     .replace("§", "&");
+            if (ctx.debug()) {
+                ctx.send("\n正在进行 物品描述 的 " + type.debugName() + " 判定，已从物品取得: ['" + legacy.replace("\n", "', '") + "']");
+            }
             for (String rawValue : rawValues) {
                 String input = parseInputValue(ctx, rawValue);
                 if (type.isMatch(input, legacy)) {
+                    if (ctx.debug()) {
+                        ctx.send("    匹配结果为 真，配置输入值为: '" + input + "'");
+                    }
                     return true;
+                }
+                if (ctx.debug()) {
+                    ctx.send("    匹配结果为 假，配置输入值为: '" + input + "'");
                 }
             }
             return false;
