@@ -42,6 +42,9 @@ public abstract class AbstractStringMatcher implements ItemMatcher {
         }
 
         public boolean isMatch(String input, String itemId) {
+            if (itemId == null) {
+                return false;
+            }
             return impl.test(input, itemId);
         }
 
