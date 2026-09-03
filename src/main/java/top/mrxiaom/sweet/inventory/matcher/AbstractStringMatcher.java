@@ -65,7 +65,8 @@ public abstract class AbstractStringMatcher implements ItemMatcher {
     }
 
     protected String parseInputValue(@NotNull ItemMatchContext ctx, String rawValue) {
-        String value = PAPI.setPlaceholders(ctx.player(), rawValue);
+        // 解析 PAPI 后强制替换 § 为 &，以防老版本 PAPI 会自动替换 & 颜色字符
+        String value = PAPI.setPlaceholders(ctx.player(), rawValue).replace("§", "&");
         return Pair.replace(value, ctx.r());
     }
 }
