@@ -268,8 +268,9 @@ public class MenuInstance implements IGuiHolder {
     public void onClick(InventoryAction action, ClickType click, InventoryType.SlotType slotType,
                         int slot, ItemStack currentItem, ItemStack cursor,
                         InventoryViewAccessor view, InventoryClickEvent event) {
-        actionLock = true;
         event.setCancelled(true);
+        if (actionLock) return;
+        actionLock = true;
         MenuSlot menuSlot = currentSlots.get(slot);
         MenuIcon icon = menuSlot == null ? null : menuSlot.icon();
         // 点击操作
