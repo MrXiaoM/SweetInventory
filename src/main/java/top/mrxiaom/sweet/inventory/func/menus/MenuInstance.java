@@ -173,7 +173,7 @@ public class MenuInstance implements IGuiHolder {
                     if (checkRequirements(icon.viewRequirements(), icon.viewDenyCommands(), r1)) {
                         item = icon.generateIcon(player, displayModifier, loreModifier);
                         slot(i, icon).icon(icon);
-                        toRemove.remove(i);
+                        toRemove.remove((Object) i);
                         break;
                     }
                 }
