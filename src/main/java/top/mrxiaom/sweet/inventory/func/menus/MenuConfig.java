@@ -7,7 +7,6 @@ import org.bukkit.permissions.Permissible;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
-import top.mrxiaom.pluginbase.actions.ActionProviders;
 import top.mrxiaom.pluginbase.api.IAction;
 import top.mrxiaom.pluginbase.utils.CollectionUtils;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
@@ -31,6 +30,7 @@ public class MenuConfig {
     private final @NotNull List<IAction> openCommands;
     private final int updateInterval;
     private final @Nullable MenuPageGuide pageGuide;
+    private final long clickCooldownMs;
 
     protected MenuConfig(boolean alt, @NotNull String id, @NotNull MemoryConfiguration config) {
         SweetInventory plugin = SweetInventory.getInstance();
@@ -57,6 +57,7 @@ public class MenuConfig {
         }
         this.openCommands = ActionUtils.loadActions(config, alt ? "打开界面执行命令" : "open-commands");
         this.updateInterval = Math.max(0, config.getInt(alt ? "更新周期" : "update-interval", 0));
+        this.clickCooldownMs = Math.max(0, (int) (config.getDouble(alt ? "点击冷却" : "click-cooldown", 0.0) * 1000));
         ConfigurationSection pageGuideSection = config.getConfigurationSection(alt ? "分页向导" : "page-guide");
         if (pageGuideSection != null) {
             this.pageGuide = MenuPageGuide.load(this, alt, pageGuideSection);
@@ -221,6 +222,13 @@ public class MenuConfig {
      */
     public int updateInterval() {
         return updateInterval;
+    }
+
+    /**
+     * 获取全局图标点击冷却时间 (毫秒)
+     */
+    public long clickCooldownMs() {
+        return clickCooldownMs;
     }
 
     /**

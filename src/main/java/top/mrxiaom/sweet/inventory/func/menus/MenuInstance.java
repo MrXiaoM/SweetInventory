@@ -41,6 +41,7 @@ public class MenuInstance implements IGuiHolder {
     private int page = 1;
     private char[] inventoryTemplate;
     private boolean actionLock = false;
+    private long nextCooldownEndTime = 0L;
     protected MenuInstance(MenuConfig config, Player player) {
         this.config = config;
         this.player = player;
@@ -269,8 +270,12 @@ public class MenuInstance implements IGuiHolder {
                         int slot, ItemStack currentItem, ItemStack cursor,
                         InventoryViewAccessor view, InventoryClickEvent event) {
         event.setCancelled(true);
-        if (actionLock) return;
+        long now = System.currentTimeMillis();
+        if (actionLock || now <= nextCooldownEndTime) return;
         actionLock = true;
+        if (config.clickCooldownMs() > 0L) {
+            nextCooldownEndTime = now + config.clickCooldownMs();
+        }
         MenuSlot menuSlot = currentSlots.get(slot);
         MenuIcon icon = menuSlot == null ? null : menuSlot.icon();
         // 点击操作
