@@ -49,6 +49,7 @@ public class MenuIcon {
     private final @NotNull Map<String, String> nbtInts;
     private final boolean needsUpdate;
     private final int priority;
+    private final long clickCooldownMs;
     private final @NotNull List<IRequirement> viewRequirements;
     private final @NotNull List<IAction> viewDenyCommands;
     private final @Nullable Click leftClick;
@@ -111,6 +112,7 @@ public class MenuIcon {
 
         this.needsUpdate = getBoolean(alt, config, alt ? "需要更新" : "needs-update");
         this.priority = config.getInt(alt ? "优先级" : "priority");
+        this.clickCooldownMs = Math.max(0, (int) (config.getDouble(alt ? "点击冷却" : "click-cooldown", 0.0) * 1000));
         this.viewRequirements = loadRequirements(alt, config, alt ? "查看图标" : "view");
         this.viewDenyCommands = new ArrayList<>();
         this.viewDenyCommands.addAll(loadActions(config, alt ? "查看图标.不满足需求执行" : "view.deny-commands"));
@@ -385,6 +387,13 @@ public class MenuIcon {
      */
     public int priority() {
         return priority;
+    }
+
+    /**
+     * 获取全局图标点击冷却时间 (毫秒)
+     */
+    public long clickCooldownMs() {
+        return clickCooldownMs;
     }
 
     /**

@@ -277,27 +277,31 @@ public class MenuInstance implements IGuiHolder {
             nextCooldownEndTime = now + config.clickCooldownMs();
         }
         MenuSlot menuSlot = currentSlots.get(slot);
-        MenuIcon icon = menuSlot == null ? null : menuSlot.icon();
-        // 点击操作
-        if (icon != null) switch (click) {
-            case LEFT:
-                handleIconClick(icon, icon.leftClick());
-                return;
-            case RIGHT:
-                handleIconClick(icon, icon.rightClick());
-                return;
-            case SHIFT_LEFT:
-                handleIconClick(icon, icon.shiftLeftClick());
-                return;
-            case SHIFT_RIGHT:
-                handleIconClick(icon, icon.shiftRightClick());
-                return;
-            case DROP:
-                handleIconClick(icon, icon.dropClick());
-                return;
-            case CONTROL_DROP:
-                handleIconClick(icon, icon.ctrlDropClick());
-                return;
+        if (menuSlot != null && menuSlot.checkClickCooldown()) {
+            MenuIcon icon = menuSlot.icon();
+            // 点击操作
+            if (icon != null) {
+                switch (click) {
+                    case LEFT:
+                        handleIconClick(icon, icon.leftClick());
+                        return;
+                    case RIGHT:
+                        handleIconClick(icon, icon.rightClick());
+                        return;
+                    case SHIFT_LEFT:
+                        handleIconClick(icon, icon.shiftLeftClick());
+                        return;
+                    case SHIFT_RIGHT:
+                        handleIconClick(icon, icon.shiftRightClick());
+                        return;
+                    case DROP:
+                        handleIconClick(icon, icon.dropClick());
+                        return;
+                    case CONTROL_DROP:
+                        handleIconClick(icon, icon.ctrlDropClick());
+                        return;
+                }
+            }
         }
         actionLock = false;
     }
