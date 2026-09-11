@@ -17,10 +17,7 @@ import top.mrxiaom.pluginbase.api.InventoryViewAccessor;
 import top.mrxiaom.pluginbase.func.GuiManager;
 import top.mrxiaom.pluginbase.func.gui.IModifier;
 import top.mrxiaom.pluginbase.gui.IGuiHolder;
-import top.mrxiaom.pluginbase.utils.AdventureUtil;
-import top.mrxiaom.pluginbase.utils.ListPair;
-import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.*;
 import top.mrxiaom.pluginbase.utils.depend.PAPI;
 import top.mrxiaom.sweet.inventory.SweetInventory;
 import top.mrxiaom.sweet.inventory.func.menus.arguments.MenuArguments;
@@ -36,7 +33,7 @@ public class MenuInstance implements IGuiHolder {
     private final SweetInventory plugin = SweetInventory.getInstance();
     private final MenuConfig config;
     private final Player player;
-    private final Map<Integer, MenuIcon> currentIcons = new HashMap<>();
+    private final Map<Integer, MenuSlot> currentSlots = new HashMap<>();
     private final Map<String, Object> variables = new HashMap<>();
     private int updateCounter;
     private Component title;
@@ -56,9 +53,10 @@ public class MenuInstance implements IGuiHolder {
             updateCounter = config.updateInterval();
             // 更新需要更新的图标物品内容
             Map<Integer, ItemStack> commits = new HashMap<>();
-            for (Map.Entry<Integer, MenuIcon> entry : currentIcons.entrySet()) {
-                MenuIcon icon = entry.getValue();
-                if (!icon.needsUpdate()) continue;
+            for (Map.Entry<Integer, MenuSlot> entry : currentSlots.entrySet()) {
+                MenuSlot slot = entry.getValue();
+                MenuIcon icon = slot.icon();
+                if (icon == null || !icon.needsUpdate()) continue;
                 ItemStack item = icon.generateIcon(player);
                 commits.put(entry.getKey(), item);
             }
@@ -152,7 +150,7 @@ public class MenuInstance implements IGuiHolder {
     }
 
     private void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
-        currentIcons.clear();
+        List<Integer> toRemove = new ArrayList<>(currentSlots.keySet());
         inventoryTemplate = config.inventory(page);
         ListPair<String, Object> r = newReplacements();
         IModifier<String> displayModifier = str -> Pair.replace(str, r);
@@ -173,14 +171,30 @@ public class MenuInstance implements IGuiHolder {
                     // 满足条件时，释放图标到界面
                     if (checkRequirements(icon.viewRequirements(), icon.viewDenyCommands(), r1)) {
                         item = icon.generateIcon(player, displayModifier, loreModifier);
-                        currentIcons.put(i, icon);
+                        slot(i, icon).icon(icon);
+                        toRemove.remove(i);
                         break;
                     }
                 }
             }
             setItem.accept(i, item);
         }
+        for (int i : toRemove) {
+            MenuSlot slot = currentSlots.get(i);
+            if (slot != null) {
+                slot.icon(null);
+            }
+        }
         actionLock = false;
+    }
+
+    @NotNull
+    public MenuSlot slot(int slot) {
+        return slot(slot, null);
+    }
+
+    private MenuSlot slot(int slot, MenuIcon icon) {
+        return CollectionUtils.getOrPut(currentSlots, slot, () -> new MenuSlot(this, icon));
     }
 
     /**
@@ -256,7 +270,8 @@ public class MenuInstance implements IGuiHolder {
                         InventoryViewAccessor view, InventoryClickEvent event) {
         actionLock = true;
         event.setCancelled(true);
-        MenuIcon icon = currentIcons.get(slot);
+        MenuSlot menuSlot = currentSlots.get(slot);
+        MenuIcon icon = menuSlot == null ? null : menuSlot.icon();
         // 点击操作
         if (icon != null) switch (click) {
             case LEFT:
