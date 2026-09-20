@@ -6,22 +6,55 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MenuPageGuide {
     private final MenuConfig config;
     private final List<Character> slots;
-    private final List<char[]> pages;
+    private final List<SlotChar[]> pages;
     protected MenuPageGuide(MenuConfig parent, boolean alt, ConfigurationSection section) {
         this.config = parent;
         this.slots = loadSlots(alt, section);
         if (slots.isEmpty()) {
             throw new IllegalArgumentException("没有将分页器添加到布局的任意格子中");
         }
-        this.pages = new ArrayList<>();
-        for (String page : section.getStringList(alt ? "页面" : "pages")) {
-            pages.add(page.toCharArray());
+        SlotChar[] main = parent.inventoryChars();
+        List<Integer> slotIndexes = new ArrayList<>();
+        for (int i = 0; i < main.length; i++) {
+            // 建立 pages 中每一页的图标位置索引与父菜单的图标索引对应关系
+            if (slots.contains(main[i].value())) {
+                slotIndexes.add(i);
+            }
         }
+        this.pages = new ArrayList<>();
+        Map<Character, Integer> pageSequenceMap = new HashMap<>();
+        for (String page : section.getStringList(alt ? "页面" : "pages")) {
+            // 读取格子位置和顺序，限制数量为父菜单中已设置分页的槽位数量
+            pages.add(parseInventory(SlotChar.EnumType.PAGE_GUIDE, pageSequenceMap, page.toCharArray(), slotIndexes.size()));
+        }
+    }
+
+    protected static SlotChar[] parseInventory(SlotChar.EnumType type, char[] input) {
+        return parseInventory(type, new HashMap<>(), input, null);
+    }
+
+    protected static SlotChar[] parseInventory(SlotChar.EnumType type, Map<Character, Integer> map, char[] input, Integer maxLength) {
+        int length = maxLength == null ? input.length : Math.min(maxLength, input.length);
+        SlotChar[] page = new SlotChar[length];
+        for (int i = 0; i < length; i++) {
+            char ch = input[i];
+            int sequence = plusSequence(map, ch);
+            page[i] = new SlotChar(type, sequence, ch);
+        }
+        return page;
+    }
+
+    private static int plusSequence(Map<Character, Integer> map, Character ch) {
+        int sequence = map.getOrDefault(ch, 0) + 1;
+        map.put(ch, sequence);
+        return sequence;
     }
 
     /**
@@ -43,7 +76,42 @@ public class MenuPageGuide {
      * 获取每一页的分页内容
      */
     @NotNull
+    @Deprecated
     public List<char[]> pages() {
+        List<char[]> list = new ArrayList<>();
+        for (SlotChar[] input : pages) {
+            char[] page = new char[input.length];
+            for (int i = 0; i < input.length; i++) {
+                page[i] = input[i].value();
+            }
+            list.add(page);
+        }
+        return list;
+    }
+
+    /**
+     * 获取某一页的分页内容
+     * @param page 第几页，从 <code>1</code> 开始
+     */
+    @Deprecated
+    public @Nullable char[] page(@Range(from=1, to=Integer.MAX_VALUE) int page) {
+        // noinspection ConstantValue
+        if (page < 1 || page > pages.size()) {
+            return null;
+        }
+        SlotChar[] input = pages.get(page - 1);
+        char[] array = new char[input.length];
+        for (int i = 0; i < input.length; i++) {
+            array[i] = input[i].value();
+        }
+        return array;
+    }
+
+    /**
+     * 获取每一页的分页内容
+     */
+    @NotNull
+    public List<SlotChar[]> allPages() {
         return pages;
     }
 
@@ -51,9 +119,12 @@ public class MenuPageGuide {
      * 获取某一页的分页内容
      * @param page 第几页，从 <code>1</code> 开始
      */
-    public @Nullable char[] page(@Range(from=1, to=Integer.MAX_VALUE) int page) {
+    public @Nullable SlotChar[] onePage(@Range(from=1, to=Integer.MAX_VALUE) int page) {
         // noinspection ConstantValue
-        return page < 1 || page > pages.size() ? null : pages.get(page - 1);
+        if (page < 1 || page > pages.size()) {
+            return null;
+        }
+        return pages.get(page - 1);
     }
 
     /**

@@ -1,5 +1,6 @@
 package top.mrxiaom.sweet.inventory.func.menus;
 
+import com.google.common.collect.Lists;
 import de.tr7zw.changeme.nbtapi.NBT;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
@@ -34,6 +35,8 @@ public class MenuIcon {
     private final @NotNull ConfigurationSection section;
     private final @NotNull String id;
     private final @NotNull List<Character> slots;
+    private final @Nullable List<Integer> pageSequence;
+    private final @Nullable List<Integer> menuSequence;
     private final @NotNull String material;
     private final @NotNull List<ItemFlag> itemFlags;
     private final int amount;
@@ -67,6 +70,8 @@ public class MenuIcon {
         if (slots.isEmpty()) {
             throw new IllegalArgumentException("没有将图标 " + id + " 添加到布局的任意格子中");
         }
+        this.menuSequence = parseIntList(config, alt ? "菜单格子顺序" : "menu-sequence");
+        this.pageSequence = parseIntList(config, alt ? "分页格子顺序" : "page-sequence");
         ConfigurationSection section;
 
         String material, materialStr = config.getString(alt ? "物品" : "material");
@@ -129,6 +134,19 @@ public class MenuIcon {
             String value = config.getString(key);
             this.extraValues.add("${this." + key + "}", value);
         }
+    }
+
+    @Nullable
+    private static List<Integer> parseIntList(ConfigurationSection config, String key) {
+        if (config.contains(key)) {
+            if (config.isInt(key)) {
+                return Lists.newArrayList(config.getInt(key));
+            }
+            if (config.isList(key)) {
+                return config.getIntegerList(key);
+            }
+        }
+        return null;
     }
 
     public SweetInventory plugin() {
@@ -250,6 +268,51 @@ public class MenuIcon {
     @NotNull
     public List<Character> slots() {
         return slots;
+    }
+
+    /**
+     * 获取格子顺序是否在图标配置范围中
+     */
+    public boolean isInSequence(SlotChar slot) {
+        if (slots().contains(slot.value())) {
+            if (slot.type().equals(SlotChar.EnumType.MENU)) {
+                return isInMenuSequence(slot.sequence());
+            }
+            if (slot.type().equals(SlotChar.EnumType.PAGE_GUIDE)) {
+                return isInPageSequence(slot.sequence());
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取图标物品的菜单位置顺序
+     */
+    @Nullable
+    public List<Integer> menuSequence() {
+        return menuSequence;
+    }
+
+    /**
+     * 获取菜单格子顺序是否在图标配置范围中
+     */
+    public boolean isInMenuSequence(int sequence) {
+        return menuSequence == null || menuSequence.contains(sequence);
+    }
+
+    /**
+     * 获取图标物品的分页位置顺序
+     */
+    @Nullable
+    public List<Integer> pageSequence() {
+        return pageSequence;
+    }
+
+    /**
+     * 获取分页格子顺序是否在图标配置范围中
+     */
+    public boolean isInPageSequence(int sequence) {
+        return pageSequence == null || pageSequence.contains(sequence);
     }
 
     /**

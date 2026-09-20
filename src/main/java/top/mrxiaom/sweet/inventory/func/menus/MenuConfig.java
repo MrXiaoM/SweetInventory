@@ -22,7 +22,7 @@ public class MenuConfig {
     private final @NotNull String id;
     private final @NotNull List<String> aliasIds;
     private final @NotNull String title;
-    private final char[] inventory;
+    private final SlotChar[] inventory;
     private final @NotNull Map<Character, List<MenuIcon>> iconsByChar;
     private final @NotNull Map<String, MenuIcon> iconsByName;
     private final @Nullable String bindCommand;
@@ -37,10 +37,11 @@ public class MenuConfig {
         this.id = id;
         this.aliasIds = config.getStringList(alt ? "菜单别名" : "alias-ids");
         this.title = config.getString(alt ? "标题" : "title", "");
-        this.inventory = String.join("", config.getStringList(alt ? "布局" : "inventory")).toCharArray();
+        char[] inventory = String.join("", config.getStringList(alt ? "布局" : "inventory")).toCharArray();
         if (inventory.length == 0 || (inventory.length % 9 != 0)) {
             throw new IllegalArgumentException("菜单布局配置有误，长度应为 9 的倍数 (当前 " + inventory.length + ")" );
         }
+        this.inventory = MenuPageGuide.parseInventory(SlotChar.EnumType.MENU, inventory);
         String bindCommandKey = alt ? "绑定界面命令" : "bind-command";
         if (config.isConfigurationSection(bindCommandKey)) {
             ConfigurationSection section = config.getConfigurationSection(bindCommandKey);
@@ -126,7 +127,33 @@ public class MenuConfig {
     /**
      * 获取菜单布局字符数组
      */
+    @Deprecated
     public char[] inventory() {
+        char[] array = new char[inventory.length];
+        for (int i = 0; i < inventory.length; i++) {
+            array[i] = inventory[i].value();
+        }
+        return array;
+    }
+
+    /**
+     * 获取某一页的菜单布局字符数组
+     * @param page 页码
+     */
+    @Deprecated
+    public char[] inventory(@Range(from = 1, to = Integer.MAX_VALUE) int page) {
+        SlotChar[] input = inventoryChars(page);
+        char[] array = new char[input.length];
+        for (int i = 0; i < input.length; i++) {
+            array[i] = input[i].value();
+        }
+        return array;
+    }
+
+    /**
+     * 获取菜单布局字符数组
+     */
+    public SlotChar[] inventoryChars() {
         return inventory;
     }
 
@@ -134,15 +161,15 @@ public class MenuConfig {
      * 获取某一页的菜单布局字符数组
      * @param page 页码
      */
-    public char[] inventory(@Range(from = 1, to = Integer.MAX_VALUE) int page) {
+    public SlotChar[] inventoryChars(@Range(from = 1, to = Integer.MAX_VALUE) int page) {
         if (pageGuide != null) {
-            char[] pageInv = pageGuide.page(page);
+            SlotChar[] pageInv = pageGuide.onePage(page);
             if (pageInv != null) {
-                char[] inv = new char[inventory.length];
+                SlotChar[] inv = new SlotChar[inventory.length];
                 int length = pageInv.length;
                 for (int i = 0, j = 0; i < inventory.length; i++) {
-                    char ch = inventory[i];
-                    if (j < length && pageGuide.slots().contains(ch)) {
+                    SlotChar ch = inventory[i];
+                    if (j < length && pageGuide.slots().contains(ch.value())) {
                         inv[i] = pageInv[j];
                         j++;
                         continue;

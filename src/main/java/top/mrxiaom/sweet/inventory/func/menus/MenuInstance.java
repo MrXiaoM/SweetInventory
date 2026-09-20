@@ -39,7 +39,7 @@ public class MenuInstance implements IGuiHolder {
     private Component title;
     private Inventory inventory;
     private int page = 1;
-    private char[] inventoryTemplate;
+    private SlotChar[] inventoryTemplate;
     private boolean actionLock = false;
     private long nextCooldownEndTime = 0L;
     protected MenuInstance(MenuConfig config, Player player) {
@@ -152,20 +152,21 @@ public class MenuInstance implements IGuiHolder {
 
     private void updateInventory(BiConsumer<Integer, ItemStack> setItem) {
         List<Integer> toRemove = new ArrayList<>(currentSlots.keySet());
-        inventoryTemplate = config.inventory(page);
+        inventoryTemplate = config.inventoryChars(page);
         ListPair<String, Object> r = newReplacements();
         IModifier<String> displayModifier = str -> Pair.replace(str, r);
         IModifier<List<String>> loreModifier = list -> Pair.replace(list, r);
         for (int i = 0; i < inventoryTemplate.length; i++) {
-            char id = inventoryTemplate[i];
-            if (id == ' ' || id == '　' || Character.isSpaceChar(id)) { // 忽略空格
+            SlotChar slot = inventoryTemplate[i];
+            if (slot.isSpaceChar()) { // 忽略空格
                 setItem.accept(i, null);
                 continue;
             }
             ItemStack item = null;
-            List<MenuIcon> list = config.iconsByChar(id); // list 已经过优先级排序
+            List<MenuIcon> list = config.iconsByChar(slot.value()); // list 已经过优先级排序
             if (list != null && !list.isEmpty()) {
                 for (MenuIcon icon : list) {
+                    if (!icon.isInSequence(slot)) continue;
                     ListPair<String, Object> r1 = new ListPair<>();
                     r1.addAll(r);
                     r1.addAll(icon.extraValues());
@@ -205,7 +206,7 @@ public class MenuInstance implements IGuiHolder {
         ListPair<String, Object> r = new ListPair<>();
         MenuPageGuide pageGuide = config.pageGuide();
         r.add("%page%", page);
-        r.add("%max_page%", pageGuide == null ? 1 : pageGuide.pages().size());
+        r.add("%max_page%", pageGuide == null ? 1 : pageGuide.allPages().size());
         for (Map.Entry<String, Object> entry : variables.entrySet()) {
             r.add("${" + entry.getKey() + "}", entry.getValue());
         }
@@ -255,7 +256,7 @@ public class MenuInstance implements IGuiHolder {
     public Inventory newInventory() {
         String rawTitle = PAPI.setPlaceholders(player, Pair.replace(config.title(), newReplacements()));
         title = AdventureUtil.miniMessage(rawTitle);
-        inventory = plugin.createInventory(this, config.inventory().length, rawTitle);
+        inventory = plugin.createInventory(this, config.inventoryChars().length, rawTitle);
         updateInventory(inventory::setItem);
         return inventory;
     }
@@ -331,12 +332,25 @@ public class MenuInstance implements IGuiHolder {
     @Nullable
     public Character getClickedId(int slot) {
         if (slot >= 0 && slot < inventoryTemplate.length) {
-            return inventoryTemplate[slot];
+            return inventoryTemplate[slot].value();
         } else {
             return null;
         }
     }
 
+    /**
+     * 获取点击的界面物品索引指向的模板字符
+     * @param slot 格子索引
+     * @return 模板字符，找不到时返回 <code>null</code>
+     */
+    @Nullable
+    public SlotChar getClickedSlot(int slot) {
+        if (slot >= 0 && slot < inventoryTemplate.length) {
+            return inventoryTemplate[slot];
+        } else {
+            return null;
+        }
+    }
     /**
      * 获取某个模板字符，截至指定界面物品索引出现过多少次
      * @param id 模板字符
@@ -346,7 +360,7 @@ public class MenuInstance implements IGuiHolder {
     public int getAppearTimes(Character id, int slot) {
         int appearTimes = 0;
         for (int i = 0; i < inventoryTemplate.length; i++) {
-            if (id.equals(inventoryTemplate[i])) {
+            if (id.equals(inventoryTemplate[i].value())) {
                 appearTimes++;
             }
             if (i == slot) break;
