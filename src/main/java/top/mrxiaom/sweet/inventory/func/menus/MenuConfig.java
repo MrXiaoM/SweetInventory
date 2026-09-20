@@ -69,6 +69,9 @@ public class MenuConfig {
         IconInjectorManager injectorManager = IconInjectorManager.inst();
         this.iconsByChar = new HashMap<>();
         this.iconsByName = new HashMap<>();
+        MenuIconLoadContext menuIconLoadContext = MenuIconLoadContext.create();
+        menuIconLoadContext.autoMenuSequence().set(config.getInt(alt ? "自动顺序.菜单格子" : "auto-sequence.menu", 1));
+        menuIconLoadContext.autoPageSequence().set(config.getInt(alt ? "自动顺序.分页格子" : "auto-sequence.page", 1));
         ConfigurationSection section = config.getConfigurationSection(alt ? "图标列表" : "items");
         if (section != null) for (String key : section.getKeys(false)) {
             ConfigurationSection s = section.getConfigurationSection(key);
@@ -76,7 +79,7 @@ public class MenuConfig {
             MenuIcon icon;
             try {
                 if (s == null) throw new IllegalArgumentException("找不到配置");
-                icon = MenuIcon.load(alt, s, key);
+                icon = MenuIcon.load(alt, s, key, menuIconLoadContext);
             } catch (Throwable t) {
                 plugin.error("[" + id + ".yml] 加载图标 " + key + " 失败" + t.getMessage());
                 continue;

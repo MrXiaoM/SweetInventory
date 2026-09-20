@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static top.mrxiaom.pluginbase.func.gui.IModifier.fit;
 import static top.mrxiaom.sweet.inventory.func.menus.MenuConfig.getBoolean;
@@ -63,15 +64,15 @@ public class MenuIcon {
     private final @Nullable Click ctrlDropClick;
     private final @NotNull ListPair<String, Object> extraValues;
 
-    protected MenuIcon(boolean alt, @NotNull ConfigurationSection config, @NotNull String id) {
+    protected MenuIcon(boolean alt, @NotNull ConfigurationSection config, @NotNull String id, @NotNull MenuIconLoadContext context) {
         this.id = id;
         this.section = config;
         this.slots = loadSlots(alt, config);
         if (slots.isEmpty()) {
             throw new IllegalArgumentException("没有将图标 " + id + " 添加到布局的任意格子中");
         }
-        this.menuSequence = parseIntList(config, alt ? "菜单格子顺序" : "menu-sequence");
-        this.pageSequence = parseIntList(config, alt ? "分页格子顺序" : "page-sequence");
+        this.menuSequence = parseSequence(config, alt ? "菜单格子顺序" : "menu-sequence", context.autoMenuSequence());
+        this.pageSequence = parseSequence(config, alt ? "分页格子顺序" : "page-sequence", context.autoPageSequence());
         ConfigurationSection section;
 
         String material, materialStr = config.getString(alt ? "物品" : "material");
@@ -137,8 +138,11 @@ public class MenuIcon {
     }
 
     @Nullable
-    private static List<Integer> parseIntList(ConfigurationSection config, String key) {
+    private static List<Integer> parseSequence(ConfigurationSection config, String key, AtomicInteger autoSequence) {
         if (config.contains(key)) {
+            if ("auto".equalsIgnoreCase(config.getString(key))) {
+                return Lists.newArrayList(autoSequence.getAndAdd(1));
+            }
             if (config.isInt(key)) {
                 return Lists.newArrayList(config.getInt(key));
             }
@@ -537,7 +541,19 @@ public class MenuIcon {
      */
     @NotNull
     public static MenuIcon load(boolean alt, @NotNull ConfigurationSection section, @NotNull String id) {
-        return new MenuIcon(alt, section, id);
+        return load(alt, section, id, MenuIconLoadContext.create());
+    }
+
+    /**
+     * 从配置中加载菜单图标配置
+     * @param alt 是否使用中文配置
+     * @param section 图标配置
+     * @param id 图标ID
+     * @throws IllegalArgumentException 当图标配置错误时抛出
+     */
+    @NotNull
+    public static MenuIcon load(boolean alt, @NotNull ConfigurationSection section, @NotNull String id, @NotNull MenuIconLoadContext context) {
+        return new MenuIcon(alt, section, id, context);
     }
 
     @NotNull
