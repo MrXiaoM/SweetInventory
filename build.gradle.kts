@@ -59,8 +59,8 @@ dependencies {
     // NeigeItems
     compileOnly("pers.neige.neigeitems:NeigeItems:1.21.151")
     // CraftEngine
-    compileOnly("net.momirealms:craft-engine-core:26.7")
-    compileOnly("net.momirealms:craft-engine-bukkit:26.7")
+    compileOnly("net.momirealms:craft-engine-core:26.9.1")
+    compileOnly("net.momirealms:craft-engine-bukkit:26.9.1")
     // Nexo
     compileOnly("com.nexomc:nexo:1.25.0")
     // SX-Item
