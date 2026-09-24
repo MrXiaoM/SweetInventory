@@ -73,7 +73,7 @@ dependencies {
     base.library(LibraryHelper.adventure("4.25.0"))
     base.collectPluginHolders()
 
-    implementation("de.tr7zw:item-nbt-api:2.16.0")
+    implementation("de.tr7zw:item-nbt-api:2.16.1")
     implementation(base.depend.EvalEx)
     implementation("commons-io:commons-io:2.21.0")
     for (artifact in pluginBaseModules) {
